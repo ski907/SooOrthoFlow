@@ -644,3 +644,2559 @@ ValueError: No *_ortho.tif files found in output_data\20251016_Nav1\orthos\20251
 [23:57:09] Mosaicking complete (10 mosaics)
 [23:57:09] 
 Pipeline completed in 0.3 minutes
+
+============================================================
+Processing Log for 20251016_Nav1
+Started: 2025-11-09 00:54:56
+============================================================
+
+[00:54:56] Starting orthorectification...
+[00:54:56]   Processing 20251016_103100...
+[00:55:00]   Output: Loading calibration...
+Found 16 images to process
+
+Processing NVR1_N910A6_ch1_main.tiff with NVR1_N910A6_ch1_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR1_N910A6_ch1_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR1_N910A6_ch1_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch1_main_ortho.tif
+
+Processing NVR1_N910A6_ch2_main.tiff with NVR1_N910A6_ch2_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR1_N910A6_ch2_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR1_N910A6_ch2_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch2_main_ortho.tif
+
+Processing NVR1_N910A6_ch3_main.tiff with NVR1_N910A6_ch3_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR1_N910A6_ch3_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR1_N910A6_ch3_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch3_main_ortho.tif
+
+Processing NVR1_N910A6_ch4_main.tiff with NVR1_N910A6_ch4_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR1_N910A6_ch4_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR1_N910A6_ch4_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch4_main_ortho.tif
+
+Processing NVR1_N910A6_ch5_main.tiff with NVR1_N910A6_ch5_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR1_N910A6_ch5_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR1_N910A6_ch5_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch5_main_ortho.tif
+
+Processing NVR1_N910A6_ch6_main.tiff with NVR1_N910A6_ch6_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR1_N910A6_ch6_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR1_N910A6_ch6_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch6_main_ortho.tif
+
+Processing NVR1_N910A6_ch7_main.tiff with NVR1_N910A6_ch7_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR1_N910A6_ch7_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR1_N910A6_ch7_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch7_main_ortho.tif
+
+Processing NVR1_N910A6_ch8_main.tiff with NVR1_N910A6_ch8_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR1_N910A6_ch8_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR1_N910A6_ch8_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch8_main_ortho.tif
+
+Processing NVR2_N910A6_ch1_main.tiff with NVR2_N910A6_ch1_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR2_N910A6_ch1_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR2_N910A6_ch1_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch1_main_ortho.tif
+
+Processing NVR2_N910A6_ch2_main.tiff with NVR2_N910A6_ch2_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR2_N910A6_ch2_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR2_N910A6_ch2_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch2_main_ortho.tif
+
+Processing NVR2_N910A6_ch3_main.tiff with NVR2_N910A6_ch3_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR2_N910A6_ch3_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR2_N910A6_ch3_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch3_main_ortho.tif
+
+Processing NVR2_N910A6_ch4_main.tiff with NVR2_N910A6_ch4_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR2_N910A6_ch4_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR2_N910A6_ch4_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch4_main_ortho.tif
+
+Processing NVR2_N910A6_ch5_main.tiff with NVR2_N910A6_ch5_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR2_N910A6_ch5_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR2_N910A6_ch5_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch5_main_ortho.tif
+
+Processing NVR2_N910A6_ch6_main.tiff with NVR2_N910A6_ch6_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR2_N910A6_ch6_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR2_N910A6_ch6_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch6_main_ortho.tif
+
+Processing NVR2_N910A6_ch7_main.tiff with NVR2_N910A6_ch7_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR2_N910A6_ch7_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR2_N910A6_ch7_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch7_main_ortho.tif
+
+Processing NVR2_N910A6_ch8_main.tiff with NVR2_N910A6_ch8_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR2_N910A6_ch8_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR2_N910A6_ch8_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch8_main_ortho.tif
+[00:55:00]   Processing 20251016_103200...
+[00:55:03]   Output: Loading calibration...
+Found 16 images to process
+
+Processing NVR1_N910A6_ch1_main.tiff with NVR1_N910A6_ch1_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR1_N910A6_ch1_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR1_N910A6_ch1_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch1_main_ortho.tif
+
+Processing NVR1_N910A6_ch2_main.tiff with NVR1_N910A6_ch2_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR1_N910A6_ch2_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR1_N910A6_ch2_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch2_main_ortho.tif
+
+Processing NVR1_N910A6_ch3_main.tiff with NVR1_N910A6_ch3_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR1_N910A6_ch3_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR1_N910A6_ch3_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch3_main_ortho.tif
+
+Processing NVR1_N910A6_ch4_main.tiff with NVR1_N910A6_ch4_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR1_N910A6_ch4_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR1_N910A6_ch4_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch4_main_ortho.tif
+
+Processing NVR1_N910A6_ch5_main.tiff with NVR1_N910A6_ch5_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR1_N910A6_ch5_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR1_N910A6_ch5_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch5_main_ortho.tif
+
+Processing NVR1_N910A6_ch6_main.tiff with NVR1_N910A6_ch6_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR1_N910A6_ch6_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR1_N910A6_ch6_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch6_main_ortho.tif
+
+Processing NVR1_N910A6_ch7_main.tiff with NVR1_N910A6_ch7_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR1_N910A6_ch7_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR1_N910A6_ch7_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch7_main_ortho.tif
+
+Processing NVR1_N910A6_ch8_main.tiff with NVR1_N910A6_ch8_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR1_N910A6_ch8_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR1_N910A6_ch8_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch8_main_ortho.tif
+
+Processing NVR2_N910A6_ch1_main.tiff with NVR2_N910A6_ch1_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR2_N910A6_ch1_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR2_N910A6_ch1_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch1_main_ortho.tif
+
+Processing NVR2_N910A6_ch2_main.tiff with NVR2_N910A6_ch2_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR2_N910A6_ch2_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR2_N910A6_ch2_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch2_main_ortho.tif
+
+Processing NVR2_N910A6_ch3_main.tiff with NVR2_N910A6_ch3_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR2_N910A6_ch3_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR2_N910A6_ch3_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch3_main_ortho.tif
+
+Processing NVR2_N910A6_ch4_main.tiff with NVR2_N910A6_ch4_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR2_N910A6_ch4_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR2_N910A6_ch4_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch4_main_ortho.tif
+
+Processing NVR2_N910A6_ch5_main.tiff with NVR2_N910A6_ch5_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR2_N910A6_ch5_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR2_N910A6_ch5_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch5_main_ortho.tif
+
+Processing NVR2_N910A6_ch6_main.tiff with NVR2_N910A6_ch6_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR2_N910A6_ch6_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR2_N910A6_ch6_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch6_main_ortho.tif
+
+Processing NVR2_N910A6_ch7_main.tiff with NVR2_N910A6_ch7_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR2_N910A6_ch7_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR2_N910A6_ch7_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch7_main_ortho.tif
+
+Processing NVR2_N910A6_ch8_main.tiff with NVR2_N910A6_ch8_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR2_N910A6_ch8_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR2_N910A6_ch8_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch8_main_ortho.tif
+[00:55:03]   Processing 20251016_103300...
+[00:55:06]   Output: Loading calibration...
+Found 16 images to process
+
+Processing NVR1_N910A6_ch1_main.tiff with NVR1_N910A6_ch1_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR1_N910A6_ch1_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR1_N910A6_ch1_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch1_main_ortho.tif
+
+Processing NVR1_N910A6_ch2_main.tiff with NVR1_N910A6_ch2_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR1_N910A6_ch2_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR1_N910A6_ch2_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch2_main_ortho.tif
+
+Processing NVR1_N910A6_ch3_main.tiff with NVR1_N910A6_ch3_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR1_N910A6_ch3_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR1_N910A6_ch3_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch3_main_ortho.tif
+
+Processing NVR1_N910A6_ch4_main.tiff with NVR1_N910A6_ch4_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR1_N910A6_ch4_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR1_N910A6_ch4_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch4_main_ortho.tif
+
+Processing NVR1_N910A6_ch5_main.tiff with NVR1_N910A6_ch5_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR1_N910A6_ch5_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR1_N910A6_ch5_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch5_main_ortho.tif
+
+Processing NVR1_N910A6_ch6_main.tiff with NVR1_N910A6_ch6_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR1_N910A6_ch6_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR1_N910A6_ch6_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch6_main_ortho.tif
+
+Processing NVR1_N910A6_ch7_main.tiff with NVR1_N910A6_ch7_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR1_N910A6_ch7_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR1_N910A6_ch7_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch7_main_ortho.tif
+
+Processing NVR1_N910A6_ch8_main.tiff with NVR1_N910A6_ch8_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR1_N910A6_ch8_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR1_N910A6_ch8_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch8_main_ortho.tif
+
+Processing NVR2_N910A6_ch1_main.tiff with NVR2_N910A6_ch1_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR2_N910A6_ch1_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR2_N910A6_ch1_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch1_main_ortho.tif
+
+Processing NVR2_N910A6_ch2_main.tiff with NVR2_N910A6_ch2_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR2_N910A6_ch2_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR2_N910A6_ch2_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch2_main_ortho.tif
+
+Processing NVR2_N910A6_ch3_main.tiff with NVR2_N910A6_ch3_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR2_N910A6_ch3_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR2_N910A6_ch3_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch3_main_ortho.tif
+
+Processing NVR2_N910A6_ch4_main.tiff with NVR2_N910A6_ch4_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR2_N910A6_ch4_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR2_N910A6_ch4_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch4_main_ortho.tif
+
+Processing NVR2_N910A6_ch5_main.tiff with NVR2_N910A6_ch5_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR2_N910A6_ch5_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR2_N910A6_ch5_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch5_main_ortho.tif
+
+Processing NVR2_N910A6_ch6_main.tiff with NVR2_N910A6_ch6_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR2_N910A6_ch6_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR2_N910A6_ch6_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch6_main_ortho.tif
+
+Processing NVR2_N910A6_ch7_main.tiff with NVR2_N910A6_ch7_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR2_N910A6_ch7_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR2_N910A6_ch7_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch7_main_ortho.tif
+
+Processing NVR2_N910A6_ch8_main.tiff with NVR2_N910A6_ch8_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR2_N910A6_ch8_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR2_N910A6_ch8_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch8_main_ortho.tif
+[00:55:06]   Processing 20251016_103400...
+[00:55:08]   Output: Loading calibration...
+Found 16 images to process
+
+Processing NVR1_N910A6_ch1_main.tiff with NVR1_N910A6_ch1_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR1_N910A6_ch1_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR1_N910A6_ch1_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch1_main_ortho.tif
+
+Processing NVR1_N910A6_ch2_main.tiff with NVR1_N910A6_ch2_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR1_N910A6_ch2_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR1_N910A6_ch2_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch2_main_ortho.tif
+
+Processing NVR1_N910A6_ch3_main.tiff with NVR1_N910A6_ch3_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR1_N910A6_ch3_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR1_N910A6_ch3_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch3_main_ortho.tif
+
+Processing NVR1_N910A6_ch4_main.tiff with NVR1_N910A6_ch4_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR1_N910A6_ch4_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR1_N910A6_ch4_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch4_main_ortho.tif
+
+Processing NVR1_N910A6_ch5_main.tiff with NVR1_N910A6_ch5_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR1_N910A6_ch5_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR1_N910A6_ch5_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch5_main_ortho.tif
+
+Processing NVR1_N910A6_ch6_main.tiff with NVR1_N910A6_ch6_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR1_N910A6_ch6_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR1_N910A6_ch6_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch6_main_ortho.tif
+
+Processing NVR1_N910A6_ch7_main.tiff with NVR1_N910A6_ch7_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR1_N910A6_ch7_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR1_N910A6_ch7_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch7_main_ortho.tif
+
+Processing NVR1_N910A6_ch8_main.tiff with NVR1_N910A6_ch8_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR1_N910A6_ch8_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR1_N910A6_ch8_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch8_main_ortho.tif
+
+Processing NVR2_N910A6_ch1_main.tiff with NVR2_N910A6_ch1_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR2_N910A6_ch1_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR2_N910A6_ch1_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch1_main_ortho.tif
+
+Processing NVR2_N910A6_ch2_main.tiff with NVR2_N910A6_ch2_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR2_N910A6_ch2_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR2_N910A6_ch2_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch2_main_ortho.tif
+
+Processing NVR2_N910A6_ch3_main.tiff with NVR2_N910A6_ch3_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR2_N910A6_ch3_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR2_N910A6_ch3_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch3_main_ortho.tif
+
+Processing NVR2_N910A6_ch4_main.tiff with NVR2_N910A6_ch4_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR2_N910A6_ch4_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR2_N910A6_ch4_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch4_main_ortho.tif
+
+Processing NVR2_N910A6_ch5_main.tiff with NVR2_N910A6_ch5_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR2_N910A6_ch5_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR2_N910A6_ch5_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch5_main_ortho.tif
+
+Processing NVR2_N910A6_ch6_main.tiff with NVR2_N910A6_ch6_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR2_N910A6_ch6_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR2_N910A6_ch6_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch6_main_ortho.tif
+
+Processing NVR2_N910A6_ch7_main.tiff with NVR2_N910A6_ch7_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR2_N910A6_ch7_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR2_N910A6_ch7_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch7_main_ortho.tif
+
+Processing NVR2_N910A6_ch8_main.tiff with NVR2_N910A6_ch8_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR2_N910A6_ch8_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR2_N910A6_ch8_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch8_main_ortho.tif
+[00:55:08]   Processing 20251016_103500...
+[00:55:11]   Output: Loading calibration...
+Found 16 images to process
+
+Processing NVR1_N910A6_ch1_main.tiff with NVR1_N910A6_ch1_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR1_N910A6_ch1_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR1_N910A6_ch1_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch1_main_ortho.tif
+
+Processing NVR1_N910A6_ch2_main.tiff with NVR1_N910A6_ch2_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR1_N910A6_ch2_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR1_N910A6_ch2_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch2_main_ortho.tif
+
+Processing NVR1_N910A6_ch3_main.tiff with NVR1_N910A6_ch3_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR1_N910A6_ch3_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR1_N910A6_ch3_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch3_main_ortho.tif
+
+Processing NVR1_N910A6_ch4_main.tiff with NVR1_N910A6_ch4_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR1_N910A6_ch4_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR1_N910A6_ch4_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch4_main_ortho.tif
+
+Processing NVR1_N910A6_ch5_main.tiff with NVR1_N910A6_ch5_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR1_N910A6_ch5_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR1_N910A6_ch5_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch5_main_ortho.tif
+
+Processing NVR1_N910A6_ch6_main.tiff with NVR1_N910A6_ch6_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR1_N910A6_ch6_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR1_N910A6_ch6_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch6_main_ortho.tif
+
+Processing NVR1_N910A6_ch7_main.tiff with NVR1_N910A6_ch7_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR1_N910A6_ch7_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR1_N910A6_ch7_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch7_main_ortho.tif
+
+Processing NVR1_N910A6_ch8_main.tiff with NVR1_N910A6_ch8_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR1_N910A6_ch8_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR1_N910A6_ch8_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch8_main_ortho.tif
+
+Processing NVR2_N910A6_ch1_main.tiff with NVR2_N910A6_ch1_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR2_N910A6_ch1_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR2_N910A6_ch1_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch1_main_ortho.tif
+
+Processing NVR2_N910A6_ch2_main.tiff with NVR2_N910A6_ch2_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR2_N910A6_ch2_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR2_N910A6_ch2_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch2_main_ortho.tif
+
+Processing NVR2_N910A6_ch3_main.tiff with NVR2_N910A6_ch3_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR2_N910A6_ch3_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR2_N910A6_ch3_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch3_main_ortho.tif
+
+Processing NVR2_N910A6_ch4_main.tiff with NVR2_N910A6_ch4_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR2_N910A6_ch4_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR2_N910A6_ch4_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch4_main_ortho.tif
+
+Processing NVR2_N910A6_ch5_main.tiff with NVR2_N910A6_ch5_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR2_N910A6_ch5_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR2_N910A6_ch5_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch5_main_ortho.tif
+
+Processing NVR2_N910A6_ch6_main.tiff with NVR2_N910A6_ch6_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR2_N910A6_ch6_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR2_N910A6_ch6_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch6_main_ortho.tif
+
+Processing NVR2_N910A6_ch7_main.tiff with NVR2_N910A6_ch7_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR2_N910A6_ch7_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR2_N910A6_ch7_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch7_main_ortho.tif
+
+Processing NVR2_N910A6_ch8_main.tiff with NVR2_N910A6_ch8_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR2_N910A6_ch8_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR2_N910A6_ch8_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch8_main_ortho.tif
+[00:55:11]   Processing 20251016_103600...
+[00:55:14]   Output: Loading calibration...
+Found 16 images to process
+
+Processing NVR1_N910A6_ch1_main.tiff with NVR1_N910A6_ch1_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR1_N910A6_ch1_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR1_N910A6_ch1_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch1_main_ortho.tif
+
+Processing NVR1_N910A6_ch2_main.tiff with NVR1_N910A6_ch2_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR1_N910A6_ch2_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR1_N910A6_ch2_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch2_main_ortho.tif
+
+Processing NVR1_N910A6_ch3_main.tiff with NVR1_N910A6_ch3_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR1_N910A6_ch3_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR1_N910A6_ch3_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch3_main_ortho.tif
+
+Processing NVR1_N910A6_ch4_main.tiff with NVR1_N910A6_ch4_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR1_N910A6_ch4_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR1_N910A6_ch4_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch4_main_ortho.tif
+
+Processing NVR1_N910A6_ch5_main.tiff with NVR1_N910A6_ch5_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR1_N910A6_ch5_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR1_N910A6_ch5_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch5_main_ortho.tif
+
+Processing NVR1_N910A6_ch6_main.tiff with NVR1_N910A6_ch6_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR1_N910A6_ch6_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR1_N910A6_ch6_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch6_main_ortho.tif
+
+Processing NVR1_N910A6_ch7_main.tiff with NVR1_N910A6_ch7_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR1_N910A6_ch7_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR1_N910A6_ch7_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch7_main_ortho.tif
+
+Processing NVR1_N910A6_ch8_main.tiff with NVR1_N910A6_ch8_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR1_N910A6_ch8_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR1_N910A6_ch8_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch8_main_ortho.tif
+
+Processing NVR2_N910A6_ch1_main.tiff with NVR2_N910A6_ch1_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR2_N910A6_ch1_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR2_N910A6_ch1_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch1_main_ortho.tif
+
+Processing NVR2_N910A6_ch2_main.tiff with NVR2_N910A6_ch2_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR2_N910A6_ch2_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR2_N910A6_ch2_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch2_main_ortho.tif
+
+Processing NVR2_N910A6_ch3_main.tiff with NVR2_N910A6_ch3_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR2_N910A6_ch3_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR2_N910A6_ch3_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch3_main_ortho.tif
+
+Processing NVR2_N910A6_ch4_main.tiff with NVR2_N910A6_ch4_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR2_N910A6_ch4_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR2_N910A6_ch4_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch4_main_ortho.tif
+
+Processing NVR2_N910A6_ch5_main.tiff with NVR2_N910A6_ch5_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR2_N910A6_ch5_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR2_N910A6_ch5_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch5_main_ortho.tif
+
+Processing NVR2_N910A6_ch6_main.tiff with NVR2_N910A6_ch6_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR2_N910A6_ch6_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR2_N910A6_ch6_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch6_main_ortho.tif
+
+Processing NVR2_N910A6_ch7_main.tiff with NVR2_N910A6_ch7_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR2_N910A6_ch7_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR2_N910A6_ch7_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch7_main_ortho.tif
+
+Processing NVR2_N910A6_ch8_main.tiff with NVR2_N910A6_ch8_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR2_N910A6_ch8_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR2_N910A6_ch8_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch8_main_ortho.tif
+[00:55:14]   Processing 20251016_103700...
+[00:55:17]   Output: Loading calibration...
+Found 16 images to process
+
+Processing NVR1_N910A6_ch1_main.tiff with NVR1_N910A6_ch1_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR1_N910A6_ch1_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR1_N910A6_ch1_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch1_main_ortho.tif
+
+Processing NVR1_N910A6_ch2_main.tiff with NVR1_N910A6_ch2_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR1_N910A6_ch2_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR1_N910A6_ch2_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch2_main_ortho.tif
+
+Processing NVR1_N910A6_ch3_main.tiff with NVR1_N910A6_ch3_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR1_N910A6_ch3_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR1_N910A6_ch3_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch3_main_ortho.tif
+
+Processing NVR1_N910A6_ch4_main.tiff with NVR1_N910A6_ch4_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR1_N910A6_ch4_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR1_N910A6_ch4_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch4_main_ortho.tif
+
+Processing NVR1_N910A6_ch5_main.tiff with NVR1_N910A6_ch5_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR1_N910A6_ch5_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR1_N910A6_ch5_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch5_main_ortho.tif
+
+Processing NVR1_N910A6_ch6_main.tiff with NVR1_N910A6_ch6_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR1_N910A6_ch6_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR1_N910A6_ch6_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch6_main_ortho.tif
+
+Processing NVR1_N910A6_ch7_main.tiff with NVR1_N910A6_ch7_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR1_N910A6_ch7_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR1_N910A6_ch7_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch7_main_ortho.tif
+
+Processing NVR1_N910A6_ch8_main.tiff with NVR1_N910A6_ch8_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR1_N910A6_ch8_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR1_N910A6_ch8_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch8_main_ortho.tif
+
+Processing NVR2_N910A6_ch1_main.tiff with NVR2_N910A6_ch1_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR2_N910A6_ch1_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR2_N910A6_ch1_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch1_main_ortho.tif
+
+Processing NVR2_N910A6_ch2_main.tiff with NVR2_N910A6_ch2_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR2_N910A6_ch2_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR2_N910A6_ch2_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch2_main_ortho.tif
+
+Processing NVR2_N910A6_ch3_main.tiff with NVR2_N910A6_ch3_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR2_N910A6_ch3_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR2_N910A6_ch3_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch3_main_ortho.tif
+
+Processing NVR2_N910A6_ch4_main.tiff with NVR2_N910A6_ch4_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR2_N910A6_ch4_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR2_N910A6_ch4_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch4_main_ortho.tif
+
+Processing NVR2_N910A6_ch5_main.tiff with NVR2_N910A6_ch5_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR2_N910A6_ch5_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR2_N910A6_ch5_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch5_main_ortho.tif
+
+Processing NVR2_N910A6_ch6_main.tiff with NVR2_N910A6_ch6_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR2_N910A6_ch6_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR2_N910A6_ch6_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch6_main_ortho.tif
+
+Processing NVR2_N910A6_ch7_main.tiff with NVR2_N910A6_ch7_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR2_N910A6_ch7_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR2_N910A6_ch7_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch7_main_ortho.tif
+
+Processing NVR2_N910A6_ch8_main.tiff with NVR2_N910A6_ch8_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR2_N910A6_ch8_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR2_N910A6_ch8_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch8_main_ortho.tif
+[00:55:17]   Processing 20251016_103800...
+[00:55:20]   Output: Loading calibration...
+Found 16 images to process
+
+Processing NVR1_N910A6_ch1_main.tiff with NVR1_N910A6_ch1_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR1_N910A6_ch1_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR1_N910A6_ch1_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch1_main_ortho.tif
+
+Processing NVR1_N910A6_ch2_main.tiff with NVR1_N910A6_ch2_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR1_N910A6_ch2_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR1_N910A6_ch2_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch2_main_ortho.tif
+
+Processing NVR1_N910A6_ch3_main.tiff with NVR1_N910A6_ch3_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR1_N910A6_ch3_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR1_N910A6_ch3_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch3_main_ortho.tif
+
+Processing NVR1_N910A6_ch4_main.tiff with NVR1_N910A6_ch4_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR1_N910A6_ch4_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR1_N910A6_ch4_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch4_main_ortho.tif
+
+Processing NVR1_N910A6_ch5_main.tiff with NVR1_N910A6_ch5_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR1_N910A6_ch5_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR1_N910A6_ch5_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch5_main_ortho.tif
+
+Processing NVR1_N910A6_ch6_main.tiff with NVR1_N910A6_ch6_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR1_N910A6_ch6_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR1_N910A6_ch6_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch6_main_ortho.tif
+
+Processing NVR1_N910A6_ch7_main.tiff with NVR1_N910A6_ch7_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR1_N910A6_ch7_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR1_N910A6_ch7_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch7_main_ortho.tif
+
+Processing NVR1_N910A6_ch8_main.tiff with NVR1_N910A6_ch8_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR1_N910A6_ch8_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR1_N910A6_ch8_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch8_main_ortho.tif
+
+Processing NVR2_N910A6_ch1_main.tiff with NVR2_N910A6_ch1_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR2_N910A6_ch1_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR2_N910A6_ch1_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch1_main_ortho.tif
+
+Processing NVR2_N910A6_ch2_main.tiff with NVR2_N910A6_ch2_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR2_N910A6_ch2_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR2_N910A6_ch2_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch2_main_ortho.tif
+
+Processing NVR2_N910A6_ch3_main.tiff with NVR2_N910A6_ch3_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR2_N910A6_ch3_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR2_N910A6_ch3_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch3_main_ortho.tif
+
+Processing NVR2_N910A6_ch4_main.tiff with NVR2_N910A6_ch4_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR2_N910A6_ch4_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR2_N910A6_ch4_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch4_main_ortho.tif
+
+Processing NVR2_N910A6_ch5_main.tiff with NVR2_N910A6_ch5_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR2_N910A6_ch5_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR2_N910A6_ch5_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch5_main_ortho.tif
+
+Processing NVR2_N910A6_ch6_main.tiff with NVR2_N910A6_ch6_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR2_N910A6_ch6_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR2_N910A6_ch6_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch6_main_ortho.tif
+
+Processing NVR2_N910A6_ch7_main.tiff with NVR2_N910A6_ch7_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR2_N910A6_ch7_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR2_N910A6_ch7_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch7_main_ortho.tif
+
+Processing NVR2_N910A6_ch8_main.tiff with NVR2_N910A6_ch8_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR2_N910A6_ch8_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR2_N910A6_ch8_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch8_main_ortho.tif
+[00:55:20]   Processing 20251016_103900...
+[00:55:23]   Output: Loading calibration...
+Found 16 images to process
+
+Processing NVR1_N910A6_ch1_main.tiff with NVR1_N910A6_ch1_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR1_N910A6_ch1_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR1_N910A6_ch1_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch1_main_ortho.tif
+
+Processing NVR1_N910A6_ch2_main.tiff with NVR1_N910A6_ch2_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR1_N910A6_ch2_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR1_N910A6_ch2_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch2_main_ortho.tif
+
+Processing NVR1_N910A6_ch3_main.tiff with NVR1_N910A6_ch3_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR1_N910A6_ch3_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR1_N910A6_ch3_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch3_main_ortho.tif
+
+Processing NVR1_N910A6_ch4_main.tiff with NVR1_N910A6_ch4_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR1_N910A6_ch4_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR1_N910A6_ch4_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch4_main_ortho.tif
+
+Processing NVR1_N910A6_ch5_main.tiff with NVR1_N910A6_ch5_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR1_N910A6_ch5_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR1_N910A6_ch5_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch5_main_ortho.tif
+
+Processing NVR1_N910A6_ch6_main.tiff with NVR1_N910A6_ch6_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR1_N910A6_ch6_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR1_N910A6_ch6_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch6_main_ortho.tif
+
+Processing NVR1_N910A6_ch7_main.tiff with NVR1_N910A6_ch7_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR1_N910A6_ch7_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR1_N910A6_ch7_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch7_main_ortho.tif
+
+Processing NVR1_N910A6_ch8_main.tiff with NVR1_N910A6_ch8_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR1_N910A6_ch8_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR1_N910A6_ch8_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch8_main_ortho.tif
+
+Processing NVR2_N910A6_ch1_main.tiff with NVR2_N910A6_ch1_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR2_N910A6_ch1_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR2_N910A6_ch1_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch1_main_ortho.tif
+
+Processing NVR2_N910A6_ch2_main.tiff with NVR2_N910A6_ch2_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR2_N910A6_ch2_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR2_N910A6_ch2_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch2_main_ortho.tif
+
+Processing NVR2_N910A6_ch3_main.tiff with NVR2_N910A6_ch3_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR2_N910A6_ch3_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR2_N910A6_ch3_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch3_main_ortho.tif
+
+Processing NVR2_N910A6_ch4_main.tiff with NVR2_N910A6_ch4_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR2_N910A6_ch4_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR2_N910A6_ch4_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch4_main_ortho.tif
+
+Processing NVR2_N910A6_ch5_main.tiff with NVR2_N910A6_ch5_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR2_N910A6_ch5_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR2_N910A6_ch5_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch5_main_ortho.tif
+
+Processing NVR2_N910A6_ch6_main.tiff with NVR2_N910A6_ch6_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR2_N910A6_ch6_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR2_N910A6_ch6_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch6_main_ortho.tif
+
+Processing NVR2_N910A6_ch7_main.tiff with NVR2_N910A6_ch7_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR2_N910A6_ch7_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR2_N910A6_ch7_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch7_main_ortho.tif
+
+Processing NVR2_N910A6_ch8_main.tiff with NVR2_N910A6_ch8_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR2_N910A6_ch8_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR2_N910A6_ch8_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch8_main_ortho.tif
+[00:55:23]   Processing 20251016_104000...
+[00:55:26]   Output: Loading calibration...
+Found 16 images to process
+
+Processing NVR1_N910A6_ch1_main.tiff with NVR1_N910A6_ch1_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR1_N910A6_ch1_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR1_N910A6_ch1_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch1_main_ortho.tif
+
+Processing NVR1_N910A6_ch2_main.tiff with NVR1_N910A6_ch2_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR1_N910A6_ch2_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR1_N910A6_ch2_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch2_main_ortho.tif
+
+Processing NVR1_N910A6_ch3_main.tiff with NVR1_N910A6_ch3_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR1_N910A6_ch3_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR1_N910A6_ch3_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch3_main_ortho.tif
+
+Processing NVR1_N910A6_ch4_main.tiff with NVR1_N910A6_ch4_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR1_N910A6_ch4_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR1_N910A6_ch4_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch4_main_ortho.tif
+
+Processing NVR1_N910A6_ch5_main.tiff with NVR1_N910A6_ch5_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR1_N910A6_ch5_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR1_N910A6_ch5_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch5_main_ortho.tif
+
+Processing NVR1_N910A6_ch6_main.tiff with NVR1_N910A6_ch6_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR1_N910A6_ch6_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR1_N910A6_ch6_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch6_main_ortho.tif
+
+Processing NVR1_N910A6_ch7_main.tiff with NVR1_N910A6_ch7_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR1_N910A6_ch7_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR1_N910A6_ch7_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch7_main_ortho.tif
+
+Processing NVR1_N910A6_ch8_main.tiff with NVR1_N910A6_ch8_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR1_N910A6_ch8_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR1_N910A6_ch8_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch8_main_ortho.tif
+
+Processing NVR2_N910A6_ch1_main.tiff with NVR2_N910A6_ch1_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR2_N910A6_ch1_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR2_N910A6_ch1_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch1_main_ortho.tif
+
+Processing NVR2_N910A6_ch2_main.tiff with NVR2_N910A6_ch2_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR2_N910A6_ch2_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR2_N910A6_ch2_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch2_main_ortho.tif
+
+Processing NVR2_N910A6_ch3_main.tiff with NVR2_N910A6_ch3_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR2_N910A6_ch3_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR2_N910A6_ch3_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch3_main_ortho.tif
+
+Processing NVR2_N910A6_ch4_main.tiff with NVR2_N910A6_ch4_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR2_N910A6_ch4_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR2_N910A6_ch4_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch4_main_ortho.tif
+
+Processing NVR2_N910A6_ch5_main.tiff with NVR2_N910A6_ch5_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR2_N910A6_ch5_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR2_N910A6_ch5_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch5_main_ortho.tif
+
+Processing NVR2_N910A6_ch6_main.tiff with NVR2_N910A6_ch6_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR2_N910A6_ch6_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR2_N910A6_ch6_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch6_main_ortho.tif
+
+Processing NVR2_N910A6_ch7_main.tiff with NVR2_N910A6_ch7_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR2_N910A6_ch7_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR2_N910A6_ch7_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch7_main_ortho.tif
+
+Processing NVR2_N910A6_ch8_main.tiff with NVR2_N910A6_ch8_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR2_N910A6_ch8_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR2_N910A6_ch8_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch8_main_ortho.tif
+[00:55:26] Orthorectification complete (10 timestamps)
+[00:55:26] Starting mosaicking...
+[00:55:26]   Mosaicking 20251016_103100...
+[00:55:27]   Mosaicking 20251016_103200...
+[00:55:28]   Mosaicking 20251016_103300...
+[00:55:29]   Mosaicking 20251016_103400...
+[00:55:31]   Mosaicking 20251016_103500...
+[00:55:32]   Mosaicking 20251016_103600...
+[00:55:33]   Mosaicking 20251016_103700...
+[00:55:34]   Mosaicking 20251016_103800...
+[00:55:35]   Mosaicking 20251016_103900...
+[00:55:36]   Mosaicking 20251016_104000...
+[00:55:37] Mosaicking complete (10 mosaics)
+[00:55:37] 
+Pipeline completed in 0.7 minutes
+
+============================================================
+Processing Log for 20251016_Nav1
+Started: 2025-11-09 12:31:40
+============================================================
+
+[12:31:40] Starting orthorectification...
+[12:31:40]   Processing 20251016_103100...
+[12:32:06]   Output: Loading calibration...
+Found 16 images to process
+
+Processing NVR1_N910A6_ch1_main.tiff with NVR1_N910A6_ch1_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR1_N910A6_ch1_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR1_N910A6_ch1_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch1_main_ortho.tif
+
+Processing NVR1_N910A6_ch2_main.tiff with NVR1_N910A6_ch2_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR1_N910A6_ch2_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR1_N910A6_ch2_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch2_main_ortho.tif
+
+Processing NVR1_N910A6_ch3_main.tiff with NVR1_N910A6_ch3_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR1_N910A6_ch3_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR1_N910A6_ch3_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch3_main_ortho.tif
+
+Processing NVR1_N910A6_ch4_main.tiff with NVR1_N910A6_ch4_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR1_N910A6_ch4_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR1_N910A6_ch4_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch4_main_ortho.tif
+
+Processing NVR1_N910A6_ch5_main.tiff with NVR1_N910A6_ch5_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR1_N910A6_ch5_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR1_N910A6_ch5_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch5_main_ortho.tif
+
+Processing NVR1_N910A6_ch6_main.tiff with NVR1_N910A6_ch6_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR1_N910A6_ch6_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR1_N910A6_ch6_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch6_main_ortho.tif
+
+Processing NVR1_N910A6_ch7_main.tiff with NVR1_N910A6_ch7_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR1_N910A6_ch7_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR1_N910A6_ch7_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch7_main_ortho.tif
+
+Processing NVR1_N910A6_ch8_main.tiff with NVR1_N910A6_ch8_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR1_N910A6_ch8_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR1_N910A6_ch8_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch8_main_ortho.tif
+
+Processing NVR2_N910A6_ch1_main.tiff with NVR2_N910A6_ch1_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR2_N910A6_ch1_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR2_N910A6_ch1_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch1_main_ortho.tif
+
+Processing NVR2_N910A6_ch2_main.tiff with NVR2_N910A6_ch2_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR2_N910A6_ch2_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR2_N910A6_ch2_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch2_main_ortho.tif
+
+Processing NVR2_N910A6_ch3_main.tiff with NVR2_N910A6_ch3_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR2_N910A6_ch3_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR2_N910A6_ch3_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch3_main_ortho.tif
+
+Processing NVR2_N910A6_ch4_main.tiff with NVR2_N910A6_ch4_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR2_N910A6_ch4_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR2_N910A6_ch4_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch4_main_ortho.tif
+
+Processing NVR2_N910A6_ch5_main.tiff with NVR2_N910A6_ch5_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR2_N910A6_ch5_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR2_N910A6_ch5_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch5_main_ortho.tif
+
+Processing NVR2_N910A6_ch6_main.tiff with NVR2_N910A6_ch6_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR2_N910A6_ch6_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR2_N910A6_ch6_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch6_main_ortho.tif
+
+Processing NVR2_N910A6_ch7_main.tiff with NVR2_N910A6_ch7_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR2_N910A6_ch7_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR2_N910A6_ch7_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch7_main_ortho.tif
+
+Processing NVR2_N910A6_ch8_main.tiff with NVR2_N910A6_ch8_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR2_N910A6_ch8_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR2_N910A6_ch8_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch8_main_ortho.tif
+[12:32:06]   Processing 20251016_103200...
+[12:32:27]   Output: Loading calibration...
+Found 16 images to process
+
+Processing NVR1_N910A6_ch1_main.tiff with NVR1_N910A6_ch1_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR1_N910A6_ch1_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR1_N910A6_ch1_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch1_main_ortho.tif
+
+Processing NVR1_N910A6_ch2_main.tiff with NVR1_N910A6_ch2_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR1_N910A6_ch2_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR1_N910A6_ch2_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch2_main_ortho.tif
+
+Processing NVR1_N910A6_ch3_main.tiff with NVR1_N910A6_ch3_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR1_N910A6_ch3_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR1_N910A6_ch3_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch3_main_ortho.tif
+
+Processing NVR1_N910A6_ch4_main.tiff with NVR1_N910A6_ch4_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR1_N910A6_ch4_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR1_N910A6_ch4_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch4_main_ortho.tif
+
+Processing NVR1_N910A6_ch5_main.tiff with NVR1_N910A6_ch5_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR1_N910A6_ch5_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR1_N910A6_ch5_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch5_main_ortho.tif
+
+Processing NVR1_N910A6_ch6_main.tiff with NVR1_N910A6_ch6_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR1_N910A6_ch6_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR1_N910A6_ch6_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch6_main_ortho.tif
+
+Processing NVR1_N910A6_ch7_main.tiff with NVR1_N910A6_ch7_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR1_N910A6_ch7_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR1_N910A6_ch7_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch7_main_ortho.tif
+
+Processing NVR1_N910A6_ch8_main.tiff with NVR1_N910A6_ch8_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR1_N910A6_ch8_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR1_N910A6_ch8_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch8_main_ortho.tif
+
+Processing NVR2_N910A6_ch1_main.tiff with NVR2_N910A6_ch1_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR2_N910A6_ch1_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR2_N910A6_ch1_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch1_main_ortho.tif
+
+Processing NVR2_N910A6_ch2_main.tiff with NVR2_N910A6_ch2_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR2_N910A6_ch2_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR2_N910A6_ch2_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch2_main_ortho.tif
+
+Processing NVR2_N910A6_ch3_main.tiff with NVR2_N910A6_ch3_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR2_N910A6_ch3_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR2_N910A6_ch3_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch3_main_ortho.tif
+
+Processing NVR2_N910A6_ch4_main.tiff with NVR2_N910A6_ch4_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR2_N910A6_ch4_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR2_N910A6_ch4_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch4_main_ortho.tif
+
+Processing NVR2_N910A6_ch5_main.tiff with NVR2_N910A6_ch5_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR2_N910A6_ch5_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR2_N910A6_ch5_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch5_main_ortho.tif
+
+Processing NVR2_N910A6_ch6_main.tiff with NVR2_N910A6_ch6_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR2_N910A6_ch6_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR2_N910A6_ch6_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch6_main_ortho.tif
+
+Processing NVR2_N910A6_ch7_main.tiff with NVR2_N910A6_ch7_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR2_N910A6_ch7_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR2_N910A6_ch7_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch7_main_ortho.tif
+
+Processing NVR2_N910A6_ch8_main.tiff with NVR2_N910A6_ch8_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR2_N910A6_ch8_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR2_N910A6_ch8_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch8_main_ortho.tif
+[12:32:27]   Processing 20251016_103300...
+[12:32:48]   Output: Loading calibration...
+Found 16 images to process
+
+Processing NVR1_N910A6_ch1_main.tiff with NVR1_N910A6_ch1_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR1_N910A6_ch1_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR1_N910A6_ch1_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch1_main_ortho.tif
+
+Processing NVR1_N910A6_ch2_main.tiff with NVR1_N910A6_ch2_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR1_N910A6_ch2_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR1_N910A6_ch2_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch2_main_ortho.tif
+
+Processing NVR1_N910A6_ch3_main.tiff with NVR1_N910A6_ch3_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR1_N910A6_ch3_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR1_N910A6_ch3_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch3_main_ortho.tif
+
+Processing NVR1_N910A6_ch4_main.tiff with NVR1_N910A6_ch4_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR1_N910A6_ch4_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR1_N910A6_ch4_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch4_main_ortho.tif
+
+Processing NVR1_N910A6_ch5_main.tiff with NVR1_N910A6_ch5_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR1_N910A6_ch5_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR1_N910A6_ch5_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch5_main_ortho.tif
+
+Processing NVR1_N910A6_ch6_main.tiff with NVR1_N910A6_ch6_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR1_N910A6_ch6_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR1_N910A6_ch6_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch6_main_ortho.tif
+
+Processing NVR1_N910A6_ch7_main.tiff with NVR1_N910A6_ch7_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR1_N910A6_ch7_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR1_N910A6_ch7_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch7_main_ortho.tif
+
+Processing NVR1_N910A6_ch8_main.tiff with NVR1_N910A6_ch8_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR1_N910A6_ch8_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR1_N910A6_ch8_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch8_main_ortho.tif
+
+Processing NVR2_N910A6_ch1_main.tiff with NVR2_N910A6_ch1_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR2_N910A6_ch1_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR2_N910A6_ch1_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch1_main_ortho.tif
+
+Processing NVR2_N910A6_ch2_main.tiff with NVR2_N910A6_ch2_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR2_N910A6_ch2_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR2_N910A6_ch2_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch2_main_ortho.tif
+
+Processing NVR2_N910A6_ch3_main.tiff with NVR2_N910A6_ch3_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR2_N910A6_ch3_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR2_N910A6_ch3_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch3_main_ortho.tif
+
+Processing NVR2_N910A6_ch4_main.tiff with NVR2_N910A6_ch4_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR2_N910A6_ch4_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR2_N910A6_ch4_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch4_main_ortho.tif
+
+Processing NVR2_N910A6_ch5_main.tiff with NVR2_N910A6_ch5_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR2_N910A6_ch5_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR2_N910A6_ch5_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch5_main_ortho.tif
+
+Processing NVR2_N910A6_ch6_main.tiff with NVR2_N910A6_ch6_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR2_N910A6_ch6_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR2_N910A6_ch6_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch6_main_ortho.tif
+
+Processing NVR2_N910A6_ch7_main.tiff with NVR2_N910A6_ch7_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR2_N910A6_ch7_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR2_N910A6_ch7_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch7_main_ortho.tif
+
+Processing NVR2_N910A6_ch8_main.tiff with NVR2_N910A6_ch8_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR2_N910A6_ch8_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR2_N910A6_ch8_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch8_main_ortho.tif
+[12:32:48]   Processing 20251016_103400...
+[12:33:09]   Output: Loading calibration...
+Found 16 images to process
+
+Processing NVR1_N910A6_ch1_main.tiff with NVR1_N910A6_ch1_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR1_N910A6_ch1_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR1_N910A6_ch1_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch1_main_ortho.tif
+
+Processing NVR1_N910A6_ch2_main.tiff with NVR1_N910A6_ch2_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR1_N910A6_ch2_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR1_N910A6_ch2_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch2_main_ortho.tif
+
+Processing NVR1_N910A6_ch3_main.tiff with NVR1_N910A6_ch3_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR1_N910A6_ch3_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR1_N910A6_ch3_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch3_main_ortho.tif
+
+Processing NVR1_N910A6_ch4_main.tiff with NVR1_N910A6_ch4_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR1_N910A6_ch4_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR1_N910A6_ch4_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch4_main_ortho.tif
+
+Processing NVR1_N910A6_ch5_main.tiff with NVR1_N910A6_ch5_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR1_N910A6_ch5_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR1_N910A6_ch5_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch5_main_ortho.tif
+
+Processing NVR1_N910A6_ch6_main.tiff with NVR1_N910A6_ch6_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR1_N910A6_ch6_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR1_N910A6_ch6_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch6_main_ortho.tif
+
+Processing NVR1_N910A6_ch7_main.tiff with NVR1_N910A6_ch7_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR1_N910A6_ch7_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR1_N910A6_ch7_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch7_main_ortho.tif
+
+Processing NVR1_N910A6_ch8_main.tiff with NVR1_N910A6_ch8_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR1_N910A6_ch8_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR1_N910A6_ch8_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch8_main_ortho.tif
+
+Processing NVR2_N910A6_ch1_main.tiff with NVR2_N910A6_ch1_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR2_N910A6_ch1_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR2_N910A6_ch1_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch1_main_ortho.tif
+
+Processing NVR2_N910A6_ch2_main.tiff with NVR2_N910A6_ch2_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR2_N910A6_ch2_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR2_N910A6_ch2_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch2_main_ortho.tif
+
+Processing NVR2_N910A6_ch3_main.tiff with NVR2_N910A6_ch3_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR2_N910A6_ch3_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR2_N910A6_ch3_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch3_main_ortho.tif
+
+Processing NVR2_N910A6_ch4_main.tiff with NVR2_N910A6_ch4_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR2_N910A6_ch4_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR2_N910A6_ch4_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch4_main_ortho.tif
+
+Processing NVR2_N910A6_ch5_main.tiff with NVR2_N910A6_ch5_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR2_N910A6_ch5_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR2_N910A6_ch5_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch5_main_ortho.tif
+
+Processing NVR2_N910A6_ch6_main.tiff with NVR2_N910A6_ch6_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR2_N910A6_ch6_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR2_N910A6_ch6_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch6_main_ortho.tif
+
+Processing NVR2_N910A6_ch7_main.tiff with NVR2_N910A6_ch7_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR2_N910A6_ch7_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR2_N910A6_ch7_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch7_main_ortho.tif
+
+Processing NVR2_N910A6_ch8_main.tiff with NVR2_N910A6_ch8_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR2_N910A6_ch8_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR2_N910A6_ch8_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch8_main_ortho.tif
+[12:33:09]   Processing 20251016_103500...
+[12:33:31]   Output: Loading calibration...
+Found 16 images to process
+
+Processing NVR1_N910A6_ch1_main.tiff with NVR1_N910A6_ch1_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR1_N910A6_ch1_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR1_N910A6_ch1_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch1_main_ortho.tif
+
+Processing NVR1_N910A6_ch2_main.tiff with NVR1_N910A6_ch2_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR1_N910A6_ch2_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR1_N910A6_ch2_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch2_main_ortho.tif
+
+Processing NVR1_N910A6_ch3_main.tiff with NVR1_N910A6_ch3_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR1_N910A6_ch3_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR1_N910A6_ch3_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch3_main_ortho.tif
+
+Processing NVR1_N910A6_ch4_main.tiff with NVR1_N910A6_ch4_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR1_N910A6_ch4_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR1_N910A6_ch4_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch4_main_ortho.tif
+
+Processing NVR1_N910A6_ch5_main.tiff with NVR1_N910A6_ch5_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR1_N910A6_ch5_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR1_N910A6_ch5_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch5_main_ortho.tif
+
+Processing NVR1_N910A6_ch6_main.tiff with NVR1_N910A6_ch6_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR1_N910A6_ch6_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR1_N910A6_ch6_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch6_main_ortho.tif
+
+Processing NVR1_N910A6_ch7_main.tiff with NVR1_N910A6_ch7_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR1_N910A6_ch7_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR1_N910A6_ch7_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch7_main_ortho.tif
+
+Processing NVR1_N910A6_ch8_main.tiff with NVR1_N910A6_ch8_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR1_N910A6_ch8_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR1_N910A6_ch8_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch8_main_ortho.tif
+
+Processing NVR2_N910A6_ch1_main.tiff with NVR2_N910A6_ch1_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR2_N910A6_ch1_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR2_N910A6_ch1_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch1_main_ortho.tif
+
+Processing NVR2_N910A6_ch2_main.tiff with NVR2_N910A6_ch2_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR2_N910A6_ch2_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR2_N910A6_ch2_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch2_main_ortho.tif
+
+Processing NVR2_N910A6_ch3_main.tiff with NVR2_N910A6_ch3_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR2_N910A6_ch3_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR2_N910A6_ch3_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch3_main_ortho.tif
+
+Processing NVR2_N910A6_ch4_main.tiff with NVR2_N910A6_ch4_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR2_N910A6_ch4_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR2_N910A6_ch4_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch4_main_ortho.tif
+
+Processing NVR2_N910A6_ch5_main.tiff with NVR2_N910A6_ch5_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR2_N910A6_ch5_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR2_N910A6_ch5_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch5_main_ortho.tif
+
+Processing NVR2_N910A6_ch6_main.tiff with NVR2_N910A6_ch6_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR2_N910A6_ch6_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR2_N910A6_ch6_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch6_main_ortho.tif
+
+Processing NVR2_N910A6_ch7_main.tiff with NVR2_N910A6_ch7_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR2_N910A6_ch7_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR2_N910A6_ch7_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch7_main_ortho.tif
+
+Processing NVR2_N910A6_ch8_main.tiff with NVR2_N910A6_ch8_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR2_N910A6_ch8_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR2_N910A6_ch8_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch8_main_ortho.tif
+[12:33:31]   Processing 20251016_103600...
+[12:33:52]   Output: Loading calibration...
+Found 16 images to process
+
+Processing NVR1_N910A6_ch1_main.tiff with NVR1_N910A6_ch1_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR1_N910A6_ch1_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR1_N910A6_ch1_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch1_main_ortho.tif
+
+Processing NVR1_N910A6_ch2_main.tiff with NVR1_N910A6_ch2_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR1_N910A6_ch2_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR1_N910A6_ch2_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch2_main_ortho.tif
+
+Processing NVR1_N910A6_ch3_main.tiff with NVR1_N910A6_ch3_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR1_N910A6_ch3_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR1_N910A6_ch3_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch3_main_ortho.tif
+
+Processing NVR1_N910A6_ch4_main.tiff with NVR1_N910A6_ch4_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR1_N910A6_ch4_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR1_N910A6_ch4_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch4_main_ortho.tif
+
+Processing NVR1_N910A6_ch5_main.tiff with NVR1_N910A6_ch5_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR1_N910A6_ch5_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR1_N910A6_ch5_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch5_main_ortho.tif
+
+Processing NVR1_N910A6_ch6_main.tiff with NVR1_N910A6_ch6_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR1_N910A6_ch6_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR1_N910A6_ch6_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch6_main_ortho.tif
+
+Processing NVR1_N910A6_ch7_main.tiff with NVR1_N910A6_ch7_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR1_N910A6_ch7_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR1_N910A6_ch7_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch7_main_ortho.tif
+
+Processing NVR1_N910A6_ch8_main.tiff with NVR1_N910A6_ch8_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR1_N910A6_ch8_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR1_N910A6_ch8_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch8_main_ortho.tif
+
+Processing NVR2_N910A6_ch1_main.tiff with NVR2_N910A6_ch1_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR2_N910A6_ch1_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR2_N910A6_ch1_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch1_main_ortho.tif
+
+Processing NVR2_N910A6_ch2_main.tiff with NVR2_N910A6_ch2_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR2_N910A6_ch2_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR2_N910A6_ch2_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch2_main_ortho.tif
+
+Processing NVR2_N910A6_ch3_main.tiff with NVR2_N910A6_ch3_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR2_N910A6_ch3_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR2_N910A6_ch3_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch3_main_ortho.tif
+
+Processing NVR2_N910A6_ch4_main.tiff with NVR2_N910A6_ch4_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR2_N910A6_ch4_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR2_N910A6_ch4_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch4_main_ortho.tif
+
+Processing NVR2_N910A6_ch5_main.tiff with NVR2_N910A6_ch5_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR2_N910A6_ch5_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR2_N910A6_ch5_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch5_main_ortho.tif
+
+Processing NVR2_N910A6_ch6_main.tiff with NVR2_N910A6_ch6_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR2_N910A6_ch6_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR2_N910A6_ch6_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch6_main_ortho.tif
+
+Processing NVR2_N910A6_ch7_main.tiff with NVR2_N910A6_ch7_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR2_N910A6_ch7_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR2_N910A6_ch7_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch7_main_ortho.tif
+
+Processing NVR2_N910A6_ch8_main.tiff with NVR2_N910A6_ch8_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR2_N910A6_ch8_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR2_N910A6_ch8_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch8_main_ortho.tif
+[12:33:52]   Processing 20251016_103700...
+[12:34:13]   Output: Loading calibration...
+Found 16 images to process
+
+Processing NVR1_N910A6_ch1_main.tiff with NVR1_N910A6_ch1_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR1_N910A6_ch1_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR1_N910A6_ch1_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch1_main_ortho.tif
+
+Processing NVR1_N910A6_ch2_main.tiff with NVR1_N910A6_ch2_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR1_N910A6_ch2_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR1_N910A6_ch2_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch2_main_ortho.tif
+
+Processing NVR1_N910A6_ch3_main.tiff with NVR1_N910A6_ch3_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR1_N910A6_ch3_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR1_N910A6_ch3_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch3_main_ortho.tif
+
+Processing NVR1_N910A6_ch4_main.tiff with NVR1_N910A6_ch4_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR1_N910A6_ch4_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR1_N910A6_ch4_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch4_main_ortho.tif
+
+Processing NVR1_N910A6_ch5_main.tiff with NVR1_N910A6_ch5_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR1_N910A6_ch5_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR1_N910A6_ch5_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch5_main_ortho.tif
+
+Processing NVR1_N910A6_ch6_main.tiff with NVR1_N910A6_ch6_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR1_N910A6_ch6_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR1_N910A6_ch6_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch6_main_ortho.tif
+
+Processing NVR1_N910A6_ch7_main.tiff with NVR1_N910A6_ch7_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR1_N910A6_ch7_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR1_N910A6_ch7_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch7_main_ortho.tif
+
+Processing NVR1_N910A6_ch8_main.tiff with NVR1_N910A6_ch8_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR1_N910A6_ch8_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR1_N910A6_ch8_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch8_main_ortho.tif
+
+Processing NVR2_N910A6_ch1_main.tiff with NVR2_N910A6_ch1_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR2_N910A6_ch1_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR2_N910A6_ch1_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch1_main_ortho.tif
+
+Processing NVR2_N910A6_ch2_main.tiff with NVR2_N910A6_ch2_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR2_N910A6_ch2_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR2_N910A6_ch2_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch2_main_ortho.tif
+
+Processing NVR2_N910A6_ch3_main.tiff with NVR2_N910A6_ch3_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR2_N910A6_ch3_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR2_N910A6_ch3_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch3_main_ortho.tif
+
+Processing NVR2_N910A6_ch4_main.tiff with NVR2_N910A6_ch4_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR2_N910A6_ch4_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR2_N910A6_ch4_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch4_main_ortho.tif
+
+Processing NVR2_N910A6_ch5_main.tiff with NVR2_N910A6_ch5_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR2_N910A6_ch5_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR2_N910A6_ch5_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch5_main_ortho.tif
+
+Processing NVR2_N910A6_ch6_main.tiff with NVR2_N910A6_ch6_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR2_N910A6_ch6_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR2_N910A6_ch6_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch6_main_ortho.tif
+
+Processing NVR2_N910A6_ch7_main.tiff with NVR2_N910A6_ch7_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR2_N910A6_ch7_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR2_N910A6_ch7_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch7_main_ortho.tif
+
+Processing NVR2_N910A6_ch8_main.tiff with NVR2_N910A6_ch8_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR2_N910A6_ch8_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR2_N910A6_ch8_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch8_main_ortho.tif
+[12:34:13]   Processing 20251016_103800...
+[12:34:35]   Output: Loading calibration...
+Found 16 images to process
+
+Processing NVR1_N910A6_ch1_main.tiff with NVR1_N910A6_ch1_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR1_N910A6_ch1_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR1_N910A6_ch1_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch1_main_ortho.tif
+
+Processing NVR1_N910A6_ch2_main.tiff with NVR1_N910A6_ch2_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR1_N910A6_ch2_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR1_N910A6_ch2_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch2_main_ortho.tif
+
+Processing NVR1_N910A6_ch3_main.tiff with NVR1_N910A6_ch3_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR1_N910A6_ch3_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR1_N910A6_ch3_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch3_main_ortho.tif
+
+Processing NVR1_N910A6_ch4_main.tiff with NVR1_N910A6_ch4_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR1_N910A6_ch4_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR1_N910A6_ch4_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch4_main_ortho.tif
+
+Processing NVR1_N910A6_ch5_main.tiff with NVR1_N910A6_ch5_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR1_N910A6_ch5_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR1_N910A6_ch5_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch5_main_ortho.tif
+
+Processing NVR1_N910A6_ch6_main.tiff with NVR1_N910A6_ch6_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR1_N910A6_ch6_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR1_N910A6_ch6_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch6_main_ortho.tif
+
+Processing NVR1_N910A6_ch7_main.tiff with NVR1_N910A6_ch7_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR1_N910A6_ch7_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR1_N910A6_ch7_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch7_main_ortho.tif
+
+Processing NVR1_N910A6_ch8_main.tiff with NVR1_N910A6_ch8_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR1_N910A6_ch8_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR1_N910A6_ch8_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch8_main_ortho.tif
+
+Processing NVR2_N910A6_ch1_main.tiff with NVR2_N910A6_ch1_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR2_N910A6_ch1_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR2_N910A6_ch1_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch1_main_ortho.tif
+
+Processing NVR2_N910A6_ch2_main.tiff with NVR2_N910A6_ch2_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR2_N910A6_ch2_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR2_N910A6_ch2_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch2_main_ortho.tif
+
+Processing NVR2_N910A6_ch3_main.tiff with NVR2_N910A6_ch3_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR2_N910A6_ch3_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR2_N910A6_ch3_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch3_main_ortho.tif
+
+Processing NVR2_N910A6_ch4_main.tiff with NVR2_N910A6_ch4_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR2_N910A6_ch4_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR2_N910A6_ch4_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch4_main_ortho.tif
+
+Processing NVR2_N910A6_ch5_main.tiff with NVR2_N910A6_ch5_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR2_N910A6_ch5_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR2_N910A6_ch5_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch5_main_ortho.tif
+
+Processing NVR2_N910A6_ch6_main.tiff with NVR2_N910A6_ch6_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR2_N910A6_ch6_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR2_N910A6_ch6_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch6_main_ortho.tif
+
+Processing NVR2_N910A6_ch7_main.tiff with NVR2_N910A6_ch7_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR2_N910A6_ch7_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR2_N910A6_ch7_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch7_main_ortho.tif
+
+Processing NVR2_N910A6_ch8_main.tiff with NVR2_N910A6_ch8_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR2_N910A6_ch8_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR2_N910A6_ch8_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch8_main_ortho.tif
+[12:34:35]   Processing 20251016_103900...
+[12:34:57]   Output: Loading calibration...
+Found 16 images to process
+
+Processing NVR1_N910A6_ch1_main.tiff with NVR1_N910A6_ch1_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR1_N910A6_ch1_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR1_N910A6_ch1_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch1_main_ortho.tif
+
+Processing NVR1_N910A6_ch2_main.tiff with NVR1_N910A6_ch2_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR1_N910A6_ch2_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR1_N910A6_ch2_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch2_main_ortho.tif
+
+Processing NVR1_N910A6_ch3_main.tiff with NVR1_N910A6_ch3_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR1_N910A6_ch3_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR1_N910A6_ch3_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch3_main_ortho.tif
+
+Processing NVR1_N910A6_ch4_main.tiff with NVR1_N910A6_ch4_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR1_N910A6_ch4_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR1_N910A6_ch4_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch4_main_ortho.tif
+
+Processing NVR1_N910A6_ch5_main.tiff with NVR1_N910A6_ch5_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR1_N910A6_ch5_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR1_N910A6_ch5_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch5_main_ortho.tif
+
+Processing NVR1_N910A6_ch6_main.tiff with NVR1_N910A6_ch6_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR1_N910A6_ch6_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR1_N910A6_ch6_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch6_main_ortho.tif
+
+Processing NVR1_N910A6_ch7_main.tiff with NVR1_N910A6_ch7_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR1_N910A6_ch7_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR1_N910A6_ch7_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch7_main_ortho.tif
+
+Processing NVR1_N910A6_ch8_main.tiff with NVR1_N910A6_ch8_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR1_N910A6_ch8_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR1_N910A6_ch8_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch8_main_ortho.tif
+
+Processing NVR2_N910A6_ch1_main.tiff with NVR2_N910A6_ch1_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR2_N910A6_ch1_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR2_N910A6_ch1_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch1_main_ortho.tif
+
+Processing NVR2_N910A6_ch2_main.tiff with NVR2_N910A6_ch2_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR2_N910A6_ch2_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR2_N910A6_ch2_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch2_main_ortho.tif
+
+Processing NVR2_N910A6_ch3_main.tiff with NVR2_N910A6_ch3_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR2_N910A6_ch3_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR2_N910A6_ch3_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch3_main_ortho.tif
+
+Processing NVR2_N910A6_ch4_main.tiff with NVR2_N910A6_ch4_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR2_N910A6_ch4_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR2_N910A6_ch4_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch4_main_ortho.tif
+
+Processing NVR2_N910A6_ch5_main.tiff with NVR2_N910A6_ch5_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR2_N910A6_ch5_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR2_N910A6_ch5_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch5_main_ortho.tif
+
+Processing NVR2_N910A6_ch6_main.tiff with NVR2_N910A6_ch6_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR2_N910A6_ch6_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR2_N910A6_ch6_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch6_main_ortho.tif
+
+Processing NVR2_N910A6_ch7_main.tiff with NVR2_N910A6_ch7_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR2_N910A6_ch7_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR2_N910A6_ch7_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch7_main_ortho.tif
+
+Processing NVR2_N910A6_ch8_main.tiff with NVR2_N910A6_ch8_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR2_N910A6_ch8_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR2_N910A6_ch8_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch8_main_ortho.tif
+[12:34:57]   Processing 20251016_104000...
+[12:35:18]   Output: Loading calibration...
+Found 16 images to process
+
+Processing NVR1_N910A6_ch1_main.tiff with NVR1_N910A6_ch1_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR1_N910A6_ch1_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR1_N910A6_ch1_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch1_main_ortho.tif
+
+Processing NVR1_N910A6_ch2_main.tiff with NVR1_N910A6_ch2_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR1_N910A6_ch2_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR1_N910A6_ch2_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch2_main_ortho.tif
+
+Processing NVR1_N910A6_ch3_main.tiff with NVR1_N910A6_ch3_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR1_N910A6_ch3_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR1_N910A6_ch3_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch3_main_ortho.tif
+
+Processing NVR1_N910A6_ch4_main.tiff with NVR1_N910A6_ch4_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR1_N910A6_ch4_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR1_N910A6_ch4_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch4_main_ortho.tif
+
+Processing NVR1_N910A6_ch5_main.tiff with NVR1_N910A6_ch5_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR1_N910A6_ch5_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR1_N910A6_ch5_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch5_main_ortho.tif
+
+Processing NVR1_N910A6_ch6_main.tiff with NVR1_N910A6_ch6_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR1_N910A6_ch6_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR1_N910A6_ch6_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch6_main_ortho.tif
+
+Processing NVR1_N910A6_ch7_main.tiff with NVR1_N910A6_ch7_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR1_N910A6_ch7_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR1_N910A6_ch7_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch7_main_ortho.tif
+
+Processing NVR1_N910A6_ch8_main.tiff with NVR1_N910A6_ch8_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR1_N910A6_ch8_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR1_N910A6_ch8_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch8_main_ortho.tif
+
+Processing NVR2_N910A6_ch1_main.tiff with NVR2_N910A6_ch1_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR2_N910A6_ch1_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR2_N910A6_ch1_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch1_main_ortho.tif
+
+Processing NVR2_N910A6_ch2_main.tiff with NVR2_N910A6_ch2_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR2_N910A6_ch2_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR2_N910A6_ch2_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch2_main_ortho.tif
+
+Processing NVR2_N910A6_ch3_main.tiff with NVR2_N910A6_ch3_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR2_N910A6_ch3_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR2_N910A6_ch3_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch3_main_ortho.tif
+
+Processing NVR2_N910A6_ch4_main.tiff with NVR2_N910A6_ch4_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR2_N910A6_ch4_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR2_N910A6_ch4_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch4_main_ortho.tif
+
+Processing NVR2_N910A6_ch5_main.tiff with NVR2_N910A6_ch5_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR2_N910A6_ch5_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR2_N910A6_ch5_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch5_main_ortho.tif
+
+Processing NVR2_N910A6_ch6_main.tiff with NVR2_N910A6_ch6_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR2_N910A6_ch6_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR2_N910A6_ch6_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch6_main_ortho.tif
+
+Processing NVR2_N910A6_ch7_main.tiff with NVR2_N910A6_ch7_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR2_N910A6_ch7_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR2_N910A6_ch7_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch7_main_ortho.tif
+
+Processing NVR2_N910A6_ch8_main.tiff with NVR2_N910A6_ch8_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR2_N910A6_ch8_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR2_N910A6_ch8_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch8_main_ortho.tif
+[12:35:18] Orthorectification complete (10 timestamps)
+[12:35:18] Starting mosaicking...
+[12:35:18]   Mosaicking 20251016_103100...
+[12:36:14]   Mosaicking 20251016_103200...
+[12:36:53]   Mosaicking 20251016_103300...
+[12:37:32]   Mosaicking 20251016_103400...
+[12:38:11]   Mosaicking 20251016_103500...
+[12:38:49]   Mosaicking 20251016_103600...
+[12:39:28]   Mosaicking 20251016_103700...
+[12:40:07]   Mosaicking 20251016_103800...
+[12:40:45]   Mosaicking 20251016_103900...
+[12:41:22]   Mosaicking 20251016_104000...
+[12:42:00] Mosaicking complete (10 mosaics)
+[12:42:00] 
+Pipeline completed in 10.3 minutes
+
+============================================================
+Processing Log for 20251016_Nav1
+Started: 2025-11-09 12:49:58
+============================================================
+
+[12:49:58] Starting orthorectification...
+[12:49:58]   Processing 20251016_103100...
+[12:50:21]   Output: Loading calibration...
+Found 16 images to process
+
+Processing NVR1_N910A6_ch1_main.tiff with NVR1_N910A6_ch1_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR1_N910A6_ch1_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR1_N910A6_ch1_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch1_main_ortho.tif
+
+Processing NVR1_N910A6_ch2_main.tiff with NVR1_N910A6_ch2_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR1_N910A6_ch2_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR1_N910A6_ch2_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch2_main_ortho.tif
+
+Processing NVR1_N910A6_ch3_main.tiff with NVR1_N910A6_ch3_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR1_N910A6_ch3_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR1_N910A6_ch3_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch3_main_ortho.tif
+
+Processing NVR1_N910A6_ch4_main.tiff with NVR1_N910A6_ch4_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR1_N910A6_ch4_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR1_N910A6_ch4_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch4_main_ortho.tif
+
+Processing NVR1_N910A6_ch5_main.tiff with NVR1_N910A6_ch5_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR1_N910A6_ch5_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR1_N910A6_ch5_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch5_main_ortho.tif
+
+Processing NVR1_N910A6_ch6_main.tiff with NVR1_N910A6_ch6_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR1_N910A6_ch6_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR1_N910A6_ch6_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch6_main_ortho.tif
+
+Processing NVR1_N910A6_ch7_main.tiff with NVR1_N910A6_ch7_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR1_N910A6_ch7_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR1_N910A6_ch7_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch7_main_ortho.tif
+
+Processing NVR1_N910A6_ch8_main.tiff with NVR1_N910A6_ch8_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR1_N910A6_ch8_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR1_N910A6_ch8_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch8_main_ortho.tif
+
+Processing NVR2_N910A6_ch1_main.tiff with NVR2_N910A6_ch1_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR2_N910A6_ch1_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR2_N910A6_ch1_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch1_main_ortho.tif
+
+Processing NVR2_N910A6_ch2_main.tiff with NVR2_N910A6_ch2_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR2_N910A6_ch2_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR2_N910A6_ch2_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch2_main_ortho.tif
+
+Processing NVR2_N910A6_ch3_main.tiff with NVR2_N910A6_ch3_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR2_N910A6_ch3_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR2_N910A6_ch3_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch3_main_ortho.tif
+
+Processing NVR2_N910A6_ch4_main.tiff with NVR2_N910A6_ch4_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR2_N910A6_ch4_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR2_N910A6_ch4_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch4_main_ortho.tif
+
+Processing NVR2_N910A6_ch5_main.tiff with NVR2_N910A6_ch5_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR2_N910A6_ch5_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR2_N910A6_ch5_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch5_main_ortho.tif
+
+Processing NVR2_N910A6_ch6_main.tiff with NVR2_N910A6_ch6_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR2_N910A6_ch6_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR2_N910A6_ch6_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch6_main_ortho.tif
+
+Processing NVR2_N910A6_ch7_main.tiff with NVR2_N910A6_ch7_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR2_N910A6_ch7_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR2_N910A6_ch7_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch7_main_ortho.tif
+
+Processing NVR2_N910A6_ch8_main.tiff with NVR2_N910A6_ch8_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR2_N910A6_ch8_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103100\orthorectified\NVR2_N910A6_ch8_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch8_main_ortho.tif
+[12:50:21]   Processing 20251016_103200...
+[12:50:41]   Output: Loading calibration...
+Found 16 images to process
+
+Processing NVR1_N910A6_ch1_main.tiff with NVR1_N910A6_ch1_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR1_N910A6_ch1_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR1_N910A6_ch1_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch1_main_ortho.tif
+
+Processing NVR1_N910A6_ch2_main.tiff with NVR1_N910A6_ch2_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR1_N910A6_ch2_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR1_N910A6_ch2_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch2_main_ortho.tif
+
+Processing NVR1_N910A6_ch3_main.tiff with NVR1_N910A6_ch3_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR1_N910A6_ch3_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR1_N910A6_ch3_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch3_main_ortho.tif
+
+Processing NVR1_N910A6_ch4_main.tiff with NVR1_N910A6_ch4_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR1_N910A6_ch4_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR1_N910A6_ch4_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch4_main_ortho.tif
+
+Processing NVR1_N910A6_ch5_main.tiff with NVR1_N910A6_ch5_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR1_N910A6_ch5_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR1_N910A6_ch5_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch5_main_ortho.tif
+
+Processing NVR1_N910A6_ch6_main.tiff with NVR1_N910A6_ch6_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR1_N910A6_ch6_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR1_N910A6_ch6_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch6_main_ortho.tif
+
+Processing NVR1_N910A6_ch7_main.tiff with NVR1_N910A6_ch7_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR1_N910A6_ch7_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR1_N910A6_ch7_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch7_main_ortho.tif
+
+Processing NVR1_N910A6_ch8_main.tiff with NVR1_N910A6_ch8_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR1_N910A6_ch8_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR1_N910A6_ch8_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch8_main_ortho.tif
+
+Processing NVR2_N910A6_ch1_main.tiff with NVR2_N910A6_ch1_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR2_N910A6_ch1_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR2_N910A6_ch1_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch1_main_ortho.tif
+
+Processing NVR2_N910A6_ch2_main.tiff with NVR2_N910A6_ch2_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR2_N910A6_ch2_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR2_N910A6_ch2_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch2_main_ortho.tif
+
+Processing NVR2_N910A6_ch3_main.tiff with NVR2_N910A6_ch3_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR2_N910A6_ch3_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR2_N910A6_ch3_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch3_main_ortho.tif
+
+Processing NVR2_N910A6_ch4_main.tiff with NVR2_N910A6_ch4_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR2_N910A6_ch4_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR2_N910A6_ch4_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch4_main_ortho.tif
+
+Processing NVR2_N910A6_ch5_main.tiff with NVR2_N910A6_ch5_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR2_N910A6_ch5_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR2_N910A6_ch5_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch5_main_ortho.tif
+
+Processing NVR2_N910A6_ch6_main.tiff with NVR2_N910A6_ch6_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR2_N910A6_ch6_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR2_N910A6_ch6_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch6_main_ortho.tif
+
+Processing NVR2_N910A6_ch7_main.tiff with NVR2_N910A6_ch7_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR2_N910A6_ch7_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR2_N910A6_ch7_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch7_main_ortho.tif
+
+Processing NVR2_N910A6_ch8_main.tiff with NVR2_N910A6_ch8_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR2_N910A6_ch8_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103200\orthorectified\NVR2_N910A6_ch8_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch8_main_ortho.tif
+[12:50:41]   Processing 20251016_103300...
+[12:51:01]   Output: Loading calibration...
+Found 16 images to process
+
+Processing NVR1_N910A6_ch1_main.tiff with NVR1_N910A6_ch1_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR1_N910A6_ch1_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR1_N910A6_ch1_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch1_main_ortho.tif
+
+Processing NVR1_N910A6_ch2_main.tiff with NVR1_N910A6_ch2_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR1_N910A6_ch2_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR1_N910A6_ch2_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch2_main_ortho.tif
+
+Processing NVR1_N910A6_ch3_main.tiff with NVR1_N910A6_ch3_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR1_N910A6_ch3_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR1_N910A6_ch3_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch3_main_ortho.tif
+
+Processing NVR1_N910A6_ch4_main.tiff with NVR1_N910A6_ch4_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR1_N910A6_ch4_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR1_N910A6_ch4_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch4_main_ortho.tif
+
+Processing NVR1_N910A6_ch5_main.tiff with NVR1_N910A6_ch5_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR1_N910A6_ch5_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR1_N910A6_ch5_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch5_main_ortho.tif
+
+Processing NVR1_N910A6_ch6_main.tiff with NVR1_N910A6_ch6_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR1_N910A6_ch6_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR1_N910A6_ch6_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch6_main_ortho.tif
+
+Processing NVR1_N910A6_ch7_main.tiff with NVR1_N910A6_ch7_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR1_N910A6_ch7_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR1_N910A6_ch7_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch7_main_ortho.tif
+
+Processing NVR1_N910A6_ch8_main.tiff with NVR1_N910A6_ch8_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR1_N910A6_ch8_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR1_N910A6_ch8_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch8_main_ortho.tif
+
+Processing NVR2_N910A6_ch1_main.tiff with NVR2_N910A6_ch1_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR2_N910A6_ch1_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR2_N910A6_ch1_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch1_main_ortho.tif
+
+Processing NVR2_N910A6_ch2_main.tiff with NVR2_N910A6_ch2_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR2_N910A6_ch2_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR2_N910A6_ch2_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch2_main_ortho.tif
+
+Processing NVR2_N910A6_ch3_main.tiff with NVR2_N910A6_ch3_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR2_N910A6_ch3_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR2_N910A6_ch3_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch3_main_ortho.tif
+
+Processing NVR2_N910A6_ch4_main.tiff with NVR2_N910A6_ch4_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR2_N910A6_ch4_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR2_N910A6_ch4_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch4_main_ortho.tif
+
+Processing NVR2_N910A6_ch5_main.tiff with NVR2_N910A6_ch5_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR2_N910A6_ch5_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR2_N910A6_ch5_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch5_main_ortho.tif
+
+Processing NVR2_N910A6_ch6_main.tiff with NVR2_N910A6_ch6_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR2_N910A6_ch6_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR2_N910A6_ch6_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch6_main_ortho.tif
+
+Processing NVR2_N910A6_ch7_main.tiff with NVR2_N910A6_ch7_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR2_N910A6_ch7_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR2_N910A6_ch7_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch7_main_ortho.tif
+
+Processing NVR2_N910A6_ch8_main.tiff with NVR2_N910A6_ch8_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR2_N910A6_ch8_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103300\orthorectified\NVR2_N910A6_ch8_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch8_main_ortho.tif
+[12:51:01]   Processing 20251016_103400...
+[12:51:22]   Output: Loading calibration...
+Found 16 images to process
+
+Processing NVR1_N910A6_ch1_main.tiff with NVR1_N910A6_ch1_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR1_N910A6_ch1_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR1_N910A6_ch1_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch1_main_ortho.tif
+
+Processing NVR1_N910A6_ch2_main.tiff with NVR1_N910A6_ch2_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR1_N910A6_ch2_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR1_N910A6_ch2_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch2_main_ortho.tif
+
+Processing NVR1_N910A6_ch3_main.tiff with NVR1_N910A6_ch3_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR1_N910A6_ch3_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR1_N910A6_ch3_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch3_main_ortho.tif
+
+Processing NVR1_N910A6_ch4_main.tiff with NVR1_N910A6_ch4_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR1_N910A6_ch4_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR1_N910A6_ch4_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch4_main_ortho.tif
+
+Processing NVR1_N910A6_ch5_main.tiff with NVR1_N910A6_ch5_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR1_N910A6_ch5_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR1_N910A6_ch5_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch5_main_ortho.tif
+
+Processing NVR1_N910A6_ch6_main.tiff with NVR1_N910A6_ch6_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR1_N910A6_ch6_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR1_N910A6_ch6_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch6_main_ortho.tif
+
+Processing NVR1_N910A6_ch7_main.tiff with NVR1_N910A6_ch7_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR1_N910A6_ch7_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR1_N910A6_ch7_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch7_main_ortho.tif
+
+Processing NVR1_N910A6_ch8_main.tiff with NVR1_N910A6_ch8_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR1_N910A6_ch8_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR1_N910A6_ch8_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch8_main_ortho.tif
+
+Processing NVR2_N910A6_ch1_main.tiff with NVR2_N910A6_ch1_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR2_N910A6_ch1_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR2_N910A6_ch1_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch1_main_ortho.tif
+
+Processing NVR2_N910A6_ch2_main.tiff with NVR2_N910A6_ch2_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR2_N910A6_ch2_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR2_N910A6_ch2_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch2_main_ortho.tif
+
+Processing NVR2_N910A6_ch3_main.tiff with NVR2_N910A6_ch3_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR2_N910A6_ch3_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR2_N910A6_ch3_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch3_main_ortho.tif
+
+Processing NVR2_N910A6_ch4_main.tiff with NVR2_N910A6_ch4_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR2_N910A6_ch4_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR2_N910A6_ch4_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch4_main_ortho.tif
+
+Processing NVR2_N910A6_ch5_main.tiff with NVR2_N910A6_ch5_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR2_N910A6_ch5_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR2_N910A6_ch5_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch5_main_ortho.tif
+
+Processing NVR2_N910A6_ch6_main.tiff with NVR2_N910A6_ch6_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR2_N910A6_ch6_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR2_N910A6_ch6_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch6_main_ortho.tif
+
+Processing NVR2_N910A6_ch7_main.tiff with NVR2_N910A6_ch7_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR2_N910A6_ch7_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR2_N910A6_ch7_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch7_main_ortho.tif
+
+Processing NVR2_N910A6_ch8_main.tiff with NVR2_N910A6_ch8_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR2_N910A6_ch8_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103400\orthorectified\NVR2_N910A6_ch8_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch8_main_ortho.tif
+[12:51:22]   Processing 20251016_103500...
+[12:51:42]   Output: Loading calibration...
+Found 16 images to process
+
+Processing NVR1_N910A6_ch1_main.tiff with NVR1_N910A6_ch1_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR1_N910A6_ch1_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR1_N910A6_ch1_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch1_main_ortho.tif
+
+Processing NVR1_N910A6_ch2_main.tiff with NVR1_N910A6_ch2_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR1_N910A6_ch2_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR1_N910A6_ch2_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch2_main_ortho.tif
+
+Processing NVR1_N910A6_ch3_main.tiff with NVR1_N910A6_ch3_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR1_N910A6_ch3_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR1_N910A6_ch3_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch3_main_ortho.tif
+
+Processing NVR1_N910A6_ch4_main.tiff with NVR1_N910A6_ch4_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR1_N910A6_ch4_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR1_N910A6_ch4_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch4_main_ortho.tif
+
+Processing NVR1_N910A6_ch5_main.tiff with NVR1_N910A6_ch5_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR1_N910A6_ch5_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR1_N910A6_ch5_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch5_main_ortho.tif
+
+Processing NVR1_N910A6_ch6_main.tiff with NVR1_N910A6_ch6_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR1_N910A6_ch6_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR1_N910A6_ch6_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch6_main_ortho.tif
+
+Processing NVR1_N910A6_ch7_main.tiff with NVR1_N910A6_ch7_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR1_N910A6_ch7_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR1_N910A6_ch7_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch7_main_ortho.tif
+
+Processing NVR1_N910A6_ch8_main.tiff with NVR1_N910A6_ch8_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR1_N910A6_ch8_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR1_N910A6_ch8_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch8_main_ortho.tif
+
+Processing NVR2_N910A6_ch1_main.tiff with NVR2_N910A6_ch1_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR2_N910A6_ch1_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR2_N910A6_ch1_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch1_main_ortho.tif
+
+Processing NVR2_N910A6_ch2_main.tiff with NVR2_N910A6_ch2_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR2_N910A6_ch2_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR2_N910A6_ch2_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch2_main_ortho.tif
+
+Processing NVR2_N910A6_ch3_main.tiff with NVR2_N910A6_ch3_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR2_N910A6_ch3_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR2_N910A6_ch3_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch3_main_ortho.tif
+
+Processing NVR2_N910A6_ch4_main.tiff with NVR2_N910A6_ch4_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR2_N910A6_ch4_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR2_N910A6_ch4_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch4_main_ortho.tif
+
+Processing NVR2_N910A6_ch5_main.tiff with NVR2_N910A6_ch5_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR2_N910A6_ch5_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR2_N910A6_ch5_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch5_main_ortho.tif
+
+Processing NVR2_N910A6_ch6_main.tiff with NVR2_N910A6_ch6_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR2_N910A6_ch6_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR2_N910A6_ch6_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch6_main_ortho.tif
+
+Processing NVR2_N910A6_ch7_main.tiff with NVR2_N910A6_ch7_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR2_N910A6_ch7_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR2_N910A6_ch7_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch7_main_ortho.tif
+
+Processing NVR2_N910A6_ch8_main.tiff with NVR2_N910A6_ch8_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR2_N910A6_ch8_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103500\orthorectified\NVR2_N910A6_ch8_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch8_main_ortho.tif
+[12:51:42]   Processing 20251016_103600...
+[12:52:02]   Output: Loading calibration...
+Found 16 images to process
+
+Processing NVR1_N910A6_ch1_main.tiff with NVR1_N910A6_ch1_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR1_N910A6_ch1_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR1_N910A6_ch1_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch1_main_ortho.tif
+
+Processing NVR1_N910A6_ch2_main.tiff with NVR1_N910A6_ch2_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR1_N910A6_ch2_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR1_N910A6_ch2_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch2_main_ortho.tif
+
+Processing NVR1_N910A6_ch3_main.tiff with NVR1_N910A6_ch3_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR1_N910A6_ch3_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR1_N910A6_ch3_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch3_main_ortho.tif
+
+Processing NVR1_N910A6_ch4_main.tiff with NVR1_N910A6_ch4_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR1_N910A6_ch4_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR1_N910A6_ch4_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch4_main_ortho.tif
+
+Processing NVR1_N910A6_ch5_main.tiff with NVR1_N910A6_ch5_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR1_N910A6_ch5_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR1_N910A6_ch5_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch5_main_ortho.tif
+
+Processing NVR1_N910A6_ch6_main.tiff with NVR1_N910A6_ch6_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR1_N910A6_ch6_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR1_N910A6_ch6_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch6_main_ortho.tif
+
+Processing NVR1_N910A6_ch7_main.tiff with NVR1_N910A6_ch7_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR1_N910A6_ch7_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR1_N910A6_ch7_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch7_main_ortho.tif
+
+Processing NVR1_N910A6_ch8_main.tiff with NVR1_N910A6_ch8_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR1_N910A6_ch8_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR1_N910A6_ch8_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch8_main_ortho.tif
+
+Processing NVR2_N910A6_ch1_main.tiff with NVR2_N910A6_ch1_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR2_N910A6_ch1_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR2_N910A6_ch1_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch1_main_ortho.tif
+
+Processing NVR2_N910A6_ch2_main.tiff with NVR2_N910A6_ch2_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR2_N910A6_ch2_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR2_N910A6_ch2_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch2_main_ortho.tif
+
+Processing NVR2_N910A6_ch3_main.tiff with NVR2_N910A6_ch3_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR2_N910A6_ch3_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR2_N910A6_ch3_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch3_main_ortho.tif
+
+Processing NVR2_N910A6_ch4_main.tiff with NVR2_N910A6_ch4_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR2_N910A6_ch4_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR2_N910A6_ch4_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch4_main_ortho.tif
+
+Processing NVR2_N910A6_ch5_main.tiff with NVR2_N910A6_ch5_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR2_N910A6_ch5_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR2_N910A6_ch5_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch5_main_ortho.tif
+
+Processing NVR2_N910A6_ch6_main.tiff with NVR2_N910A6_ch6_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR2_N910A6_ch6_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR2_N910A6_ch6_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch6_main_ortho.tif
+
+Processing NVR2_N910A6_ch7_main.tiff with NVR2_N910A6_ch7_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR2_N910A6_ch7_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR2_N910A6_ch7_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch7_main_ortho.tif
+
+Processing NVR2_N910A6_ch8_main.tiff with NVR2_N910A6_ch8_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR2_N910A6_ch8_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103600\orthorectified\NVR2_N910A6_ch8_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch8_main_ortho.tif
+[12:52:02]   Processing 20251016_103700...
+[12:52:21]   Output: Loading calibration...
+Found 16 images to process
+
+Processing NVR1_N910A6_ch1_main.tiff with NVR1_N910A6_ch1_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR1_N910A6_ch1_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR1_N910A6_ch1_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch1_main_ortho.tif
+
+Processing NVR1_N910A6_ch2_main.tiff with NVR1_N910A6_ch2_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR1_N910A6_ch2_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR1_N910A6_ch2_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch2_main_ortho.tif
+
+Processing NVR1_N910A6_ch3_main.tiff with NVR1_N910A6_ch3_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR1_N910A6_ch3_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR1_N910A6_ch3_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch3_main_ortho.tif
+
+Processing NVR1_N910A6_ch4_main.tiff with NVR1_N910A6_ch4_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR1_N910A6_ch4_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR1_N910A6_ch4_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch4_main_ortho.tif
+
+Processing NVR1_N910A6_ch5_main.tiff with NVR1_N910A6_ch5_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR1_N910A6_ch5_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR1_N910A6_ch5_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch5_main_ortho.tif
+
+Processing NVR1_N910A6_ch6_main.tiff with NVR1_N910A6_ch6_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR1_N910A6_ch6_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR1_N910A6_ch6_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch6_main_ortho.tif
+
+Processing NVR1_N910A6_ch7_main.tiff with NVR1_N910A6_ch7_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR1_N910A6_ch7_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR1_N910A6_ch7_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch7_main_ortho.tif
+
+Processing NVR1_N910A6_ch8_main.tiff with NVR1_N910A6_ch8_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR1_N910A6_ch8_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR1_N910A6_ch8_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch8_main_ortho.tif
+
+Processing NVR2_N910A6_ch1_main.tiff with NVR2_N910A6_ch1_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR2_N910A6_ch1_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR2_N910A6_ch1_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch1_main_ortho.tif
+
+Processing NVR2_N910A6_ch2_main.tiff with NVR2_N910A6_ch2_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR2_N910A6_ch2_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR2_N910A6_ch2_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch2_main_ortho.tif
+
+Processing NVR2_N910A6_ch3_main.tiff with NVR2_N910A6_ch3_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR2_N910A6_ch3_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR2_N910A6_ch3_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch3_main_ortho.tif
+
+Processing NVR2_N910A6_ch4_main.tiff with NVR2_N910A6_ch4_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR2_N910A6_ch4_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR2_N910A6_ch4_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch4_main_ortho.tif
+
+Processing NVR2_N910A6_ch5_main.tiff with NVR2_N910A6_ch5_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR2_N910A6_ch5_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR2_N910A6_ch5_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch5_main_ortho.tif
+
+Processing NVR2_N910A6_ch6_main.tiff with NVR2_N910A6_ch6_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR2_N910A6_ch6_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR2_N910A6_ch6_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch6_main_ortho.tif
+
+Processing NVR2_N910A6_ch7_main.tiff with NVR2_N910A6_ch7_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR2_N910A6_ch7_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR2_N910A6_ch7_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch7_main_ortho.tif
+
+Processing NVR2_N910A6_ch8_main.tiff with NVR2_N910A6_ch8_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR2_N910A6_ch8_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103700\orthorectified\NVR2_N910A6_ch8_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch8_main_ortho.tif
+[12:52:21]   Processing 20251016_103800...
+[12:52:41]   Output: Loading calibration...
+Found 16 images to process
+
+Processing NVR1_N910A6_ch1_main.tiff with NVR1_N910A6_ch1_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR1_N910A6_ch1_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR1_N910A6_ch1_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch1_main_ortho.tif
+
+Processing NVR1_N910A6_ch2_main.tiff with NVR1_N910A6_ch2_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR1_N910A6_ch2_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR1_N910A6_ch2_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch2_main_ortho.tif
+
+Processing NVR1_N910A6_ch3_main.tiff with NVR1_N910A6_ch3_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR1_N910A6_ch3_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR1_N910A6_ch3_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch3_main_ortho.tif
+
+Processing NVR1_N910A6_ch4_main.tiff with NVR1_N910A6_ch4_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR1_N910A6_ch4_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR1_N910A6_ch4_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch4_main_ortho.tif
+
+Processing NVR1_N910A6_ch5_main.tiff with NVR1_N910A6_ch5_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR1_N910A6_ch5_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR1_N910A6_ch5_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch5_main_ortho.tif
+
+Processing NVR1_N910A6_ch6_main.tiff with NVR1_N910A6_ch6_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR1_N910A6_ch6_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR1_N910A6_ch6_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch6_main_ortho.tif
+
+Processing NVR1_N910A6_ch7_main.tiff with NVR1_N910A6_ch7_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR1_N910A6_ch7_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR1_N910A6_ch7_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch7_main_ortho.tif
+
+Processing NVR1_N910A6_ch8_main.tiff with NVR1_N910A6_ch8_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR1_N910A6_ch8_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR1_N910A6_ch8_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch8_main_ortho.tif
+
+Processing NVR2_N910A6_ch1_main.tiff with NVR2_N910A6_ch1_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR2_N910A6_ch1_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR2_N910A6_ch1_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch1_main_ortho.tif
+
+Processing NVR2_N910A6_ch2_main.tiff with NVR2_N910A6_ch2_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR2_N910A6_ch2_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR2_N910A6_ch2_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch2_main_ortho.tif
+
+Processing NVR2_N910A6_ch3_main.tiff with NVR2_N910A6_ch3_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR2_N910A6_ch3_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR2_N910A6_ch3_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch3_main_ortho.tif
+
+Processing NVR2_N910A6_ch4_main.tiff with NVR2_N910A6_ch4_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR2_N910A6_ch4_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR2_N910A6_ch4_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch4_main_ortho.tif
+
+Processing NVR2_N910A6_ch5_main.tiff with NVR2_N910A6_ch5_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR2_N910A6_ch5_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR2_N910A6_ch5_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch5_main_ortho.tif
+
+Processing NVR2_N910A6_ch6_main.tiff with NVR2_N910A6_ch6_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR2_N910A6_ch6_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR2_N910A6_ch6_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch6_main_ortho.tif
+
+Processing NVR2_N910A6_ch7_main.tiff with NVR2_N910A6_ch7_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR2_N910A6_ch7_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR2_N910A6_ch7_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch7_main_ortho.tif
+
+Processing NVR2_N910A6_ch8_main.tiff with NVR2_N910A6_ch8_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR2_N910A6_ch8_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103800\orthorectified\NVR2_N910A6_ch8_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch8_main_ortho.tif
+[12:52:41]   Processing 20251016_103900...
+[12:53:01]   Output: Loading calibration...
+Found 16 images to process
+
+Processing NVR1_N910A6_ch1_main.tiff with NVR1_N910A6_ch1_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR1_N910A6_ch1_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR1_N910A6_ch1_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch1_main_ortho.tif
+
+Processing NVR1_N910A6_ch2_main.tiff with NVR1_N910A6_ch2_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR1_N910A6_ch2_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR1_N910A6_ch2_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch2_main_ortho.tif
+
+Processing NVR1_N910A6_ch3_main.tiff with NVR1_N910A6_ch3_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR1_N910A6_ch3_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR1_N910A6_ch3_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch3_main_ortho.tif
+
+Processing NVR1_N910A6_ch4_main.tiff with NVR1_N910A6_ch4_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR1_N910A6_ch4_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR1_N910A6_ch4_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch4_main_ortho.tif
+
+Processing NVR1_N910A6_ch5_main.tiff with NVR1_N910A6_ch5_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR1_N910A6_ch5_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR1_N910A6_ch5_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch5_main_ortho.tif
+
+Processing NVR1_N910A6_ch6_main.tiff with NVR1_N910A6_ch6_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR1_N910A6_ch6_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR1_N910A6_ch6_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch6_main_ortho.tif
+
+Processing NVR1_N910A6_ch7_main.tiff with NVR1_N910A6_ch7_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR1_N910A6_ch7_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR1_N910A6_ch7_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch7_main_ortho.tif
+
+Processing NVR1_N910A6_ch8_main.tiff with NVR1_N910A6_ch8_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR1_N910A6_ch8_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR1_N910A6_ch8_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch8_main_ortho.tif
+
+Processing NVR2_N910A6_ch1_main.tiff with NVR2_N910A6_ch1_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR2_N910A6_ch1_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR2_N910A6_ch1_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch1_main_ortho.tif
+
+Processing NVR2_N910A6_ch2_main.tiff with NVR2_N910A6_ch2_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR2_N910A6_ch2_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR2_N910A6_ch2_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch2_main_ortho.tif
+
+Processing NVR2_N910A6_ch3_main.tiff with NVR2_N910A6_ch3_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR2_N910A6_ch3_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR2_N910A6_ch3_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch3_main_ortho.tif
+
+Processing NVR2_N910A6_ch4_main.tiff with NVR2_N910A6_ch4_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR2_N910A6_ch4_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR2_N910A6_ch4_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch4_main_ortho.tif
+
+Processing NVR2_N910A6_ch5_main.tiff with NVR2_N910A6_ch5_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR2_N910A6_ch5_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR2_N910A6_ch5_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch5_main_ortho.tif
+
+Processing NVR2_N910A6_ch6_main.tiff with NVR2_N910A6_ch6_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR2_N910A6_ch6_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR2_N910A6_ch6_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch6_main_ortho.tif
+
+Processing NVR2_N910A6_ch7_main.tiff with NVR2_N910A6_ch7_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR2_N910A6_ch7_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR2_N910A6_ch7_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch7_main_ortho.tif
+
+Processing NVR2_N910A6_ch8_main.tiff with NVR2_N910A6_ch8_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR2_N910A6_ch8_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_103900\orthorectified\NVR2_N910A6_ch8_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch8_main_ortho.tif
+[12:53:01]   Processing 20251016_104000...
+[12:53:21]   Output: Loading calibration...
+Found 16 images to process
+
+Processing NVR1_N910A6_ch1_main.tiff with NVR1_N910A6_ch1_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR1_N910A6_ch1_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR1_N910A6_ch1_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch1_main_ortho.tif
+
+Processing NVR1_N910A6_ch2_main.tiff with NVR1_N910A6_ch2_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR1_N910A6_ch2_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR1_N910A6_ch2_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch2_main_ortho.tif
+
+Processing NVR1_N910A6_ch3_main.tiff with NVR1_N910A6_ch3_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR1_N910A6_ch3_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR1_N910A6_ch3_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch3_main_ortho.tif
+
+Processing NVR1_N910A6_ch4_main.tiff with NVR1_N910A6_ch4_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR1_N910A6_ch4_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR1_N910A6_ch4_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch4_main_ortho.tif
+
+Processing NVR1_N910A6_ch5_main.tiff with NVR1_N910A6_ch5_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR1_N910A6_ch5_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR1_N910A6_ch5_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch5_main_ortho.tif
+
+Processing NVR1_N910A6_ch6_main.tiff with NVR1_N910A6_ch6_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR1_N910A6_ch6_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR1_N910A6_ch6_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch6_main_ortho.tif
+
+Processing NVR1_N910A6_ch7_main.tiff with NVR1_N910A6_ch7_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR1_N910A6_ch7_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR1_N910A6_ch7_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch7_main_ortho.tif
+
+Processing NVR1_N910A6_ch8_main.tiff with NVR1_N910A6_ch8_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR1_N910A6_ch8_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR1_N910A6_ch8_main_ortho.tfw
+  Orthorectified: NVR1_N910A6_ch8_main_ortho.tif
+
+Processing NVR2_N910A6_ch1_main.tiff with NVR2_N910A6_ch1_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR2_N910A6_ch1_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR2_N910A6_ch1_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch1_main_ortho.tif
+
+Processing NVR2_N910A6_ch2_main.tiff with NVR2_N910A6_ch2_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR2_N910A6_ch2_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR2_N910A6_ch2_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch2_main_ortho.tif
+
+Processing NVR2_N910A6_ch3_main.tiff with NVR2_N910A6_ch3_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR2_N910A6_ch3_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR2_N910A6_ch3_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch3_main_ortho.tif
+
+Processing NVR2_N910A6_ch4_main.tiff with NVR2_N910A6_ch4_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR2_N910A6_ch4_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR2_N910A6_ch4_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch4_main_ortho.tif
+
+Processing NVR2_N910A6_ch5_main.tiff with NVR2_N910A6_ch5_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR2_N910A6_ch5_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR2_N910A6_ch5_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch5_main_ortho.tif
+
+Processing NVR2_N910A6_ch6_main.tiff with NVR2_N910A6_ch6_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR2_N910A6_ch6_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR2_N910A6_ch6_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch6_main_ortho.tif
+
+Processing NVR2_N910A6_ch7_main.tiff with NVR2_N910A6_ch7_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR2_N910A6_ch7_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR2_N910A6_ch7_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch7_main_ortho.tif
+
+Processing NVR2_N910A6_ch8_main.tiff with NVR2_N910A6_ch8_main calibration
+  Saved: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR2_N910A6_ch8_main_ortho.tif
+  World file: output_data\20251016_Nav1\orthos\20251016_104000\orthorectified\NVR2_N910A6_ch8_main_ortho.tfw
+  Orthorectified: NVR2_N910A6_ch8_main_ortho.tif
+[12:53:21] Orthorectification complete (10 timestamps)
+[12:53:21] Starting mosaicking...
+[12:53:21]   Mosaicking 20251016_103100...
+[12:54:17]   Mosaicking 20251016_103200...
+[12:55:12]   Mosaicking 20251016_103300...
+[12:56:06]   Mosaicking 20251016_103400...
+[12:57:01]   Mosaicking 20251016_103500...
+[12:57:55]   Mosaicking 20251016_103600...
+[12:58:53]   Mosaicking 20251016_103700...
+[12:59:55]   Mosaicking 20251016_103800...
+[13:01:02]   Mosaicking 20251016_103900...
+[13:02:15]   Mosaicking 20251016_104000...
+[13:03:30] Mosaicking complete (10 mosaics)
+[13:03:30] 
+Pipeline completed in 13.5 minutes

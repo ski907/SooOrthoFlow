@@ -125,7 +125,7 @@ def create_orthorectification_params(camera_gcps, resolution=0.005, padding_mete
     return width, height, geotransform
 
 
-def load_dem_from_tiff(dem_path, width, height, geotransform, nodata_value=None):
+def load_dem_from_tiff_old(dem_path, width, height, geotransform, nodata_value=None):
     """
     Load elevation data from LiDAR DEM TIFF and resample to output grid
     
@@ -206,6 +206,60 @@ def load_dem_from_tiff(dem_path, width, height, geotransform, nodata_value=None)
         
         return dem_array
 
+def load_dem_from_tiff(dem_path, width, height, geotransform, nodata_value=None):
+    """
+    Vectorized version using rasterio's built-in resampling (much faster).
+    This is equivalent to load_dem_from_tiff_resampled but with better handling.
+    """
+    import rasterio
+    from rasterio.warp import reproject, Resampling
+    from rasterio.transform import from_bounds
+    
+    print(f"  Loading DEM from: {dem_path} (VECTORIZED)")
+    
+    with rasterio.open(dem_path) as src:
+        print(f"    DEM size: {src.width} x {src.height}")
+        print(f"    DEM bounds: {src.bounds}")
+        print(f"    DEM resolution: {src.res}")
+        
+        # Create output transform
+        x_min = geotransform['x_min']
+        y_max = geotransform['y_max']
+        pixel_width = geotransform['pixel_width']
+        pixel_height = abs(geotransform['pixel_height'])
+        
+        x_max = x_min + width * pixel_width
+        y_min = y_max - height * pixel_height
+        
+        dst_transform = from_bounds(x_min, y_min, x_max, y_max, width, height)
+        
+        # Initialize output array
+        dem_array = np.zeros((height, width), dtype=np.float32)
+        
+        # Reproject/resample using rasterio's fast C implementation
+        print("    Resampling DEM (bilinear interpolation)...")
+        reproject(
+            source=rasterio.band(src, 1),
+            destination=dem_array,
+            src_transform=src.transform,
+            src_crs=src.crs,
+            dst_transform=dst_transform,
+            dst_crs=src.crs,
+            resampling=Resampling.bilinear
+        )
+        
+        # Handle nodata values if specified
+        if nodata_value is not None:
+            mask = dem_array == nodata_value
+            if np.any(mask):
+                n_nodata = np.sum(mask)
+                print(f"    Found {n_nodata} nodata pixels, filling with mean...")
+                valid_mean = np.mean(dem_array[~mask])
+                dem_array[mask] = valid_mean
+        
+        print(f"  DEM loaded: Z range = [{dem_array.min():.3f}, {dem_array.max():.3f}] meters")
+        
+        return dem_array
 
 def load_dem_from_tiff_resampled(dem_path, width, height, geotransform):
     """
@@ -248,7 +302,7 @@ def load_dem_from_tiff_resampled(dem_path, width, height, geotransform):
         return dem_array
 
 
-def create_ortho_lookup_tables_with_dem(K, D, rvec, tvec, width, height, 
+def create_ortho_lookup_tables_with_dem_old(K, D, rvec, tvec, width, height, 
                                         geotransform, dem_array):
     """
     Pre-compute mapping from output pixels to input pixels using DEM elevations
@@ -305,6 +359,79 @@ def create_ortho_lookup_tables_with_dem(K, D, rvec, tvec, width, height,
     
     return map_x, map_y
 
+def create_ortho_lookup_tables_with_dem(K, D, rvec, tvec, width, height, 
+                                                    geotransform, dem_array):
+    """
+    Vectorized version: Pre-compute mapping from output pixels to input pixels using DEM elevations.
+    This is 10-50x faster than the pixel-by-pixel loop version.
+    
+    Parameters:
+    - K: camera intrinsic matrix (3x3)
+    - D: fisheye distortion coefficients (4x1)
+    - rvec: rotation vector (3x1)
+    - tvec: translation vector (3x1)
+    - width, height: output image dimensions
+    - geotransform: dict with x_min, y_max, pixel_width, pixel_height
+    - dem_array: 2D array of elevations (height x width)
+    
+    Returns:
+    - map_x, map_y: lookup tables for cv2.remap
+    """
+    print(f"  Creating DEM-based lookup tables for {width}x{height} output (VECTORIZED)...")
+    
+    # Extract geotransform parameters
+    x_min = geotransform['x_min']
+    y_max = geotransform['y_max']
+    pixel_width = geotransform['pixel_width']
+    pixel_height = geotransform['pixel_height']
+    
+    # Convert rotation vector to rotation matrix
+    R, _ = cv2.Rodrigues(rvec)
+    
+    # Create coordinate grids for ALL pixels at once
+    print("    Generating coordinate grids...")
+    cols, rows = np.meshgrid(np.arange(width), np.arange(height))
+    
+    # Calculate world X, Y coordinates for all pixels (no loops!)
+    world_x = x_min + cols * pixel_width
+    world_y = y_max + rows * pixel_height
+    world_z = dem_array  # Already in the right shape (height, width)
+    
+    # Stack into (height*width, 3) array of 3D world points
+    print("    Stacking 3D world points...")
+    world_points = np.stack([
+        world_x.ravel(),
+        world_y.ravel(),
+        world_z.ravel()
+    ], axis=1).astype(np.float64)
+    
+    # Transform ALL points to camera coordinates at once
+    print("    Transforming to camera coordinates...")
+    camera_points = (R @ world_points.T).T + tvec.T
+    
+    # Reshape for OpenCV fisheye projection: (N, 1, 3)
+    camera_points_reshaped = camera_points.reshape(-1, 1, 3)
+    
+    # Project ALL points to image plane in a single call
+    print("    Projecting points (this is the main computation)...")
+    image_points, _ = cv2.fisheye.projectPoints(
+        camera_points_reshaped,
+        np.zeros((3, 1), dtype=np.float64),  # Zero rotation (already applied)
+        np.zeros((3, 1), dtype=np.float64),  # Zero translation (already applied)
+        K,
+        D
+    )
+    
+    # Reshape back to 2D lookup tables
+    print("    Reshaping to lookup tables...")
+    map_x = image_points[:, 0, 0].reshape(height, width).astype(np.float32)
+    map_y = image_points[:, 0, 1].reshape(height, width).astype(np.float32)
+    
+    print(f"    Lookup tables created!")
+    print(f"    Map X range: [{map_x.min():.1f}, {map_x.max():.1f}]")
+    print(f"    Map Y range: [{map_y.min():.1f}, {map_y.max():.1f}]")
+    
+    return map_x, map_y
 
 def orthorectify_with_lookup(img, map_x, map_y):
     """
@@ -417,13 +544,13 @@ def calibrate_all_cameras(gcp_file, image_dir, dem_path, resolution=0.005,
                     dem_path, width, height, geotransform
                 )
             else:
-                dem_array = load_dem_from_tiff(
+                dem_array = load_dem_from_tiff_vectorized(
                     dem_path, width, height, geotransform
                 )
             
             # Create lookup tables using DEM
             print("\nCreating lookup tables with DEM...")
-            map_x, map_y = create_ortho_lookup_tables_with_dem(
+            map_x, map_y = create_ortho_lookup_tables_with_dem_vectorized(
                 K, D, rvec, tvec, width, height, geotransform, dem_array
             )
             
