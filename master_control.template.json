@@ -1,0 +1,22 @@
+{
+    "video_folder": "C:\\path\\to\\test_videos\\test_YYYYMMDD_1a",
+    "start_time": "YYYY-MM-DD HH:MM:SS",
+    "end_time": "YYYY-MM-DD HH:MM:SS",
+    "interval": "1min",
+    
+    "paths": {
+        "output_base": "output_data",
+        "calibration_file": "calibration/camera_calibrations.pkl",
+        "gcp_file": "inputs/GCP_merged.csv",
+        "dsm_file": "inputs/lidar_DSM_filled_cropped.tif"
+    },
+    
+    "processing": {
+        "output_format": "tiff",
+        "recursive": true,
+        "filename_pattern": "CAMERA_DATETIME_DATETIME",
+        "mosaic_method": "center",
+        "ortho_resolution": 0.005,
+        "ortho_padding": 0.5
+    }
+}

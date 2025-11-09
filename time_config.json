@@ -1,0 +1,13 @@
+{
+    "video_directory": "C:/Users/RDCRLCSE/Documents/FileCloud/My Files/Soo Locks/Ice Management Model Project/technical/SooOrthoFlow/test_videos/20251016_Nav1",
+    "mode": "time_range",
+    "time_range": {
+        "start": "2025-10-16 10:31:00",
+        "end": "2025-10-16 10:40:00",
+        "interval": "1min"
+    },
+    "output_directory": "output_data\\20251016_Nav1\\frames",
+    "output_format": "tiff",
+    "recursive": true,
+    "filename_pattern": "CAMERA_DATETIME_DATETIME"
+}

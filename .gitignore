@@ -1,0 +1,7 @@
+# Ignore pickle and TIFF files
+*.pkl
+*.tif
+*.tiff
+*.avi
+*.pyc
+*.tfw

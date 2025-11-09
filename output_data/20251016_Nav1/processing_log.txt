@@ -1,0 +1,646 @@
+
+============================================================
+Processing Log for 20251016_Nav1
+Started: 2025-11-08 23:45:32
+============================================================
+
+[23:45:32] Starting frame extraction...
+[23:49:32] Frame extraction complete
+[23:49:32] Starting orthorectification...
+[23:49:32]   Processing 20251016_103100...
+[23:49:33]   Output: Loading calibration...
+Found 16 images to process
+
+Skipping NVR1_N910A6_ch1_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch2_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch3_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch4_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch5_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch6_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch7_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch8_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch1_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch2_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch3_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch4_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch5_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch6_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch7_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch8_main.tiff - no matching calibration
+[23:49:33]   Processing 20251016_103200...
+[23:49:34]   Output: Loading calibration...
+Found 16 images to process
+
+Skipping NVR1_N910A6_ch1_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch2_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch3_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch4_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch5_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch6_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch7_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch8_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch1_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch2_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch3_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch4_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch5_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch6_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch7_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch8_main.tiff - no matching calibration
+[23:49:34]   Processing 20251016_103300...
+[23:49:35]   Output: Loading calibration...
+Found 16 images to process
+
+Skipping NVR1_N910A6_ch1_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch2_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch3_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch4_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch5_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch6_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch7_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch8_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch1_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch2_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch3_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch4_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch5_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch6_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch7_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch8_main.tiff - no matching calibration
+[23:49:35]   Processing 20251016_103400...
+[23:49:36]   Output: Loading calibration...
+Found 16 images to process
+
+Skipping NVR1_N910A6_ch1_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch2_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch3_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch4_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch5_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch6_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch7_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch8_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch1_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch2_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch3_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch4_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch5_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch6_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch7_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch8_main.tiff - no matching calibration
+[23:49:36]   Processing 20251016_103500...
+[23:49:37]   Output: Loading calibration...
+Found 16 images to process
+
+Skipping NVR1_N910A6_ch1_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch2_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch3_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch4_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch5_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch6_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch7_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch8_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch1_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch2_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch3_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch4_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch5_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch6_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch7_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch8_main.tiff - no matching calibration
+[23:49:37]   Processing 20251016_103600...
+[23:49:38]   Output: Loading calibration...
+Found 16 images to process
+
+Skipping NVR1_N910A6_ch1_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch2_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch3_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch4_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch5_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch6_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch7_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch8_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch1_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch2_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch3_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch4_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch5_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch6_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch7_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch8_main.tiff - no matching calibration
+[23:49:38]   Processing 20251016_103700...
+[23:49:39]   Output: Loading calibration...
+Found 16 images to process
+
+Skipping NVR1_N910A6_ch1_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch2_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch3_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch4_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch5_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch6_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch7_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch8_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch1_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch2_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch3_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch4_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch5_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch6_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch7_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch8_main.tiff - no matching calibration
+[23:49:39]   Processing 20251016_103800...
+[23:49:40]   Output: Loading calibration...
+Found 16 images to process
+
+Skipping NVR1_N910A6_ch1_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch2_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch3_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch4_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch5_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch6_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch7_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch8_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch1_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch2_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch3_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch4_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch5_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch6_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch7_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch8_main.tiff - no matching calibration
+[23:49:40]   Processing 20251016_103900...
+[23:49:41]   Output: Loading calibration...
+Found 16 images to process
+
+Skipping NVR1_N910A6_ch1_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch2_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch3_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch4_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch5_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch6_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch7_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch8_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch1_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch2_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch3_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch4_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch5_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch6_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch7_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch8_main.tiff - no matching calibration
+[23:49:41]   Processing 20251016_104000...
+[23:49:43]   Output: Loading calibration...
+Found 16 images to process
+
+Skipping NVR1_N910A6_ch1_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch2_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch3_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch4_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch5_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch6_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch7_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch8_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch1_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch2_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch3_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch4_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch5_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch6_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch7_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch8_main.tiff - no matching calibration
+[23:49:43] Orthorectification complete (10 timestamps)
+[23:49:43] Starting mosaicking...
+[23:49:43]   Mosaicking 20251016_103100...
+[23:49:44]   ERROR mosaicking 20251016_103100: Traceback (most recent call last):
+  File "C:\Users\RDCRLCSE\Documents\FileCloud\My Files\Soo Locks\Ice Management Model Project\technical\SooOrthoFlow\orthorectification\ortho_mosaic.py", line 521, in <module>
+    create_mosaic_simple_priority(
+  File "C:\Users\RDCRLCSE\Documents\FileCloud\My Files\Soo Locks\Ice Management Model Project\technical\SooOrthoFlow\orthorectification\ortho_mosaic.py", line 381, in create_mosaic_simple_priority
+    x_min, x_max, y_min, y_max = compute_mosaic_bounds(ortho_dir)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RDCRLCSE\Documents\FileCloud\My Files\Soo Locks\Ice Management Model Project\technical\SooOrthoFlow\orthorectification\ortho_mosaic.py", line 43, in compute_mosaic_bounds
+    raise ValueError(f"No *_ortho.tif files found in {ortho_dir}")
+ValueError: No *_ortho.tif files found in output_data\20251016_Nav1\orthos\20251016_103100\orthorectified
+
+[23:49:44]   Mosaicking 20251016_103200...
+[23:49:45]   ERROR mosaicking 20251016_103200: Traceback (most recent call last):
+  File "C:\Users\RDCRLCSE\Documents\FileCloud\My Files\Soo Locks\Ice Management Model Project\technical\SooOrthoFlow\orthorectification\ortho_mosaic.py", line 521, in <module>
+    create_mosaic_simple_priority(
+  File "C:\Users\RDCRLCSE\Documents\FileCloud\My Files\Soo Locks\Ice Management Model Project\technical\SooOrthoFlow\orthorectification\ortho_mosaic.py", line 381, in create_mosaic_simple_priority
+    x_min, x_max, y_min, y_max = compute_mosaic_bounds(ortho_dir)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RDCRLCSE\Documents\FileCloud\My Files\Soo Locks\Ice Management Model Project\technical\SooOrthoFlow\orthorectification\ortho_mosaic.py", line 43, in compute_mosaic_bounds
+    raise ValueError(f"No *_ortho.tif files found in {ortho_dir}")
+ValueError: No *_ortho.tif files found in output_data\20251016_Nav1\orthos\20251016_103200\orthorectified
+
+[23:49:45]   Mosaicking 20251016_103300...
+[23:49:46]   ERROR mosaicking 20251016_103300: Traceback (most recent call last):
+  File "C:\Users\RDCRLCSE\Documents\FileCloud\My Files\Soo Locks\Ice Management Model Project\technical\SooOrthoFlow\orthorectification\ortho_mosaic.py", line 521, in <module>
+    create_mosaic_simple_priority(
+  File "C:\Users\RDCRLCSE\Documents\FileCloud\My Files\Soo Locks\Ice Management Model Project\technical\SooOrthoFlow\orthorectification\ortho_mosaic.py", line 381, in create_mosaic_simple_priority
+    x_min, x_max, y_min, y_max = compute_mosaic_bounds(ortho_dir)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RDCRLCSE\Documents\FileCloud\My Files\Soo Locks\Ice Management Model Project\technical\SooOrthoFlow\orthorectification\ortho_mosaic.py", line 43, in compute_mosaic_bounds
+    raise ValueError(f"No *_ortho.tif files found in {ortho_dir}")
+ValueError: No *_ortho.tif files found in output_data\20251016_Nav1\orthos\20251016_103300\orthorectified
+
+[23:49:46]   Mosaicking 20251016_103400...
+[23:49:47]   ERROR mosaicking 20251016_103400: Traceback (most recent call last):
+  File "C:\Users\RDCRLCSE\Documents\FileCloud\My Files\Soo Locks\Ice Management Model Project\technical\SooOrthoFlow\orthorectification\ortho_mosaic.py", line 521, in <module>
+    create_mosaic_simple_priority(
+  File "C:\Users\RDCRLCSE\Documents\FileCloud\My Files\Soo Locks\Ice Management Model Project\technical\SooOrthoFlow\orthorectification\ortho_mosaic.py", line 381, in create_mosaic_simple_priority
+    x_min, x_max, y_min, y_max = compute_mosaic_bounds(ortho_dir)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RDCRLCSE\Documents\FileCloud\My Files\Soo Locks\Ice Management Model Project\technical\SooOrthoFlow\orthorectification\ortho_mosaic.py", line 43, in compute_mosaic_bounds
+    raise ValueError(f"No *_ortho.tif files found in {ortho_dir}")
+ValueError: No *_ortho.tif files found in output_data\20251016_Nav1\orthos\20251016_103400\orthorectified
+
+[23:49:47]   Mosaicking 20251016_103500...
+[23:49:48]   ERROR mosaicking 20251016_103500: Traceback (most recent call last):
+  File "C:\Users\RDCRLCSE\Documents\FileCloud\My Files\Soo Locks\Ice Management Model Project\technical\SooOrthoFlow\orthorectification\ortho_mosaic.py", line 521, in <module>
+    create_mosaic_simple_priority(
+  File "C:\Users\RDCRLCSE\Documents\FileCloud\My Files\Soo Locks\Ice Management Model Project\technical\SooOrthoFlow\orthorectification\ortho_mosaic.py", line 381, in create_mosaic_simple_priority
+    x_min, x_max, y_min, y_max = compute_mosaic_bounds(ortho_dir)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RDCRLCSE\Documents\FileCloud\My Files\Soo Locks\Ice Management Model Project\technical\SooOrthoFlow\orthorectification\ortho_mosaic.py", line 43, in compute_mosaic_bounds
+    raise ValueError(f"No *_ortho.tif files found in {ortho_dir}")
+ValueError: No *_ortho.tif files found in output_data\20251016_Nav1\orthos\20251016_103500\orthorectified
+
+[23:49:48]   Mosaicking 20251016_103600...
+[23:49:48]   ERROR mosaicking 20251016_103600: Traceback (most recent call last):
+  File "C:\Users\RDCRLCSE\Documents\FileCloud\My Files\Soo Locks\Ice Management Model Project\technical\SooOrthoFlow\orthorectification\ortho_mosaic.py", line 521, in <module>
+    create_mosaic_simple_priority(
+  File "C:\Users\RDCRLCSE\Documents\FileCloud\My Files\Soo Locks\Ice Management Model Project\technical\SooOrthoFlow\orthorectification\ortho_mosaic.py", line 381, in create_mosaic_simple_priority
+    x_min, x_max, y_min, y_max = compute_mosaic_bounds(ortho_dir)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RDCRLCSE\Documents\FileCloud\My Files\Soo Locks\Ice Management Model Project\technical\SooOrthoFlow\orthorectification\ortho_mosaic.py", line 43, in compute_mosaic_bounds
+    raise ValueError(f"No *_ortho.tif files found in {ortho_dir}")
+ValueError: No *_ortho.tif files found in output_data\20251016_Nav1\orthos\20251016_103600\orthorectified
+
+[23:49:48]   Mosaicking 20251016_103700...
+[23:49:49]   ERROR mosaicking 20251016_103700: Traceback (most recent call last):
+  File "C:\Users\RDCRLCSE\Documents\FileCloud\My Files\Soo Locks\Ice Management Model Project\technical\SooOrthoFlow\orthorectification\ortho_mosaic.py", line 521, in <module>
+    create_mosaic_simple_priority(
+  File "C:\Users\RDCRLCSE\Documents\FileCloud\My Files\Soo Locks\Ice Management Model Project\technical\SooOrthoFlow\orthorectification\ortho_mosaic.py", line 381, in create_mosaic_simple_priority
+    x_min, x_max, y_min, y_max = compute_mosaic_bounds(ortho_dir)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RDCRLCSE\Documents\FileCloud\My Files\Soo Locks\Ice Management Model Project\technical\SooOrthoFlow\orthorectification\ortho_mosaic.py", line 43, in compute_mosaic_bounds
+    raise ValueError(f"No *_ortho.tif files found in {ortho_dir}")
+ValueError: No *_ortho.tif files found in output_data\20251016_Nav1\orthos\20251016_103700\orthorectified
+
+[23:49:49]   Mosaicking 20251016_103800...
+[23:49:50]   ERROR mosaicking 20251016_103800: Traceback (most recent call last):
+  File "C:\Users\RDCRLCSE\Documents\FileCloud\My Files\Soo Locks\Ice Management Model Project\technical\SooOrthoFlow\orthorectification\ortho_mosaic.py", line 521, in <module>
+    create_mosaic_simple_priority(
+  File "C:\Users\RDCRLCSE\Documents\FileCloud\My Files\Soo Locks\Ice Management Model Project\technical\SooOrthoFlow\orthorectification\ortho_mosaic.py", line 381, in create_mosaic_simple_priority
+    x_min, x_max, y_min, y_max = compute_mosaic_bounds(ortho_dir)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RDCRLCSE\Documents\FileCloud\My Files\Soo Locks\Ice Management Model Project\technical\SooOrthoFlow\orthorectification\ortho_mosaic.py", line 43, in compute_mosaic_bounds
+    raise ValueError(f"No *_ortho.tif files found in {ortho_dir}")
+ValueError: No *_ortho.tif files found in output_data\20251016_Nav1\orthos\20251016_103800\orthorectified
+
+[23:49:50]   Mosaicking 20251016_103900...
+[23:49:51]   ERROR mosaicking 20251016_103900: Traceback (most recent call last):
+  File "C:\Users\RDCRLCSE\Documents\FileCloud\My Files\Soo Locks\Ice Management Model Project\technical\SooOrthoFlow\orthorectification\ortho_mosaic.py", line 521, in <module>
+    create_mosaic_simple_priority(
+  File "C:\Users\RDCRLCSE\Documents\FileCloud\My Files\Soo Locks\Ice Management Model Project\technical\SooOrthoFlow\orthorectification\ortho_mosaic.py", line 381, in create_mosaic_simple_priority
+    x_min, x_max, y_min, y_max = compute_mosaic_bounds(ortho_dir)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RDCRLCSE\Documents\FileCloud\My Files\Soo Locks\Ice Management Model Project\technical\SooOrthoFlow\orthorectification\ortho_mosaic.py", line 43, in compute_mosaic_bounds
+    raise ValueError(f"No *_ortho.tif files found in {ortho_dir}")
+ValueError: No *_ortho.tif files found in output_data\20251016_Nav1\orthos\20251016_103900\orthorectified
+
+[23:49:51]   Mosaicking 20251016_104000...
+[23:49:52]   ERROR mosaicking 20251016_104000: Traceback (most recent call last):
+  File "C:\Users\RDCRLCSE\Documents\FileCloud\My Files\Soo Locks\Ice Management Model Project\technical\SooOrthoFlow\orthorectification\ortho_mosaic.py", line 521, in <module>
+    create_mosaic_simple_priority(
+  File "C:\Users\RDCRLCSE\Documents\FileCloud\My Files\Soo Locks\Ice Management Model Project\technical\SooOrthoFlow\orthorectification\ortho_mosaic.py", line 381, in create_mosaic_simple_priority
+    x_min, x_max, y_min, y_max = compute_mosaic_bounds(ortho_dir)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RDCRLCSE\Documents\FileCloud\My Files\Soo Locks\Ice Management Model Project\technical\SooOrthoFlow\orthorectification\ortho_mosaic.py", line 43, in compute_mosaic_bounds
+    raise ValueError(f"No *_ortho.tif files found in {ortho_dir}")
+ValueError: No *_ortho.tif files found in output_data\20251016_Nav1\orthos\20251016_104000\orthorectified
+
+[23:49:52] Mosaicking complete (10 mosaics)
+[23:49:52] 
+Pipeline completed in 4.3 minutes
+
+============================================================
+Processing Log for 20251016_Nav1
+Started: 2025-11-08 23:56:49
+============================================================
+
+[23:56:49] Starting orthorectification...
+[23:56:49]   Processing 20251016_103100...
+[23:56:50]   Output: Loading calibration...
+Found 16 images to process
+
+Skipping NVR1_N910A6_ch1_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch2_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch3_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch4_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch5_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch6_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch7_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch8_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch1_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch2_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch3_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch4_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch5_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch6_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch7_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch8_main.tiff - no matching calibration
+[23:56:50]   Processing 20251016_103200...
+[23:56:52]   Output: Loading calibration...
+Found 16 images to process
+
+Skipping NVR1_N910A6_ch1_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch2_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch3_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch4_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch5_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch6_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch7_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch8_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch1_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch2_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch3_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch4_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch5_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch6_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch7_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch8_main.tiff - no matching calibration
+[23:56:52]   Processing 20251016_103300...
+[23:56:53]   Output: Loading calibration...
+Found 16 images to process
+
+Skipping NVR1_N910A6_ch1_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch2_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch3_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch4_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch5_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch6_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch7_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch8_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch1_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch2_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch3_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch4_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch5_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch6_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch7_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch8_main.tiff - no matching calibration
+[23:56:53]   Processing 20251016_103400...
+[23:56:54]   Output: Loading calibration...
+Found 16 images to process
+
+Skipping NVR1_N910A6_ch1_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch2_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch3_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch4_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch5_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch6_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch7_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch8_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch1_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch2_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch3_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch4_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch5_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch6_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch7_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch8_main.tiff - no matching calibration
+[23:56:54]   Processing 20251016_103500...
+[23:56:55]   Output: Loading calibration...
+Found 16 images to process
+
+Skipping NVR1_N910A6_ch1_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch2_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch3_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch4_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch5_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch6_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch7_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch8_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch1_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch2_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch3_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch4_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch5_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch6_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch7_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch8_main.tiff - no matching calibration
+[23:56:55]   Processing 20251016_103600...
+[23:56:57]   Output: Loading calibration...
+Found 16 images to process
+
+Skipping NVR1_N910A6_ch1_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch2_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch3_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch4_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch5_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch6_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch7_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch8_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch1_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch2_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch3_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch4_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch5_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch6_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch7_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch8_main.tiff - no matching calibration
+[23:56:57]   Processing 20251016_103700...
+[23:56:58]   Output: Loading calibration...
+Found 16 images to process
+
+Skipping NVR1_N910A6_ch1_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch2_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch3_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch4_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch5_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch6_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch7_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch8_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch1_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch2_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch3_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch4_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch5_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch6_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch7_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch8_main.tiff - no matching calibration
+[23:56:58]   Processing 20251016_103800...
+[23:56:59]   Output: Loading calibration...
+Found 16 images to process
+
+Skipping NVR1_N910A6_ch1_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch2_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch3_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch4_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch5_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch6_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch7_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch8_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch1_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch2_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch3_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch4_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch5_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch6_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch7_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch8_main.tiff - no matching calibration
+[23:56:59]   Processing 20251016_103900...
+[23:57:00]   Output: Loading calibration...
+Found 16 images to process
+
+Skipping NVR1_N910A6_ch1_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch2_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch3_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch4_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch5_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch6_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch7_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch8_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch1_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch2_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch3_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch4_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch5_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch6_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch7_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch8_main.tiff - no matching calibration
+[23:57:00]   Processing 20251016_104000...
+[23:57:01]   Output: Loading calibration...
+Found 16 images to process
+
+Skipping NVR1_N910A6_ch1_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch2_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch3_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch4_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch5_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch6_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch7_main.tiff - no matching calibration
+Skipping NVR1_N910A6_ch8_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch1_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch2_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch3_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch4_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch5_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch6_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch7_main.tiff - no matching calibration
+Skipping NVR2_N910A6_ch8_main.tiff - no matching calibration
+[23:57:01] Orthorectification complete (10 timestamps)
+[23:57:01] Starting mosaicking...
+[23:57:01]   Mosaicking 20251016_103100...
+[23:57:02]   ERROR mosaicking 20251016_103100: Traceback (most recent call last):
+  File "C:\Users\RDCRLCSE\Documents\FileCloud\My Files\Soo Locks\Ice Management Model Project\technical\SooOrthoFlow\orthorectification\ortho_mosaic.py", line 521, in <module>
+    create_mosaic_simple_priority(
+  File "C:\Users\RDCRLCSE\Documents\FileCloud\My Files\Soo Locks\Ice Management Model Project\technical\SooOrthoFlow\orthorectification\ortho_mosaic.py", line 381, in create_mosaic_simple_priority
+    x_min, x_max, y_min, y_max = compute_mosaic_bounds(ortho_dir)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RDCRLCSE\Documents\FileCloud\My Files\Soo Locks\Ice Management Model Project\technical\SooOrthoFlow\orthorectification\ortho_mosaic.py", line 43, in compute_mosaic_bounds
+    raise ValueError(f"No *_ortho.tif files found in {ortho_dir}")
+ValueError: No *_ortho.tif files found in output_data\20251016_Nav1\orthos\20251016_103100\orthorectified
+
+[23:57:02]   Mosaicking 20251016_103200...
+[23:57:03]   ERROR mosaicking 20251016_103200: Traceback (most recent call last):
+  File "C:\Users\RDCRLCSE\Documents\FileCloud\My Files\Soo Locks\Ice Management Model Project\technical\SooOrthoFlow\orthorectification\ortho_mosaic.py", line 521, in <module>
+    create_mosaic_simple_priority(
+  File "C:\Users\RDCRLCSE\Documents\FileCloud\My Files\Soo Locks\Ice Management Model Project\technical\SooOrthoFlow\orthorectification\ortho_mosaic.py", line 381, in create_mosaic_simple_priority
+    x_min, x_max, y_min, y_max = compute_mosaic_bounds(ortho_dir)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RDCRLCSE\Documents\FileCloud\My Files\Soo Locks\Ice Management Model Project\technical\SooOrthoFlow\orthorectification\ortho_mosaic.py", line 43, in compute_mosaic_bounds
+    raise ValueError(f"No *_ortho.tif files found in {ortho_dir}")
+ValueError: No *_ortho.tif files found in output_data\20251016_Nav1\orthos\20251016_103200\orthorectified
+
+[23:57:03]   Mosaicking 20251016_103300...
+[23:57:04]   ERROR mosaicking 20251016_103300: Traceback (most recent call last):
+  File "C:\Users\RDCRLCSE\Documents\FileCloud\My Files\Soo Locks\Ice Management Model Project\technical\SooOrthoFlow\orthorectification\ortho_mosaic.py", line 521, in <module>
+    create_mosaic_simple_priority(
+  File "C:\Users\RDCRLCSE\Documents\FileCloud\My Files\Soo Locks\Ice Management Model Project\technical\SooOrthoFlow\orthorectification\ortho_mosaic.py", line 381, in create_mosaic_simple_priority
+    x_min, x_max, y_min, y_max = compute_mosaic_bounds(ortho_dir)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RDCRLCSE\Documents\FileCloud\My Files\Soo Locks\Ice Management Model Project\technical\SooOrthoFlow\orthorectification\ortho_mosaic.py", line 43, in compute_mosaic_bounds
+    raise ValueError(f"No *_ortho.tif files found in {ortho_dir}")
+ValueError: No *_ortho.tif files found in output_data\20251016_Nav1\orthos\20251016_103300\orthorectified
+
+[23:57:04]   Mosaicking 20251016_103400...
+[23:57:05]   ERROR mosaicking 20251016_103400: Traceback (most recent call last):
+  File "C:\Users\RDCRLCSE\Documents\FileCloud\My Files\Soo Locks\Ice Management Model Project\technical\SooOrthoFlow\orthorectification\ortho_mosaic.py", line 521, in <module>
+    create_mosaic_simple_priority(
+  File "C:\Users\RDCRLCSE\Documents\FileCloud\My Files\Soo Locks\Ice Management Model Project\technical\SooOrthoFlow\orthorectification\ortho_mosaic.py", line 381, in create_mosaic_simple_priority
+    x_min, x_max, y_min, y_max = compute_mosaic_bounds(ortho_dir)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RDCRLCSE\Documents\FileCloud\My Files\Soo Locks\Ice Management Model Project\technical\SooOrthoFlow\orthorectification\ortho_mosaic.py", line 43, in compute_mosaic_bounds
+    raise ValueError(f"No *_ortho.tif files found in {ortho_dir}")
+ValueError: No *_ortho.tif files found in output_data\20251016_Nav1\orthos\20251016_103400\orthorectified
+
+[23:57:05]   Mosaicking 20251016_103500...
+[23:57:05]   ERROR mosaicking 20251016_103500: Traceback (most recent call last):
+  File "C:\Users\RDCRLCSE\Documents\FileCloud\My Files\Soo Locks\Ice Management Model Project\technical\SooOrthoFlow\orthorectification\ortho_mosaic.py", line 521, in <module>
+    create_mosaic_simple_priority(
+  File "C:\Users\RDCRLCSE\Documents\FileCloud\My Files\Soo Locks\Ice Management Model Project\technical\SooOrthoFlow\orthorectification\ortho_mosaic.py", line 381, in create_mosaic_simple_priority
+    x_min, x_max, y_min, y_max = compute_mosaic_bounds(ortho_dir)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RDCRLCSE\Documents\FileCloud\My Files\Soo Locks\Ice Management Model Project\technical\SooOrthoFlow\orthorectification\ortho_mosaic.py", line 43, in compute_mosaic_bounds
+    raise ValueError(f"No *_ortho.tif files found in {ortho_dir}")
+ValueError: No *_ortho.tif files found in output_data\20251016_Nav1\orthos\20251016_103500\orthorectified
+
+[23:57:05]   Mosaicking 20251016_103600...
+[23:57:06]   ERROR mosaicking 20251016_103600: Traceback (most recent call last):
+  File "C:\Users\RDCRLCSE\Documents\FileCloud\My Files\Soo Locks\Ice Management Model Project\technical\SooOrthoFlow\orthorectification\ortho_mosaic.py", line 521, in <module>
+    create_mosaic_simple_priority(
+  File "C:\Users\RDCRLCSE\Documents\FileCloud\My Files\Soo Locks\Ice Management Model Project\technical\SooOrthoFlow\orthorectification\ortho_mosaic.py", line 381, in create_mosaic_simple_priority
+    x_min, x_max, y_min, y_max = compute_mosaic_bounds(ortho_dir)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RDCRLCSE\Documents\FileCloud\My Files\Soo Locks\Ice Management Model Project\technical\SooOrthoFlow\orthorectification\ortho_mosaic.py", line 43, in compute_mosaic_bounds
+    raise ValueError(f"No *_ortho.tif files found in {ortho_dir}")
+ValueError: No *_ortho.tif files found in output_data\20251016_Nav1\orthos\20251016_103600\orthorectified
+
+[23:57:06]   Mosaicking 20251016_103700...
+[23:57:07]   ERROR mosaicking 20251016_103700: Traceback (most recent call last):
+  File "C:\Users\RDCRLCSE\Documents\FileCloud\My Files\Soo Locks\Ice Management Model Project\technical\SooOrthoFlow\orthorectification\ortho_mosaic.py", line 521, in <module>
+    create_mosaic_simple_priority(
+  File "C:\Users\RDCRLCSE\Documents\FileCloud\My Files\Soo Locks\Ice Management Model Project\technical\SooOrthoFlow\orthorectification\ortho_mosaic.py", line 381, in create_mosaic_simple_priority
+    x_min, x_max, y_min, y_max = compute_mosaic_bounds(ortho_dir)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RDCRLCSE\Documents\FileCloud\My Files\Soo Locks\Ice Management Model Project\technical\SooOrthoFlow\orthorectification\ortho_mosaic.py", line 43, in compute_mosaic_bounds
+    raise ValueError(f"No *_ortho.tif files found in {ortho_dir}")
+ValueError: No *_ortho.tif files found in output_data\20251016_Nav1\orthos\20251016_103700\orthorectified
+
+[23:57:07]   Mosaicking 20251016_103800...
+[23:57:08]   ERROR mosaicking 20251016_103800: Traceback (most recent call last):
+  File "C:\Users\RDCRLCSE\Documents\FileCloud\My Files\Soo Locks\Ice Management Model Project\technical\SooOrthoFlow\orthorectification\ortho_mosaic.py", line 521, in <module>
+    create_mosaic_simple_priority(
+  File "C:\Users\RDCRLCSE\Documents\FileCloud\My Files\Soo Locks\Ice Management Model Project\technical\SooOrthoFlow\orthorectification\ortho_mosaic.py", line 381, in create_mosaic_simple_priority
+    x_min, x_max, y_min, y_max = compute_mosaic_bounds(ortho_dir)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RDCRLCSE\Documents\FileCloud\My Files\Soo Locks\Ice Management Model Project\technical\SooOrthoFlow\orthorectification\ortho_mosaic.py", line 43, in compute_mosaic_bounds
+    raise ValueError(f"No *_ortho.tif files found in {ortho_dir}")
+ValueError: No *_ortho.tif files found in output_data\20251016_Nav1\orthos\20251016_103800\orthorectified
+
+[23:57:08]   Mosaicking 20251016_103900...
+[23:57:08]   ERROR mosaicking 20251016_103900: Traceback (most recent call last):
+  File "C:\Users\RDCRLCSE\Documents\FileCloud\My Files\Soo Locks\Ice Management Model Project\technical\SooOrthoFlow\orthorectification\ortho_mosaic.py", line 521, in <module>
+    create_mosaic_simple_priority(
+  File "C:\Users\RDCRLCSE\Documents\FileCloud\My Files\Soo Locks\Ice Management Model Project\technical\SooOrthoFlow\orthorectification\ortho_mosaic.py", line 381, in create_mosaic_simple_priority
+    x_min, x_max, y_min, y_max = compute_mosaic_bounds(ortho_dir)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RDCRLCSE\Documents\FileCloud\My Files\Soo Locks\Ice Management Model Project\technical\SooOrthoFlow\orthorectification\ortho_mosaic.py", line 43, in compute_mosaic_bounds
+    raise ValueError(f"No *_ortho.tif files found in {ortho_dir}")
+ValueError: No *_ortho.tif files found in output_data\20251016_Nav1\orthos\20251016_103900\orthorectified
+
+[23:57:08]   Mosaicking 20251016_104000...
+[23:57:09]   ERROR mosaicking 20251016_104000: Traceback (most recent call last):
+  File "C:\Users\RDCRLCSE\Documents\FileCloud\My Files\Soo Locks\Ice Management Model Project\technical\SooOrthoFlow\orthorectification\ortho_mosaic.py", line 521, in <module>
+    create_mosaic_simple_priority(
+  File "C:\Users\RDCRLCSE\Documents\FileCloud\My Files\Soo Locks\Ice Management Model Project\technical\SooOrthoFlow\orthorectification\ortho_mosaic.py", line 381, in create_mosaic_simple_priority
+    x_min, x_max, y_min, y_max = compute_mosaic_bounds(ortho_dir)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RDCRLCSE\Documents\FileCloud\My Files\Soo Locks\Ice Management Model Project\technical\SooOrthoFlow\orthorectification\ortho_mosaic.py", line 43, in compute_mosaic_bounds
+    raise ValueError(f"No *_ortho.tif files found in {ortho_dir}")
+ValueError: No *_ortho.tif files found in output_data\20251016_Nav1\orthos\20251016_104000\orthorectified
+
+[23:57:09] Mosaicking complete (10 mosaics)
+[23:57:09] 
+Pipeline completed in 0.3 minutes
