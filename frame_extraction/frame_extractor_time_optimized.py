@@ -17,6 +17,7 @@ from datetime import datetime, timedelta
 import cv2
 import glob
 from collections import defaultdict
+from multiprocessing import Pool, cpu_count
 
 
 # Supported video file extensions
@@ -246,10 +247,53 @@ def extract_frame_at_clock_time(cap, camera, video_info, target_time, output_dir
         print(f"  ✗ Failed to save frame at {target_time.strftime('%H:%M:%S')}")
         return False
 
+def _process_single_camera(args):
+    """Worker function to process a single camera in parallel"""
+    camera, camera_videos, target_times, output_dir, output_format = args
+    
+    video_timestamps = defaultdict(list)
+    
+    for target_time in target_times:
+        video_info = find_video_for_clock_time(camera_videos, target_time)
+        if video_info:
+            video_timestamps[video_info['filename']].append(target_time)
+    
+    if not video_timestamps:
+        return {'camera': camera, 'success': 0}
+    
+    success_count = 0
+    
+    for video_file, timestamps_for_video in video_timestamps.items():
+        cap = cv2.VideoCapture(video_file)
+        if not cap.isOpened():
+            continue
+        
+        video_info = None
+        for vi in camera_videos:
+            if vi['filename'] == video_file:
+                video_info = vi
+                break
+        
+        if not video_info:
+            cap.release()
+            continue
+        
+        for target_time in timestamps_for_video:
+            time_subfolder = target_time.strftime('%Y%m%d_%H%M%S')
+            if extract_frame_at_clock_time(cap, camera, video_info, target_time, 
+                                          output_dir, output_format, time_subfolder):
+                success_count += 1
+        
+        cap.release()
+    
+    return {'camera': camera, 'success': success_count}
+
+
 
 def extract_frames_at_clock_times(video_directory, clock_times, output_dir, 
                                 output_format, recursive=False, 
-                                filename_pattern="CAMERA_DATETIME_DATETIME"):
+                                filename_pattern="CAMERA_DATETIME_DATETIME",
+                                n_jobs=None):
     """Extract frames from multiple cameras at specific clock times - OPTIMIZED VERSION."""
     # Parse and sort clock times
     target_times = []
@@ -294,72 +338,34 @@ def extract_frames_at_clock_times(video_directory, clock_times, output_dir,
     print("OPTIMIZED PROCESSING: Opening each video once")
     print(f"{'='*60}")
     
-    # Process each camera
-    for camera_idx, (camera, camera_videos) in enumerate(cameras.items(), 1):
-        print(f"\n[{camera_idx}/{len(cameras)}] Camera: {camera}")
-        
-        # Group target times by which video they belong to
-        video_timestamps = defaultdict(list)
-        
-        for target_time in target_times:
-            video_info = find_video_for_clock_time(camera_videos, target_time)
-            if video_info:
-                video_timestamps[video_info['filename']].append(target_time)
-        
-        if not video_timestamps:
-            print(f"  No valid timestamps for this camera")
-            continue
-        
-        # Process each video file for this camera (open once, extract all frames)
-        for video_file, timestamps_for_video in video_timestamps.items():
-            print(f"  Opening: {Path(video_file).name}")
-            
-            cap = cv2.VideoCapture(video_file)
-            if not cap.isOpened():
-                print(f"  ✗ Could not open video")
-                continue
-            
-            # Get video info
-            fps = cap.get(cv2.CAP_PROP_FPS)
-            total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-            duration = total_frames / fps if fps > 0 else 0
-            print(f"  FPS: {fps:.2f}, Duration: {duration:.2f}s")
-            
-            # Find the video_info for this file
-            video_info = None
-            for vi in camera_videos:
-                if vi['filename'] == video_file:
-                    video_info = vi
-                    break
-            
-            if not video_info:
-                cap.release()
-                continue
-            
-            # Extract all frames from this video (timestamps are already sorted)
-            print(f"  Extracting {len(timestamps_for_video)} frame(s):")
-            for target_time in timestamps_for_video:
-                time_subfolder = target_time.strftime('%Y%m%d_%H%M%S')
-                if extract_frame_at_clock_time(cap, camera, video_info, target_time, 
-                                              output_dir, output_format, time_subfolder):
-                    total_success += 1
-            
-            cap.release()
-        
-        # Report timestamps that couldn't be found for this camera
-        found_times = set()
-        for timestamps_list in video_timestamps.values():
-            found_times.update(timestamps_list)
-        
-        missing_times = set(target_times) - found_times
-        if missing_times:
-            print(f"  Missing timestamps for this camera:")
-            for missing_time in sorted(missing_times):
-                print(f"    ✗ {missing_time.strftime('%Y-%m-%d %H:%M:%S')}")
+
+    if n_jobs is None:
+        n_jobs = cpu_count()
+    
+    print(f"Using {n_jobs} CPU cores")
+    print(f"\n{'='*60}")
+    print("PARALLEL PROCESSING")
+    print(f"{'='*60}\n")
+    
+    # Prepare arguments for parallel processing
+    camera_args = [
+        (camera, camera_videos, target_times, output_dir, output_format)
+        for camera, camera_videos in cameras.items()
+    ]
+    
+    # Process cameras in parallel
+    with Pool(n_jobs) as pool:
+        results = pool.map(_process_single_camera, camera_args)
+    
+    # Report results
+    total_success = sum(r['success'] for r in results)
+    for result in results:
+        if result['success'] > 0:
+            print(f"OK {result['camera']}: {result['success']} frames")
     
     print(f"\n{'='*60}")
-    print(f"COMPLETE: {total_success} total frames extracted")
-    print(f"Processed {len(cameras)} camera(s) × {len(target_times)} timestamp(s)")
+    print(f"COMPLETE: {total_success} frames extracted")
+    print(f"{'='*60}")
     
     return total_success > 0
 
