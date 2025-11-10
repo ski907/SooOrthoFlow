@@ -6,7 +6,7 @@
     
     "paths": {
         "output_base": "output_data",
-        "calibration_file": "calibration/camera_calibrations.pkl",
+        "calibration_file": "calibration/camera_calibrations_20251016.pkl",
         "gcp_file": "inputs/GCP_merged.csv",
         "dsm_file": "inputs/lidar_DSM_filled_cropped.tif"
     },

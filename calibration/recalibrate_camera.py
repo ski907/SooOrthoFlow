@@ -6,6 +6,48 @@ import pickle
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Button
 import argparse
+from datetime import datetime
+
+def find_most_recent_calibration(calibration_file, date=None):
+    """
+    Find the most recent calibration file to load from.
+    Priority:
+    1. Today's dated file (if it exists)
+    2. Most recent dated file
+    3. Original file
+
+    Args:
+        calibration_file: Path to original calibration file
+        date: Date string (YYYYMMDD). If None, uses today.
+
+    Returns:
+        Path to the calibration file to load from
+    """
+    if date is None:
+        date = datetime.now().strftime('%Y%m%d')
+
+    cal_path = Path(calibration_file)
+
+    # Check if today's dated file exists
+    todays_file = cal_path.parent / f"{cal_path.stem}_{date}.pkl"
+    if todays_file.exists():
+        print(f"Found existing calibration for {date}, will update it")
+        return todays_file
+
+    # Find all dated calibration files
+    dated_files = sorted(cal_path.parent.glob(f"{cal_path.stem}_????????.pkl"))
+
+    if dated_files:
+        # Return the most recent dated file
+        most_recent = dated_files[-1]
+        recent_date = most_recent.stem.split('_')[-1]
+        print(f"Loading from most recent calibration: {recent_date}")
+        return most_recent
+
+    # Fall back to original
+    print(f"Loading from original calibration file")
+    return cal_path
+
 
 def load_gcp_targets(gcp_file, camera_id):
     """
@@ -13,7 +55,7 @@ def load_gcp_targets(gcp_file, camera_id):
     Returns list of GCP names and their X,Y,Z coordinates
     """
     gcp_data = pd.read_csv(gcp_file)
-    camera_gcps = gcp_data[gcp_data['image_name'].str.contains(camera_id)]
+    camera_gcps = gcp_data[gcp_data['camera_name'].str.contains(camera_id)]
     
     # Get unique GCP identifiers and their world coordinates
     gcps = []
@@ -34,7 +76,7 @@ class InteractiveGCPPicker:
     """
     Interactive tool to pick GCP locations in an image
     """
-    def __init__(self, image_path, gcps):
+    def __init__(self, image_path, gcps, zoom_radius=300):
         self.image_path = image_path
         self.img = cv2.imread(str(image_path))
         self.img_rgb = cv2.cvtColor(self.img, cv2.COLOR_BGR2RGB)
@@ -48,6 +90,8 @@ class InteractiveGCPPicker:
         self.text_display = None
         self.hint_plot = None
         self.point_labels = []  # Track text labels we create
+        self.zoom_radius = zoom_radius  # Pixels to show around hint
+        self.zoomed = False  # Track if currently zoomed
         
     def start_picking(self):
         """Start the interactive picking session"""
@@ -66,16 +110,18 @@ class InteractiveGCPPicker:
             "Click on the target shown below\n"
             "Press 'n' to SKIP if target not visible\n"
             "Press 'u' to undo last action\n"
+            "Press 'o' to zoom OUT (full view)\n"
             "Press 'q' to quit (saves progress)\n"
             "Close window to cancel"
         )
-        self.text_display = self.fig.text(0.02, 0.98, instruction_text, 
+        self.text_display = self.fig.text(0.02, 0.98, instruction_text,
                                           transform=self.fig.transFigure,
                                           verticalalignment='top',
                                           bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.8))
-        
-        # Show original location hint if available
+
+        # Show original location hint and zoom to it
         self._show_hint()
+        self._zoom_to_hint()
         
         # Connect events
         self.fig.canvas.mpl_connect('button_press_event', self._on_click)
@@ -93,15 +139,45 @@ class InteractiveGCPPicker:
                self.gcps[self.current_gcp_idx]['original_col'] is not None:
                 orig_col = self.gcps[self.current_gcp_idx]['original_col']
                 orig_row = self.gcps[self.current_gcp_idx]['original_row']
-                
+
                 # Clear previous hint
                 if self.hint_plot:
                     self.hint_plot.remove()
-                
-                self.hint_plot = self.ax.plot(orig_col, orig_row, 'ro', markersize=15, 
-                            fillstyle='none', markeredgewidth=2, 
+
+                self.hint_plot = self.ax.plot(orig_col, orig_row, 'ro', markersize=15,
+                            fillstyle='none', markeredgewidth=2,
                             label='Original location (hint)')[0]
                 self.ax.legend()
+
+    def _zoom_to_hint(self):
+        """Zoom into the area around the hint location"""
+        if self.current_gcp_idx < len(self.gcps):
+            gcp = self.gcps[self.current_gcp_idx]
+            if 'original_col' in gcp and gcp['original_col'] is not None:
+                orig_col = gcp['original_col']
+                orig_row = gcp['original_row']
+
+                # Calculate zoom bounds
+                img_height, img_width = self.img_rgb.shape[:2]
+
+                x_min = max(0, orig_col - self.zoom_radius)
+                x_max = min(img_width, orig_col + self.zoom_radius)
+                y_min = max(0, orig_row - self.zoom_radius)
+                y_max = min(img_height, orig_row + self.zoom_radius)
+
+                # Set axis limits to zoom in
+                self.ax.set_xlim(x_min, x_max)
+                self.ax.set_ylim(y_max, y_min)  # Y is inverted in images
+                self.zoomed = True
+                self.fig.canvas.draw()
+
+    def _zoom_out(self):
+        """Zoom out to show full image"""
+        img_height, img_width = self.img_rgb.shape[:2]
+        self.ax.set_xlim(0, img_width)
+        self.ax.set_ylim(img_height, 0)  # Y is inverted in images
+        self.zoomed = False
+        self.fig.canvas.draw()
     
     def _get_title(self):
         """Generate title showing current GCP"""
@@ -163,7 +239,16 @@ class InteractiveGCPPicker:
                 print(f"⊘ Skipped GCP {self.current_gcp_idx + 1} "
                       f"(X={skipped_gcp['X']:.2f}, Y={skipped_gcp['Y']:.2f})")
                 self._advance_to_next_gcp()
-        
+
+        elif event.key == 'o':
+            # Toggle zoom out to full view
+            if self.zoomed:
+                self._zoom_out()
+                print("Zoomed out to full view")
+            else:
+                self._zoom_to_hint()
+                print("Zoomed to hint location")
+
         elif event.key == 'u':
             # Undo last action (either pick or skip)
             if self.picked_points or self.skipped_gcps:
@@ -182,6 +267,7 @@ class InteractiveGCPPicker:
                 self._update_display()
                 self.ax.set_title(self._get_title(), fontsize=14, fontweight='bold')
                 self._show_hint()
+                self._zoom_to_hint()  # Zoom to hint after undo
                 self.fig.canvas.draw()
         
         elif event.key == 'q':
@@ -191,21 +277,23 @@ class InteractiveGCPPicker:
     def _advance_to_next_gcp(self):
         """Move to the next GCP and update display"""
         self.current_gcp_idx += 1
-        
+
         if self.current_gcp_idx < len(self.gcps):
             self.ax.set_title(self._get_title(), fontsize=14, fontweight='bold')
             self._show_hint()
+            self._zoom_to_hint()  # Auto-zoom to next hint
         else:
             picked_count = len(self.picked_points)
             skipped_count = len(self.skipped_gcps)
             self.ax.set_title(f"✓ All GCPs processed! "
                             f"Picked: {picked_count}, Skipped: {skipped_count}\n"
-                            f"Close window to finish", 
+                            f"Close window to finish",
                             fontsize=14, fontweight='bold', color='green')
             if self.hint_plot:
                 self.hint_plot.remove()
                 self.hint_plot = None
-        
+            self._zoom_out()  # Zoom out when done
+
         self.fig.canvas.draw()
     
     def _update_display(self):
@@ -228,12 +316,20 @@ class InteractiveGCPPicker:
                 self.point_labels.append(label)
 
 
-def recalibrate_single_camera(image_path, gcp_file, camera_id, dem_path, 
+def recalibrate_single_camera(image_path, gcp_file, camera_id, dem_path,
                               calibration_file, output_dir='output',
                               resolution=0.005, padding_meters=0.5,
-                              min_gcps=6):  # Lowered to 6 (absolute minimum for fisheye)
+                              min_gcps=6, date=None):  # Lowered to 6 (absolute minimum for fisheye)
     """
     Interactively recalibrate a single camera
+
+    Args:
+        date: Date string for the new calibration file (YYYYMMDD).
+              If None, extracts date from timestamp folder in image path (e.g., frames/20251016_103100/).
+              Falls back to image filename, then today's date if not found.
+
+    Returns:
+        bool: True if successful, False if failed
     """
     from undistort_and_orthorectify import (calibrate_fisheye_camera, create_orthorectification_params,
                           load_dem_from_tiff, create_ortho_lookup_tables_with_dem,
@@ -274,13 +370,13 @@ def recalibrate_single_camera(image_path, gcp_file, camera_id, dem_path,
     
     if not picked_points:
         print("\n✗ No points picked. Aborting.")
-        return
-    
+        return False
+
     if len(picked_points) < min_gcps:
         print(f"\n✗ Error: Need at least {min_gcps} GCPs for fisheye calibration")
         print(f"  Only have {len(picked_points)} points")
         print("\nAborting. Please run again and pick more points.")
-        return
+        return False
     
     # Check for duplicate or very close points
     print("\nChecking point quality...")
@@ -303,7 +399,7 @@ def recalibrate_single_camera(image_path, gcp_file, camera_id, dem_path,
         response = input("\nContinue anyway? (y/n): ")
         if response.lower() != 'y':
             print("Aborting. Try again and avoid clicking near the same location.")
-            return
+            return False
     
     # Check spatial distribution
     cols = image_points[:, 0]
@@ -323,7 +419,7 @@ def recalibrate_single_camera(image_path, gcp_file, camera_id, dem_path,
         response = input("Continue anyway? (y/n): ")
         if response.lower() != 'y':
             print("Aborting. Try to pick points with better spatial coverage.")
-            return
+            return False
     
     if len(skipped_gcps) > 0:
         print(f"\nSkipped {len(skipped_gcps)} GCPs (clustered margin targets, etc)")
@@ -331,7 +427,7 @@ def recalibrate_single_camera(image_path, gcp_file, camera_id, dem_path,
     # Create new GCP dataframe
     print(f"\nCreating updated GCP data with {len(picked_points)} points...")
     new_gcp_data = pd.DataFrame([{
-        'image_name': f"{camera_id}_new",
+        'camera_name': camera_id,
         'X': p['gcp']['X'],
         'Y': p['gcp']['Y'],
         'Z': p['gcp']['Z'],
@@ -367,7 +463,7 @@ def recalibrate_single_camera(image_path, gcp_file, camera_id, dem_path,
         print("  - Run again and skip more of the clustered margin targets")
         print("  - Focus on well-distributed targets across the image")
         print(f"  - Aim for {min_gcps + 3} or more points if possible")
-        return
+        return False
     
     print(f"✓ Calibration complete - RMS: {rms:.4f} pixels")
     
@@ -380,7 +476,7 @@ def recalibrate_single_camera(image_path, gcp_file, camera_id, dem_path,
         response = input("Continue anyway? (y/n): ")
         if response.lower() != 'y':
             print("Aborting. Try picking points more carefully.")
-            return
+            return False
     
     # Create orthorectification parameters
     width, height, geotransform = create_orthorectification_params(
@@ -416,18 +512,50 @@ def recalibrate_single_camera(image_path, gcp_file, camera_id, dem_path,
     cv2.imwrite(str(undist_path), undistorted)
     print(f"Saved undistorted: {undist_path}")
     
-    # Update calibration file
-    print(f"\nUpdating calibration file...")
-    with open(calibration_file, 'rb') as f:
+    # Create date-stamped calibration file
+    if date is None:
+        # Try to extract date from timestamp folder path (look for YYYYMMDD pattern)
+        import re
+        image_path_obj = Path(image_path)
+        date = None
+
+        # Check parent directory names for date (e.g., frames/20251016_103100/)
+        for parent in image_path_obj.parents:
+            date_match = re.search(r'(\d{8})', parent.name)
+            if date_match:
+                date = date_match.group(1)
+                print(f"\nExtracted date {date} from path: {parent.name}")
+                break
+
+        # Fall back to image filename if not found in path
+        if date is None:
+            date_match = re.search(r'(\d{8})', image_path_obj.stem)
+            if date_match:
+                date = date_match.group(1)
+                print(f"\nExtracted date {date} from image filename")
+
+        # Final fallback to today's date
+        if date is None:
+            date = datetime.now().strftime('%Y%m%d')
+            print(f"\nNo date found in path or filename, using today's date: {date}")
+
+    print(f"Creating/updating calibration file for {date}...")
+
+    # Find the most recent calibration file to load from
+    source_file = find_most_recent_calibration(calibration_file, date)
+
+    # Load ALL calibrations from the most recent source
+    with open(source_file, 'rb') as f:
         calibrations = pickle.load(f)
-    
-    # Backup old calibration
-    backup_file = Path(str(calibration_file).replace('.pkl', f'_backup_{camera_id}.pkl'))
-    with open(backup_file, 'wb') as f:
-        pickle.dump({camera_id: calibrations[camera_id]}, f)
-    print(f"Backed up old calibration: {backup_file}")
-    
-    # Update with new calibration
+
+    # Backup old calibration for this camera (if it exists)
+    if camera_id in calibrations:
+        backup_file = Path(str(calibration_file).replace('.pkl', f'_backup_{camera_id}_{date}.pkl'))
+        with open(backup_file, 'wb') as f:
+            pickle.dump({camera_id: calibrations[camera_id]}, f)
+        print(f"Backed up old calibration: {backup_file}")
+
+    # Update with new calibration for this camera
     calibrations[camera_id] = {
         'K': K,
         'D': D,
@@ -443,32 +571,42 @@ def recalibrate_single_camera(image_path, gcp_file, camera_id, dem_path,
         'output_width': width,
         'output_height': height,
         'recalibrated': True,
+        'recalibration_date': date,
         'gcps_skipped': len(skipped_gcps)
     }
-    
-    # Save updated calibration
-    with open(calibration_file, 'wb') as f:
+
+    # Save ALL calibrations to today's dated file
+    cal_path = Path(calibration_file)
+    new_cal_file = cal_path.parent / f"{cal_path.stem}_{date}.pkl"
+
+    with open(new_cal_file, 'wb') as f:
         pickle.dump(calibrations, f)
-    
-    print(f"✓ Updated calibration file: {calibration_file}")
+
+    print(f"✓ Saved calibration file: {new_cal_file}")
+    print(f"  Contains {len(calibrations)} camera(s), updated {camera_id}")
+    print(f"  Original calibration file unchanged: {calibration_file}")
     
     print("\n" + "="*60)
     print("Recalibration Complete!")
     print("="*60)
     print(f"Camera: {camera_id}")
+    print(f"Date: {date}")
     print(f"RMS error: {rms:.4f} pixels")
     print(f"GCPs used: {len(picked_points)}")
     print(f"GCPs skipped: {len(skipped_gcps)}")
     print(f"\nOutputs:")
-    print(f"  - Updated calibration: {calibration_file}")
-    print(f"  - Backup: {backup_file}")
+    print(f"  - Updated calibration: {new_cal_file}")
+    if camera_id in locals() and 'backup_file' in locals():
+        print(f"  - Backup: {backup_file}")
     print(f"  - Test ortho: {ortho_path}")
     print(f"  - GCP file: {new_gcp_file}")
     print(f"\nNext steps:")
     print(f"  1. Load {ortho_path} in QGIS and verify alignment with GCPs")
-    print(f"  2. If good, process remaining images with:")
-    print(f"     python undistort_and_orthorectify.py process -i new_images/ -o new_ortho/")
-    print(f"  3. If bad, restore backup and try again")
+    print(f"  2. If good, process images with the dated calibration file:")
+    print(f"     python undistort_and_orthorectify.py process -i images/ -o ortho/ -cal {new_cal_file}")
+    print(f"  3. If bad, delete {new_cal_file} and try again")
+
+    return True
 
 
 if __name__ == "__main__":
@@ -506,10 +644,12 @@ Instructions during picking:
                        help='Padding in meters (default: 0.5)')
     parser.add_argument('--min-gcps', type=int, default=4,
                        help='Minimum GCPs required (default: 4)')
-    
+    parser.add_argument('--date', type=str, default=None,
+                       help='Date for calibration file (YYYYMMDD, default: today)')
+
     args = parser.parse_args()
-    
-    recalibrate_single_camera(
+
+    success = recalibrate_single_camera(
         image_path=args.image,
         gcp_file=args.gcp_file,
         camera_id=args.camera_id,
@@ -518,5 +658,9 @@ Instructions during picking:
         output_dir=args.output,
         resolution=args.resolution,
         padding_meters=args.padding,
-        min_gcps=args.min_gcps
+        min_gcps=args.min_gcps,
+        date=args.date
     )
+
+    import sys
+    sys.exit(0 if success else 1)

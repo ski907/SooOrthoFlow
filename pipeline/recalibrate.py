@@ -5,6 +5,7 @@ import json
 import argparse
 import pickle
 from pathlib import Path
+from datetime import datetime
 
 # Module paths
 SCRIPT_DIR = Path(__file__).parent
@@ -51,13 +52,19 @@ def recalibrate_single_camera(camera_name, image_path, master_config):
         gcp_camera_name = f'N910A6_ch{global_cam:02d}_main'
         print(f"Mapping {camera_name} -> {gcp_camera_name} (folder {folder_num}, ch {ch_num} = global camera {global_cam})")
     
+    # Get resolution from master config
+    resolution = master_config['processing'].get('ortho_resolution', 0.005)
+    padding = master_config['processing'].get('ortho_padding', 0.5)
+
     cmd = [
         'python', str(RECALIBRATE_CAMERA),
         '-i', str(image_path),
         '-g', str(gcp_file),
         '-c', gcp_camera_name,  # Use GCP camera name
         '-d', str(dsm_file),
-        '-cal', str(cal_file)
+        '-cal', str(cal_file),
+        '-r', str(resolution),
+        '-p', str(padding)
     ]
     
     # Set PYTHONPATH environment variable
@@ -70,22 +77,44 @@ def recalibrate_single_camera(camera_name, image_path, master_config):
     
     if result.returncode == 0:
         print(f"\n✓ Recalibration successful for {gcp_camera_name}")
-        
+
         # Now update the calibration file with the FULL camera name (new format)
         if gcp_camera_name != camera_name:
-            print(f"Updating calibration key from {gcp_camera_name} to {camera_name}")
-            with open(cal_file, 'rb') as f:
-                calibrations = pickle.load(f)
-            
-            if gcp_camera_name in calibrations:
-                calibrations[camera_name] = calibrations.pop(gcp_camera_name)
-                
-                with open(cal_file, 'wb') as f:
-                    pickle.dump(calibrations, f)
-                print(f"✓ Calibration key updated to {camera_name}")
+            # Extract date from timestamp folder path to find the correct dated calibration file
+            import re
+            image_path_obj = Path(image_path)
+            date = None
+
+            # Check parent directory names for date (e.g., frames/20251016_103100/)
+            for parent in image_path_obj.parents:
+                date_match = re.search(r'(\d{8})', parent.name)
+                if date_match:
+                    date = date_match.group(1)
+                    break
+
+            # Fall back to today's date if not found
+            if date is None:
+                date = datetime.now().strftime('%Y%m%d')
+
+            cal_path = Path(cal_file)
+            dated_cal_file = cal_path.parent / f"{cal_path.stem}_{date}.pkl"
+
+            if dated_cal_file.exists():
+                print(f"Updating calibration key from {gcp_camera_name} to {camera_name}")
+                with open(dated_cal_file, 'rb') as f:
+                    calibrations = pickle.load(f)
+
+                if gcp_camera_name in calibrations:
+                    calibrations[camera_name] = calibrations.pop(gcp_camera_name)
+
+                    with open(dated_cal_file, 'wb') as f:
+                        pickle.dump(calibrations, f)
+                    print(f"✓ Calibration key updated to {camera_name} in {dated_cal_file}")
+            else:
+                print(f"⚠ Warning: Could not find dated calibration file {dated_cal_file}")
     else:
         print(f"\n✗ Recalibration failed for {camera_name}")
-    
+
     return result.returncode == 0
 
 
@@ -178,63 +207,77 @@ def main():
             # List available tests
             output_base = Path(config['paths']['output_base'])
             tests = sorted([d.name for d in output_base.iterdir() if d.is_dir()])
-            
+
             if not tests:
                 print("No tests found in data directory")
                 return
-            
+
             print("\nAvailable tests:")
             for i, test in enumerate(tests, 1):
                 print(f"  {i}. {test}")
-            
+
             test_choice = input(f"\nSelect test (1-{len(tests)}): ").strip()
             try:
                 test_id = tests[int(test_choice) - 1]
             except (ValueError, IndexError):
                 print("Invalid choice")
                 return
-            
+
             # List timestamps
             frames_dir = output_base / test_id / 'frames'
             if not frames_dir.exists():
                 print(f"No frames found for {test_id}")
                 return
-            
+
             timestamps = sorted([d.name for d in frames_dir.iterdir() if d.is_dir()])
             if not timestamps:
                 print(f"No timestamps found for {test_id}")
                 return
-            
+
             print(f"\nAvailable timestamps for {test_id}:")
             for i, ts in enumerate(timestamps, 1):
                 print(f"  {i}. {ts}")
-            
+
             ts_choice = input(f"\nSelect timestamp (1-{len(timestamps)}): ").strip()
             try:
                 timestamp = timestamps[int(ts_choice) - 1]
             except (ValueError, IndexError):
                 print("Invalid choice")
                 return
-            
-            # List cameras
-            ts_dir = frames_dir / timestamp
-            images = sorted(ts_dir.glob('*.tif*'))
-            cameras = [img.stem for img in images]
-            
-            print(f"\nAvailable cameras:")
-            for i, cam in enumerate(cameras, 1):
-                print(f"  {i}. {cam}")
-            
-            cam_choice = input(f"\nSelect camera (1-{len(cameras)}): ").strip()
-            try:
-                camera_idx = int(cam_choice) - 1
-                camera = cameras[camera_idx]
-                image = images[camera_idx]
-            except (ValueError, IndexError):
-                print("Invalid choice")
-                return
-            
-            recalibrate_single_camera(camera, image, config)
+
+            # Loop for recalibrating multiple cameras
+            while True:
+                # List cameras
+                ts_dir = frames_dir / timestamp
+                images = sorted(ts_dir.glob('*.tif*'))
+                cameras = [img.stem for img in images]
+
+                print(f"\nAvailable cameras in {test_id}/{timestamp}:")
+                for i, cam in enumerate(cameras, 1):
+                    print(f"  {i}. {cam}")
+
+                cam_choice = input(f"\nSelect camera (1-{len(cameras)}, or 'q' to quit): ").strip()
+
+                if cam_choice.lower() == 'q':
+                    print("Exiting recalibration")
+                    break
+
+                try:
+                    camera_idx = int(cam_choice) - 1
+                    camera = cameras[camera_idx]
+                    image = images[camera_idx]
+                except (ValueError, IndexError):
+                    print("Invalid choice, try again")
+                    continue
+
+                # Recalibrate the selected camera
+                recalibrate_single_camera(camera, image, config)
+
+                # Ask if user wants to recalibrate another
+                another = input("\nRecalibrate another camera? (y/n): ").strip().lower()
+                if another != 'y':
+                    print("Done with recalibration")
+                    break
         
         elif choice == '2':
             # List available tests
