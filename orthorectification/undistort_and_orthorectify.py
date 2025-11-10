@@ -562,25 +562,26 @@ def calibrate_all_cameras(gcp_file, image_dir, dem_path, resolution=0.005,
             ortho_path = ortho_dir / f"{camera_id}_ortho.tif"
             save_with_worldfile(ortho_img, geotransform, ortho_path)
 
-            cam_calib_file = output_path / f'{camera_id}_calibration.pkl'
-            cam_calibration_results = {
-                'K': K,
-                'D': D,
-                'rvec': rvec,
-                'tvec': tvec,
-                'rms': rms,
-                'image_size': image_size,
-                'n_gcps': n_gcps,
-                'geotransform': geotransform,
-                'dem_array': dem_array,
-                'map_x': map_x,
-                'map_y': map_y,
-                'output_width': width,
-                'output_height': height
-            }
-            with open(cam_calib_file, 'wb') as f:
-                pickle.dump(cam_calibration_results, f)
-            print(f"\nSaved calibration data: {cam_calib_file}")
+            ##Save the calibrations for each camera in a unique file
+            # cam_calib_file = output_path / f'{camera_id}_calibration.pkl'
+            # cam_calibration_results = {
+            #     'K': K,
+            #     'D': D,
+            #     'rvec': rvec,
+            #     'tvec': tvec,
+            #     'rms': rms,
+            #     'image_size': image_size,
+            #     'n_gcps': n_gcps,
+            #     'geotransform': geotransform,
+            #     'dem_array': dem_array,
+            #     'map_x': map_x,
+            #     'map_y': map_y,
+            #     'output_width': width,
+            #     'output_height': height
+            # }
+            # with open(cam_calib_file, 'wb') as f:
+            #     pickle.dump(cam_calibration_results, f)
+            # print(f"\nSaved calibration data: {cam_calib_file}")
 
             
             # Store results for future use

@@ -10,6 +10,7 @@ from pathlib import Path
 from datetime import datetime
 import shutil
 import argparse
+from multiprocessing import Pool, cpu_count
 
 # Module paths
 SCRIPT_DIR = Path(__file__).parent
@@ -100,8 +101,33 @@ def log(log_file, message):
     timestamp = datetime.now().strftime('%H:%M:%S')
     log_msg = f"[{timestamp}] {message}"
     print(log_msg)
-    with open(log_file, 'a') as f:
+    with open(log_file, 'a', encoding='utf-8') as f:
         f.write(log_msg + '\n')
+
+
+def _process_single_ortho(args):
+    """Worker function for parallel orthorectification"""
+    ts_folder, ortho_base, calib_file, orthorectify_script = args
+    
+    output_dir = ortho_base / ts_folder.name
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    cmd = [
+        'python', str(orthorectify_script), 'process',
+        '-i', str(ts_folder),
+        '-c', calib_file,
+        '-o', str(output_dir),
+        '--no-undistorted'
+    ]
+    
+    result = subprocess.run(cmd, capture_output=True, text=True, encoding='utf-8', errors='replace')
+    
+    return {
+        'folder': ts_folder.name,
+        'success': result.returncode == 0,
+        'stdout': result.stdout,
+        'stderr': result.stderr
+    }
 
 
 def run_extraction(master_config, log_file, show_output=True):
@@ -130,52 +156,109 @@ def run_extraction(master_config, log_file, show_output=True):
     return True
 
 
-def run_orthorectification(master_config, log_file):
-    """Run orthorectification on all timestamp folders"""
-    log(log_file, "Starting orthorectification...")
+def _process_single_ortho(args):
+    """Worker function for parallel orthorectification"""
+    ts_folder, ortho_base, calib_file, orthorectify_script = args
+    
+    output_dir = ortho_base / ts_folder.name
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    cmd = [
+        'python', str(orthorectify_script), 'process',
+        '-i', str(ts_folder),
+        '-c', calib_file,
+        '-o', str(output_dir),
+        '--no-undistorted'
+    ]
+    
+    result = subprocess.run(cmd, capture_output=True, text=True, encoding='utf-8', errors='replace')
+    
+    return {
+        'folder': ts_folder.name,
+        'success': result.returncode == 0,
+        'stdout': result.stdout,
+        'stderr': result.stderr
+    }
+
+
+def run_orthorectification(master_config, log_file, n_jobs=None):
+    """Run orthorectification on all timestamp folders in PARALLEL"""
+    if n_jobs is None:
+        n_jobs = cpu_count()
+    
+    log(log_file, f"Starting orthorectification (using {n_jobs} cores)...")
     
     test_dir = Path(master_config['paths']['output_base']) / master_config['test_id']
     frames_dir = test_dir / 'frames'
     ortho_base = test_dir / 'orthos'
-    ortho_base.mkdir(parents=True, exist_ok=True)  # Create base orthos directory
+    ortho_base.mkdir(parents=True, exist_ok=True)
     calib_file = master_config['paths']['calibration_file']
     
-    # Process each timestamp folder
+    # Get all timestamp folders
     timestamp_folders = sorted([d for d in frames_dir.iterdir() if d.is_dir()])
     
-    for ts_folder in timestamp_folders:
-        log(log_file, f"  Processing {ts_folder.name}...")
-        
-        output_dir = ortho_base / ts_folder.name
-        output_dir.mkdir(parents=True, exist_ok=True)  # Create timestamp output directory
-        
-        cmd = [
-            'python', str(ORTHORECTIFY), 'process',
-            '-i', str(ts_folder),
-            '-c', calib_file,
-            '-o', str(output_dir),
-            '--no-undistorted'
-        ]
-        
-        result = subprocess.run(cmd, capture_output=True, text=True, encoding='utf-8', errors='replace')
-        
-        if result.returncode != 0:
-            log(log_file, f"  ERROR processing {ts_folder.name}: {result.stderr}")
-            continue
-        
-        # Show what happened
-        if result.stdout:
-            log(log_file, f"  Output: {result.stdout.strip()}")
-        if result.stderr:
-            log(log_file, f"  Warnings: {result.stderr.strip()}")
+    log(log_file, f"Processing {len(timestamp_folders)} timestamps in parallel...")
     
-    log(log_file, f"Orthorectification complete ({len(timestamp_folders)} timestamps)")
+    # Prepare arguments for parallel processing
+    process_args = [
+        (ts_folder, ortho_base, calib_file, ORTHORECTIFY)
+        for ts_folder in timestamp_folders
+    ]
+    
+    # Process in parallel
+    with Pool(n_jobs) as pool:
+        results = pool.map(_process_single_ortho, process_args)
+    
+    # Log results
+    success_count = 0
+    for result in results:
+        if result['success']:
+            log(log_file, f"  ✓ {result['folder']}")
+            success_count += 1
+        else:
+            log(log_file, f"  ✗ {result['folder']}: {result['stderr']}")
+    
+    log(log_file, f"Orthorectification complete ({success_count}/{len(timestamp_folders)} succeeded)")
     return True
 
 
-def run_mosaicking(master_config, log_file):
-    """Create mosaics for each timestamp"""
-    log(log_file, "Starting mosaicking...")
+def _process_single_mosaic(args):
+    """Worker function for parallel mosaicking"""
+    ts_folder, mosaic_dir, method, mosaic_script = args
+    
+    # Find orthorectified subfolder
+    ortho_folder = ts_folder / 'orthorectified'
+    if not ortho_folder.exists():
+        return {
+            'folder': ts_folder.name,
+            'success': False,
+            'error': 'No orthorectified folder found'
+        }
+    
+    output_file = mosaic_dir / f"mosaic_{ts_folder.name}.tif"
+    
+    cmd = [
+        'python', str(mosaic_script),
+        str(ortho_folder),
+        '-o', str(output_file),
+        '-m', method
+    ]
+    
+    result = subprocess.run(cmd, capture_output=True, text=True)
+    
+    return {
+        'folder': ts_folder.name,
+        'success': result.returncode == 0,
+        'stderr': result.stderr if result.returncode != 0 else None
+    }
+
+
+def run_mosaicking(master_config, log_file, n_jobs=None):
+    """Create mosaics for each timestamp in PARALLEL"""
+    if n_jobs is None:
+        n_jobs = cpu_count()
+    
+    log(log_file, f"Starting mosaicking (using {n_jobs} cores)...")
     
     test_dir = Path(master_config['paths']['output_base']) / master_config['test_id']
     ortho_base = test_dir / 'orthos'
@@ -184,34 +267,31 @@ def run_mosaicking(master_config, log_file):
     
     method = master_config['processing']['mosaic_method']
     
-    # Process each timestamp
+    # Get all timestamp folders
     timestamp_folders = sorted([d for d in ortho_base.iterdir() if d.is_dir()])
     
-    for ts_folder in timestamp_folders:
-        log(log_file, f"  Mosaicking {ts_folder.name}...")
-        
-        # Find orthorectified subfolder
-        ortho_folder = ts_folder / 'orthorectified'
-        if not ortho_folder.exists():
-            log(log_file, f"  WARNING: No orthorectified folder in {ts_folder.name}")
-            continue
-        
-        output_file = mosaic_dir / f"mosaic_{ts_folder.name}.tif"
-        
-        cmd = [
-            'python', str(MOSAIC),
-            str(ortho_folder),
-            '-o', str(output_file),
-            '-m', method
-        ]
-        
-        result = subprocess.run(cmd, capture_output=True, text=True)
-        
-        if result.returncode != 0:
-            log(log_file, f"  ERROR mosaicking {ts_folder.name}: {result.stderr}")
-            continue
+    log(log_file, f"Creating {len(timestamp_folders)} mosaics in parallel...")
     
-    log(log_file, f"Mosaicking complete ({len(timestamp_folders)} mosaics)")
+    # Prepare arguments for parallel processing
+    mosaic_args = [
+        (ts_folder, mosaic_dir, method, MOSAIC)
+        for ts_folder in timestamp_folders
+    ]
+    
+    # Process in parallel
+    with Pool(n_jobs) as pool:
+        results = pool.map(_process_single_mosaic, mosaic_args)
+    
+    # Log results
+    success_count = 0
+    for result in results:
+        if result['success']:
+            log(log_file, f"  ✓ {result['folder']}")
+            success_count += 1
+        else:
+            log(log_file, f"  ✗ {result['folder']}: {result.get('error', result.get('stderr', 'Unknown error'))}")
+    
+    log(log_file, f"Mosaicking complete ({success_count}/{len(timestamp_folders)} succeeded)")
     return True
 
 
@@ -221,6 +301,7 @@ def main():
     parser.add_argument('--extract-only', action='store_true', help='Only extract frames')
     parser.add_argument('--process-only', action='store_true', help='Only orthorectify and mosaic')
     parser.add_argument('--mosaic-only', action='store_true', help='Only create mosaics')
+    parser.add_argument('-j', '--jobs', type=int, default=None, help='Number of parallel jobs (default: all cores)')
     
     args = parser.parse_args()
     
@@ -237,17 +318,17 @@ def main():
     start_time = datetime.now()
     
     if args.mosaic_only:
-        run_mosaicking(master_config, log_file)
+        run_mosaicking(master_config, log_file, n_jobs=args.jobs)
     elif args.extract_only:
         run_extraction(master_config, log_file)
     elif args.process_only:
-        run_orthorectification(master_config, log_file)
-        run_mosaicking(master_config, log_file)
+        run_orthorectification(master_config, log_file, n_jobs=args.jobs)
+        run_mosaicking(master_config, log_file, n_jobs=args.jobs)
     else:
         # Full pipeline
         if run_extraction(master_config, log_file):
-            if run_orthorectification(master_config, log_file):
-                run_mosaicking(master_config, log_file)
+            if run_orthorectification(master_config, log_file, n_jobs=args.jobs):
+                run_mosaicking(master_config, log_file, n_jobs=args.jobs)
     
     # Summary
     elapsed = (datetime.now() - start_time).total_seconds()
