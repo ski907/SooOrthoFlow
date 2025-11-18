@@ -10,3 +10,4 @@
 # Ignore output directories
 output_data/
 output/
+alternate_methods/
