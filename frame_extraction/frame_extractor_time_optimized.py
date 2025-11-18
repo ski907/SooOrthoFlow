@@ -201,20 +201,22 @@ def find_video_for_clock_time(camera_videos, target_time):
 def extract_frame_at_clock_time(cap, camera, video_info, target_time, output_dir, output_format, time_subfolder=None):
     """Extract a frame from an already-opened video at a specific clock time."""
     start_time = video_info['start_time']
-    
+
     time_offset = target_time - start_time
     offset_seconds = time_offset.total_seconds()
-    
+
     fps = cap.get(cv2.CAP_PROP_FPS)
     total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
     duration = total_frames / fps if fps > 0 else 0
-    
+
     if offset_seconds > duration or offset_seconds < 0:
         print(f"  ✗ Time {target_time.strftime('%H:%M:%S')} out of range")
         return False
-    
-    frame_number = int(offset_seconds * fps)
-    cap.set(cv2.CAP_PROP_POS_FRAMES, frame_number)
+
+    # Use TIME-based seeking for better accuracy with compressed formats
+    offset_ms = offset_seconds * 1000.0
+    cap.set(cv2.CAP_PROP_POS_MSEC, offset_ms)
+
     ret, frame = cap.read()
     
     if not ret:
@@ -407,13 +409,14 @@ def extract_frames_from_video(video_file, timestamps, output_dir, output_format,
     for i, timestamp_str in enumerate(timestamps):
         try:
             timestamp_seconds = parse_timestamp(timestamp_str)
-            
+
             if timestamp_seconds > duration:
                 print(f"Warning: Timestamp {timestamp_str} exceeds duration")
                 continue
-            
-            frame_number = int(timestamp_seconds * fps)
-            cap.set(cv2.CAP_PROP_POS_FRAMES, frame_number)
+
+            # Use TIME-based seeking for better accuracy
+            timestamp_ms = timestamp_seconds * 1000.0
+            cap.set(cv2.CAP_PROP_POS_MSEC, timestamp_ms)
             ret, frame = cap.read()
             
             if not ret:

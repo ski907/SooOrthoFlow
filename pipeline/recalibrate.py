@@ -4,6 +4,7 @@ import subprocess
 import json
 import argparse
 import pickle
+import re
 from pathlib import Path
 from datetime import datetime
 
@@ -15,27 +16,47 @@ RECALIBRATE_CAMERA = ROOT_DIR / 'calibration' / 'recalibrate_camera.py'
 
 def recalibrate_single_camera(camera_name, image_path, master_config):
     """Recalibrate a single camera and update the calibration file"""
-    
+
     print(f"\nRecalibrating camera: {camera_name}")
     print(f"Using image: {image_path}")
-    
+
     # Add orthorectification directory to Python path so recalibrate_camera.py can import
     import sys
     ortho_dir = str(ROOT_DIR / 'orthorectification')
     if ortho_dir not in sys.path:
         sys.path.insert(0, ortho_dir)
-    
+
     # Convert relative paths to absolute
     gcp_file = ROOT_DIR / master_config['paths']['gcp_file']
     dsm_file = ROOT_DIR / master_config['paths']['dsm_file']
     cal_file = ROOT_DIR / master_config['paths']['calibration_file']
+
+    # Extract date from image path to determine which calibration file will be updated
+    image_path_obj = Path(image_path)
+    date = None
+    for parent in image_path_obj.parents:
+        date_match = re.match(r'(\d{8})', parent.name)
+        if date_match:
+            date = date_match.group(1)
+            break
+
+    if date is None:
+        date = datetime.now().strftime('%Y%m%d')
+
+    cal_path = Path(cal_file)
+    dated_cal_file = cal_path.parent / f"{cal_path.stem}_{date}.pkl"
+
+    print(f"Calibration file to update: {dated_cal_file}")
+    if not dated_cal_file.exists():
+        print(f"  (will be created from most recent calibration)")
+    else:
+        print(f"  (existing file will be updated)")
     
     # Map new camera name to original GCP camera name
     # Pattern: {folder}_N910A6_ch{X}_main -> N910A6_ch{global_num}_main
     # folder1 = cameras 1-8, folder2 = cameras 9-16, etc.
     gcp_camera_name = camera_name
-    
-    import re
+
     # Match pattern like: dav1_N910A6_ch3_main or dvi2_N910A6_ch7_main
     match = re.match(r'([a-z]+)(\d+)_N910A6_ch(\d+)_main', camera_name)
     
@@ -81,7 +102,6 @@ def recalibrate_single_camera(camera_name, image_path, master_config):
         # Now update the calibration file with the FULL camera name (new format)
         if gcp_camera_name != camera_name:
             # Extract date from timestamp folder path to find the correct dated calibration file
-            import re
             image_path_obj = Path(image_path)
             date = None
 
@@ -176,8 +196,7 @@ def main():
     # Read and fix Windows backslashes
     with open(config_path, 'r') as f:
         content = f.read()
-    
-    import re
+
     content = re.sub(r':\\', r':/', content)
     content = content.replace('\\\\', '/')
     content = content.replace('\\', '/')

@@ -100,7 +100,15 @@ def log(log_file, message):
     """Write to log and print"""
     timestamp = datetime.now().strftime('%H:%M:%S')
     log_msg = f"[{timestamp}] {message}"
-    print(log_msg)
+
+    # Print with encoding error handling for Windows console
+    try:
+        print(log_msg)
+    except UnicodeEncodeError:
+        # Replace Unicode symbols with ASCII for console
+        safe_msg = log_msg.encode('ascii', errors='replace').decode('ascii')
+        print(safe_msg)
+
     with open(log_file, 'a', encoding='utf-8') as f:
         f.write(log_msg + '\n')
 
@@ -209,16 +217,31 @@ def run_orthorectification(master_config, log_file, n_jobs=None):
     with Pool(n_jobs) as pool:
         results = pool.map(_process_single_ortho, process_args)
     
-    # Log results
+    # Log results and verify files were created
     success_count = 0
     for result in results:
         if result['success']:
-            log(log_file, f"  ✓ {result['folder']}")
-            success_count += 1
+            # Verify output files actually exist
+            ts_output_dir = ortho_base / result['folder'] / 'orthorectified'
+            ortho_files = list(ts_output_dir.glob('*_ortho.tif')) if ts_output_dir.exists() else []
+
+            if ortho_files:
+                log(log_file, f"  ✓ {result['folder']} ({len(ortho_files)} files)")
+                success_count += 1
+            else:
+                log(log_file, f"  ✗ {result['folder']}: No output files created!")
+                log(log_file, f"     STDOUT: {result['stdout'][:200]}")
+                log(log_file, f"     STDERR: {result['stderr'][:200]}")
         else:
             log(log_file, f"  ✗ {result['folder']}: {result['stderr']}")
-    
+
     log(log_file, f"Orthorectification complete ({success_count}/{len(timestamp_folders)} succeeded)")
+
+    if success_count == 0:
+        log(log_file, "\n✗ ERROR: No orthorectified images were created!")
+        log(log_file, "Check that camera names in frames match calibration file")
+        return False
+
     return True
 
 

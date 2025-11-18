@@ -648,18 +648,24 @@ def process_new_images_fast(new_image_dir, calibration_file, output_dir='new_ort
     
     # Get all image files
     image_files = list(Path(new_image_dir).glob('*.tif*'))
-    print(f"Found {len(image_files)} images to process\n")
-    
+    print(f"Found {len(image_files)} images to process")
+    print(f"Available calibrations: {', '.join(calibrations.keys())}\n")
+
+    processed_count = 0
+    skipped_count = 0
+
     for img_path in image_files:
         # Identify camera from filename
         camera_id = None
         for cam_id in calibrations.keys():
-            if cam_id in str(img_path):
+            if cam_id in str(img_path.name):
                 camera_id = cam_id
                 break
-        
+
         if camera_id is None:
-            print(f"Skipping {img_path.name} - no matching calibration")
+            print(f"⚠ SKIPPING {img_path.name} - no matching calibration")
+            print(f"  Available calibrations: {list(calibrations.keys())}")
+            skipped_count += 1
             continue
         
         print(f"Processing {img_path.name} with {camera_id} calibration")
@@ -676,14 +682,31 @@ def process_new_images_fast(new_image_dir, calibration_file, output_dir='new_ort
             undist_path = undistorted_dir / f"{img_path.stem}_undistorted.tif"
             cv2.imwrite(str(undist_path), undistorted)
             print(f"  Undistorted: {undist_path.name}")
-        
+
         # Orthorectify (FAST! Uses pre-computed lookup tables)
         ortho_img = orthorectify_with_lookup(img, calib['map_x'], calib['map_y'])
-        
+
         # Save with world file
         ortho_path = ortho_dir / f"{img_path.stem}_ortho.tif"
         save_with_worldfile(ortho_img, calib['geotransform'], ortho_path)
         print(f"  Orthorectified: {ortho_path.name}\n")
+        processed_count += 1
+
+    # Print summary
+    print("="*60)
+    print(f"Processing complete:")
+    print(f"  Processed: {processed_count}")
+    print(f"  Skipped: {skipped_count}")
+    print("="*60)
+
+    if processed_count == 0:
+        print("\n✗ ERROR: No images were processed!")
+        print("Possible causes:")
+        print("  1. Camera names in images don't match calibration file")
+        print("  2. Wrong calibration file specified")
+        print("  3. Calibration file uses different camera naming")
+        import sys
+        sys.exit(1)
 
 
 # Usage

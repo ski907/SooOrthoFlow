@@ -3,5 +3,10 @@
 *.tif
 *.tiff
 *.avi
+*.mp4
 *.pyc
 *.tfw
+
+# Ignore output directories
+output_data/
+output/
