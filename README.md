@@ -1,4 +1,4 @@
-# Thermal Image Processing Pipeline
+# Soo Locks Image Processing Pipeline
 
 ## Setup (One Time)
 
