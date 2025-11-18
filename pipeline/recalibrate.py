@@ -14,11 +14,23 @@ ROOT_DIR = SCRIPT_DIR.parent
 RECALIBRATE_CAMERA = ROOT_DIR / 'calibration' / 'recalibrate_camera.py'
 
 
-def recalibrate_single_camera(camera_name, image_path, master_config):
-    """Recalibrate a single camera and update the calibration file"""
+def recalibrate_single_camera(camera_name, image_path, master_config, mode='pose-only',
+                              min_inlier_ratio=0.7, max_rms=10.0):
+    """
+    Recalibrate a single camera and update the calibration file
+
+    Args:
+        camera_name: Camera identifier
+        image_path: Path to image for recalibration
+        master_config: Master configuration dictionary
+        mode: 'pose-only' or 'full' calibration mode
+        min_inlier_ratio: Minimum inlier ratio for pose-only mode (default: 0.7)
+        max_rms: Maximum RMS error for pose-only mode in pixels (default: 10.0)
+    """
 
     print(f"\nRecalibrating camera: {camera_name}")
     print(f"Using image: {image_path}")
+    print(f"Mode: {mode.upper()}")
 
     # Add orthorectification directory to Python path so recalibrate_camera.py can import
     import sys
@@ -85,7 +97,10 @@ def recalibrate_single_camera(camera_name, image_path, master_config):
         '-d', str(dsm_file),
         '-cal', str(cal_file),
         '-r', str(resolution),
-        '-p', str(padding)
+        '-p', str(padding),
+        '--mode', mode,
+        '--min-inlier-ratio', str(min_inlier_ratio),
+        '--max-rms', str(max_rms)
     ]
     
     # Set PYTHONPATH environment variable
@@ -289,8 +304,19 @@ def main():
                     print("Invalid choice, try again")
                     continue
 
-                # Recalibrate the selected camera
-                recalibrate_single_camera(camera, image, config)
+                # Ask for calibration mode
+                print("\nCalibration mode:")
+                print("  1. Pose-only (faster, for small camera shifts)")
+                print("  2. Full (complete recalibration)")
+                mode_choice = input("Select mode (1 or 2, default=1): ").strip()
+
+                if mode_choice == '2':
+                    mode = 'full'
+                else:
+                    mode = 'pose-only'  # Default
+
+                # Recalibrate the selected camera (defaults used, can override if validation fails)
+                recalibrate_single_camera(camera, image, config, mode)
 
                 # Ask if user wants to recalibrate another
                 another = input("\nRecalibrate another camera? (y/n): ").strip().lower()

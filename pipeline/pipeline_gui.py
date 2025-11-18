@@ -192,12 +192,23 @@ class PipelineGUI:
         ttk.Entry(proc_frame, textvariable=self.ortho_padding, width=15).grid(row=row, column=3,
                                                                                sticky=tk.W, padx=5, pady=(5, 0))
 
+        # Calibration Settings Section
+        calib_frame = ttk.LabelFrame(main_frame, text="Calibration Settings", padding="10")
+        calib_frame.grid(row=5, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=(0, 10))
+
+        self.calib_mode = tk.StringVar(value='pose-only')
+        ttk.Label(calib_frame, text="Recalibration Mode:").grid(row=0, column=0, sticky=tk.W, padx=(0, 10))
+        ttk.Radiobutton(calib_frame, text="Pose-only (faster, for small camera shifts)",
+                       variable=self.calib_mode, value='pose-only').grid(row=0, column=1, sticky=tk.W)
+        ttk.Radiobutton(calib_frame, text="Full (complete recalibration)",
+                       variable=self.calib_mode, value='full').grid(row=1, column=1, sticky=tk.W)
+
         # Console Output Section
         console_frame = ttk.LabelFrame(main_frame, text="Console Output", padding="10")
-        console_frame.grid(row=5, column=0, columnspan=3, sticky=(tk.W, tk.E, tk.N, tk.S), pady=(0, 10))
+        console_frame.grid(row=6, column=0, columnspan=3, sticky=(tk.W, tk.E, tk.N, tk.S), pady=(0, 10))
         console_frame.columnconfigure(0, weight=1)
         console_frame.rowconfigure(0, weight=1)
-        main_frame.rowconfigure(5, weight=1)
+        main_frame.rowconfigure(6, weight=1)
 
         self.console = scrolledtext.ScrolledText(console_frame, height=10, state='disabled',
                                                  bg='black', fg='white', font=('Courier', 9))
@@ -205,7 +216,7 @@ class PipelineGUI:
 
         # Action Buttons
         button_frame = ttk.Frame(main_frame)
-        button_frame.grid(row=6, column=0, columnspan=3, pady=(10, 0))
+        button_frame.grid(row=7, column=0, columnspan=3, pady=(10, 0))
 
         self.run_button = ttk.Button(button_frame, text="Run Pipeline",
                                      command=self.run_pipeline, style='Accent.TButton')
@@ -220,7 +231,7 @@ class PipelineGUI:
         # Status bar
         self.status_var = tk.StringVar(value="Ready")
         status_bar = ttk.Label(main_frame, textvariable=self.status_var, relief=tk.SUNKEN)
-        status_bar.grid(row=7, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=(5, 0))
+        status_bar.grid(row=8, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=(5, 0))
 
     def browse_directory(self, var):
         """Open directory browser"""
@@ -409,7 +420,9 @@ class PipelineGUI:
             # Save config first to ensure latest paths are available
             self.save_config()
 
-            self.log_console("Launching recalibration interface...")
+            mode = self.calib_mode.get()
+            self.log_console(f"Launching recalibration interface (preferred mode: {mode})...")
+            self.log_console("Note: You will be prompted to confirm the mode in the terminal")
             self.status_var.set("Recalibration in progress...")
 
             # Launch recalibration script in a new terminal window

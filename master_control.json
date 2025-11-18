@@ -5,7 +5,7 @@
     "interval": "1min",
     "paths": {
         "output_base": "output_data",
-        "calibration_file": "calibration/camera_calibrations_20251016.pkl",
+        "calibration_file": "C:/Users/RDCRLCSE/Documents/FileCloud/My Files/Soo Locks/Ice Management Model Project/technical/SooOrthoFlow/calibration/camera_calibrations_20251016.pkl",
         "gcp_file": "inputs/GCP_merged.csv",
         "dsm_file": "inputs/lidar_DSM_filled_cropped.tif"
     },
