@@ -1,16 +1,16 @@
 {
-    "video_directory": "test_videos/20251119_Poe",
+    "video_directory": "D:/11-20-25/Soo UB Path",
     "mode": "time_range",
     "time_range": {
-        "start": "2025-11-19 16:09:30",
-        "end": "2025-11-19 16:21:30",
+        "start": "2025-11-20 11:27:30",
+        "end": "2025-11-20 11:32:30",
         "interval": "30s"
     },
-    "output_directory": "D:\\20251119_Poe\\frames",
+    "output_directory": "D:\\Soo UB Path\\frames",
     "output_format": "tiff",
     "recursive": true,
     "filename_pattern": "CAMERA_DATETIME_DATETIME",
     "camera_time_offsets": {
-        "NVR2": 80.0
+        "NVR2": 0.0
     }
 }

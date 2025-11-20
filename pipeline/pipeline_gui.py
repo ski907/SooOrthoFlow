@@ -103,7 +103,7 @@ class PipelineGUI:
         canvas.bind_all("<MouseWheel>", _on_mousewheel)
 
         # Title
-        title_label = ttk.Label(main_frame, text="Soo Locks Image New Processing Pipeline",
+        title_label = ttk.Label(main_frame, text="Soo Locks Model Image Processing Pipeline",
                                font=('Arial', 14, 'bold'))
         title_label.grid(row=0, column=0, columnspan=3, pady=(0, 5))
 
@@ -190,62 +190,62 @@ class PipelineGUI:
                   command=lambda: self.browse_file(self.dsm_file,
                                                    [("GeoTIFF Files", "*.tif;*.tiff"), ("All Files", "*.*")])).grid(row=row, column=2, pady=(5, 0))
 
-        # Processing Options Section
-        proc_frame = ttk.LabelFrame(main_frame, text="Processing Options", padding="5")
-        proc_frame.grid(row=4, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=(0, 5))
-        proc_frame.columnconfigure(1, weight=1)
+        # # Processing Options Section
+        # proc_frame = ttk.LabelFrame(main_frame, text="Processing Options", padding="5")
+        # proc_frame.grid(row=4, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=(0, 5))
+        # proc_frame.columnconfigure(1, weight=1)
 
-        row = 0
-        ttk.Label(proc_frame, text="Output Format:").grid(row=row, column=0, sticky=tk.W)
-        format_combo = ttk.Combobox(proc_frame, textvariable=self.output_format,
-                                    values=["tiff", "png", "jpg"], state="readonly", width=15)
-        format_combo.grid(row=row, column=1, sticky=tk.W, padx=5)
+        # row = 0
+        # ttk.Label(proc_frame, text="Output Format:").grid(row=row, column=0, sticky=tk.W)
+        # format_combo = ttk.Combobox(proc_frame, textvariable=self.output_format,
+        #                             values=["tiff", "png", "jpg"], state="readonly", width=15)
+        # format_combo.grid(row=row, column=1, sticky=tk.W, padx=5)
 
-        ttk.Label(proc_frame, text="Mosaic Method:").grid(row=row, column=2, sticky=tk.W, padx=(20, 0))
-        mosaic_combo = ttk.Combobox(proc_frame, textvariable=self.mosaic_method,
-                                    values=["center", "average", "max", "min"], state="readonly", width=15)
-        mosaic_combo.grid(row=row, column=3, sticky=tk.W, padx=5)
+        # ttk.Label(proc_frame, text="Mosaic Method:").grid(row=row, column=2, sticky=tk.W, padx=(20, 0))
+        # mosaic_combo = ttk.Combobox(proc_frame, textvariable=self.mosaic_method,
+        #                             values=["center", "average", "max", "min"], state="readonly", width=15)
+        # mosaic_combo.grid(row=row, column=3, sticky=tk.W, padx=5)
 
-        row += 1
-        ttk.Checkbutton(proc_frame, text="Recursive video search",
-                       variable=self.recursive).grid(row=row, column=0, columnspan=2,
-                                                     sticky=tk.W, pady=(5, 0))
+        # row += 1
+        # ttk.Checkbutton(proc_frame, text="Recursive video search",
+        #                variable=self.recursive).grid(row=row, column=0, columnspan=2,
+        #                                              sticky=tk.W, pady=(5, 0))
 
-        row += 1
-        ttk.Label(proc_frame, text="Filename Pattern:").grid(row=row, column=0, sticky=tk.W, pady=(5, 0))
-        ttk.Entry(proc_frame, textvariable=self.filename_pattern, width=40).grid(row=row, column=1,
-                                                                                  columnspan=3, sticky=(tk.W, tk.E),
-                                                                                  padx=5, pady=(5, 0))
+        # row += 1
+        # ttk.Label(proc_frame, text="Filename Pattern:").grid(row=row, column=0, sticky=tk.W, pady=(5, 0))
+        # ttk.Entry(proc_frame, textvariable=self.filename_pattern, width=40).grid(row=row, column=1,
+        #                                                                           columnspan=3, sticky=(tk.W, tk.E),
+        #                                                                           padx=5, pady=(5, 0))
 
-        row += 1
-        ttk.Label(proc_frame, text="Ortho Resolution (m/px):").grid(row=row, column=0, sticky=tk.W, pady=(5, 0))
-        ttk.Entry(proc_frame, textvariable=self.ortho_resolution, width=15).grid(row=row, column=1,
-                                                                                  sticky=tk.W, padx=5, pady=(5, 0))
+        # row += 1
+        # ttk.Label(proc_frame, text="Ortho Resolution (m/px):").grid(row=row, column=0, sticky=tk.W, pady=(5, 0))
+        # ttk.Entry(proc_frame, textvariable=self.ortho_resolution, width=15).grid(row=row, column=1,
+        #                                                                           sticky=tk.W, padx=5, pady=(5, 0))
 
-        ttk.Label(proc_frame, text="Ortho Padding (m):").grid(row=row, column=2, sticky=tk.W,
-                                                               padx=(20, 0), pady=(5, 0))
-        ttk.Entry(proc_frame, textvariable=self.ortho_padding, width=15).grid(row=row, column=3,
-                                                                               sticky=tk.W, padx=5, pady=(5, 0))
+        # ttk.Label(proc_frame, text="Ortho Padding (m):").grid(row=row, column=2, sticky=tk.W,
+        #                                                        padx=(20, 0), pady=(5, 0))
+        # ttk.Entry(proc_frame, textvariable=self.ortho_padding, width=15).grid(row=row, column=3,
+        #                                                                        sticky=tk.W, padx=5, pady=(5, 0))
 
         # Post-Processing Options Section
         postproc_frame = ttk.LabelFrame(main_frame, text="Post-Processing Options", padding="5")
         postproc_frame.grid(row=5, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=(0, 5))
         postproc_frame.columnconfigure(1, weight=1)
 
+        # row = 0
+        # ttk.Checkbutton(postproc_frame, text="Detect boat lights in mosaics",
+        #                variable=self.run_light_detection).grid(row=row, column=0, columnspan=2,
+        #                                                        sticky=tk.W)
+
+        # row += 1
+        # ttk.Label(postproc_frame, text="Light Mask File (optional):").grid(row=row, column=0, sticky=tk.W, pady=(5, 0))
+        # ttk.Entry(postproc_frame, textvariable=self.light_detection_mask, width=70).grid(row=row, column=1,
+        #                                                                                   sticky=(tk.W, tk.E), padx=5, pady=(5, 0))
+        # ttk.Button(postproc_frame, text="Browse...",
+        #           command=lambda: self.browse_file(self.light_detection_mask,
+        #                                            [("GeoTIFF Files", "*.tif;*.tiff"), ("All Files", "*.*")])).grid(row=row, column=2, pady=(5, 0))
+
         row = 0
-        ttk.Checkbutton(postproc_frame, text="Detect boat lights in mosaics",
-                       variable=self.run_light_detection).grid(row=row, column=0, columnspan=2,
-                                                               sticky=tk.W)
-
-        row += 1
-        ttk.Label(postproc_frame, text="Light Mask File (optional):").grid(row=row, column=0, sticky=tk.W, pady=(5, 0))
-        ttk.Entry(postproc_frame, textvariable=self.light_detection_mask, width=70).grid(row=row, column=1,
-                                                                                          sticky=(tk.W, tk.E), padx=5, pady=(5, 0))
-        ttk.Button(postproc_frame, text="Browse...",
-                  command=lambda: self.browse_file(self.light_detection_mask,
-                                                   [("GeoTIFF Files", "*.tif;*.tiff"), ("All Files", "*.*")])).grid(row=row, column=2, pady=(5, 0))
-
-        row += 1
         ttk.Checkbutton(postproc_frame, text="Transform mosaics to world coordinates",
                        variable=self.apply_world_transform).grid(row=row, column=0, columnspan=2,
                                                                  sticky=tk.W, pady=(5, 0))
