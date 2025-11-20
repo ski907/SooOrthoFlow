@@ -18,6 +18,7 @@ ROOT_DIR = SCRIPT_DIR.parent
 FRAME_EXTRACTOR = ROOT_DIR / 'frame_extraction' / 'frame_extractor_time_optimized.py'
 ORTHORECTIFY = ROOT_DIR / 'orthorectification' / 'undistort_and_orthorectify.py'
 MOSAIC = ROOT_DIR / 'orthorectification' / 'ortho_mosaic.py'
+LIGHT_DETECTION = ROOT_DIR / 'analysis' / 'ship_detection' / 'batch_detect_lights.py'
 
 
 def load_master_config(config_path='master_control.json'):
@@ -103,14 +104,15 @@ def log(log_file, message):
 
     # Print with encoding error handling for Windows console
     try:
-        print(log_msg)
+        print(log_msg, flush=True)  # Force immediate flush
     except UnicodeEncodeError:
         # Replace Unicode symbols with ASCII for console
         safe_msg = log_msg.encode('ascii', errors='replace').decode('ascii')
-        print(safe_msg)
+        print(safe_msg, flush=True)  # Force immediate flush
 
     with open(log_file, 'a', encoding='utf-8') as f:
         f.write(log_msg + '\n')
+        f.flush()  # Force file flush too
 
 
 def _process_single_ortho(args):
@@ -318,6 +320,69 @@ def run_mosaicking(master_config, log_file, n_jobs=None):
     return True
 
 
+def run_light_detection(master_config, log_file):
+    """Detect boat lights in mosaics (optional post-processing)"""
+    log(log_file, "Starting light detection...")
+
+    test_dir = Path(master_config['paths']['output_base']) / master_config['test_id']
+    mosaic_dir = test_dir / 'mosaics'
+    light_dir = test_dir / 'light_detections'
+    light_dir.mkdir(exist_ok=True)
+
+    # Find all mosaic files
+    mosaic_files = sorted(mosaic_dir.glob('mosaic_*.tif'))
+
+    if not mosaic_files:
+        log(log_file, "  No mosaics found to process")
+        return True
+
+    log(log_file, f"  Found {len(mosaic_files)} mosaics to process")
+
+    # Get mask path if specified
+    mask_path = master_config['processing'].get('light_detection_mask', None)
+    if mask_path:
+        mask_path_obj = Path(mask_path)
+        if not mask_path_obj.is_absolute():
+            # Make relative paths relative to ROOT_DIR
+            mask_path_obj = ROOT_DIR / mask_path
+        if not mask_path_obj.exists():
+            log(log_file, f"  Warning: Mask file not found: {mask_path_obj}")
+            mask_path = None
+        else:
+            mask_path = str(mask_path_obj)
+
+    # Prepare output paths
+    output_shapefile = str(light_dir / 'detected_lights.shp')
+    output_csv = str(light_dir / 'detected_lights.csv')
+
+    # Convert mosaic paths to strings
+    image_paths = [str(p) for p in mosaic_files]
+
+    # Import and run light detection function
+    try:
+        sys.path.insert(0, str(ROOT_DIR / 'analysis' / 'ship_detection'))
+        from batch_detect_lights import batch_detect_and_export
+
+        # Run the detection
+        batch_detect_and_export(
+            image_paths=image_paths,
+            mask_path=mask_path,
+            output_shapefile=output_shapefile,
+            output_csv=output_csv,
+            n_workers=None  # Auto-detect CPU count
+        )
+
+        log(log_file, "Light detection complete")
+        return True
+
+    except Exception as e:
+        log(log_file, f"  ERROR: Light detection failed: {e}")
+        import traceback
+        for line in traceback.format_exc().splitlines():
+            log(log_file, f"  {line}")
+        return False
+
+
 def main():
     parser = argparse.ArgumentParser(description='Run thermal image processing pipeline')
     parser.add_argument('--config', default='master_control.json', help='Master config file')
@@ -339,20 +404,29 @@ def main():
     
     # Run pipeline steps
     start_time = datetime.now()
-    
+
+    # Check if light detection is enabled
+    run_lights = master_config['processing'].get('run_light_detection', False)
+
     if args.mosaic_only:
         run_mosaicking(master_config, log_file, n_jobs=args.jobs)
+        if run_lights:
+            run_light_detection(master_config, log_file)
     elif args.extract_only:
         run_extraction(master_config, log_file)
     elif args.process_only:
         run_orthorectification(master_config, log_file, n_jobs=args.jobs)
         run_mosaicking(master_config, log_file, n_jobs=args.jobs)
+        if run_lights:
+            run_light_detection(master_config, log_file)
     else:
         # Full pipeline
         if run_extraction(master_config, log_file):
             if run_orthorectification(master_config, log_file, n_jobs=args.jobs):
-                run_mosaicking(master_config, log_file, n_jobs=args.jobs)
-    
+                if run_mosaicking(master_config, log_file, n_jobs=args.jobs):
+                    if run_lights:
+                        run_light_detection(master_config, log_file)
+
     # Summary
     elapsed = (datetime.now() - start_time).total_seconds()
     log(log_file, f"\nPipeline completed in {elapsed/60:.1f} minutes")

@@ -47,9 +47,9 @@ def copy_camera(source_file, dest_file, camera_id):
         return False
 
     # Create backup of destination
-    backup_file = dest_file.parent / f"{dest_file.stem}_backup_before_restore.pkl"
-    shutil.copy2(dest_file, backup_file)
-    print(f"Created backup: {backup_file.name}")
+    #backup_file = dest_file.parent / f"{dest_file.stem}_backup_before_restore.pkl"
+    #shutil.copy2(dest_file, backup_file)
+    #print(f"Created backup: {backup_file.name}")
 
     # Copy camera calibration
     dest_cals[camera_id] = source_cals[camera_id]

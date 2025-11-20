@@ -1,11 +1,11 @@
 {
-    "video_folder": "C:/Users/RDCRLCSE/Documents/FileCloud/My Files/Soo Locks/Ice Management Model Project/technical/SooOrthoFlow/test_videos/20251016_Nav1",
-    "start_time": "2025-10-16 10:35:00",
-    "end_time": "2025-10-16 10:45:00",
-    "interval": "1min",
+    "video_folder": "test_videos\\20251119_Soo",
+    "start_time": "2025-11-19 15:27:00",
+    "end_time": "2025-11-19 15:37:00",
+    "interval": "30s",
     "paths": {
         "output_base": "output_data",
-        "calibration_file": "C:/Users/RDCRLCSE/Documents/FileCloud/My Files/Soo Locks/Ice Management Model Project/technical/SooOrthoFlow/calibration/camera_calibrations_20251016.pkl",
+        "calibration_file": "calibration\\camera_calibrations_20251119.pkl",
         "gcp_file": "inputs/GCP_merged.csv",
         "dsm_file": "inputs/lidar_DSM_filled_cropped.tif"
     },
@@ -15,6 +15,8 @@
         "filename_pattern": "CAMERA_DATETIME_DATETIME",
         "mosaic_method": "center",
         "ortho_resolution": 0.0025,
-        "ortho_padding": 0.5
+        "ortho_padding": 0.5,
+        "run_light_detection": false,
+        "light_detection_mask": "analysis//ship_detection//area_to_review_ref.tif"
     }
 }

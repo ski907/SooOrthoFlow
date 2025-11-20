@@ -440,24 +440,54 @@ def orthorectify_with_lookup(img, map_x, map_y):
     return cv2.remap(img, map_x, map_y, cv2.INTER_LINEAR)
 
 
-def save_with_worldfile(img, geotransform, output_path):
+def save_geotiff(img, geotransform, output_path):
     """
-    Save image with world file (no CRS needed for arbitrary coordinates)
+    Save image as GeoTIFF with embedded georeferencing
     """
-    cv2.imwrite(str(output_path), img)
-    
-    # Save world file (.tfw)
-    world_file = Path(str(output_path).rsplit('.', 1)[0] + '.tfw')
-    with open(world_file, 'w') as f:
-        f.write(f"{geotransform['pixel_width']}\n")
-        f.write(f"{geotransform['rotation_x']}\n")
-        f.write(f"{geotransform['rotation_y']}\n")
-        f.write(f"{geotransform['pixel_height']}\n")
-        f.write(f"{geotransform['x_min']}\n")
-        f.write(f"{geotransform['y_max']}\n")
-    
-    print(f"  Saved: {output_path}")
-    print(f"  World file: {world_file}")
+    from rasterio.transform import from_bounds
+
+    # Get image dimensions
+    if len(img.shape) == 3:
+        height, width, bands = img.shape
+    else:
+        height, width = img.shape
+        bands = 1
+
+    # Create rasterio transform from geotransform dict
+    # The geotransform has: x_min, y_max, pixel_width (positive), pixel_height (negative)
+    transform = from_bounds(
+        west=geotransform['x_min'],
+        south=geotransform['y_max'] + height * geotransform['pixel_height'],  # pixel_height is negative
+        east=geotransform['x_min'] + width * geotransform['pixel_width'],
+        north=geotransform['y_max'],
+        width=width,
+        height=height
+    )
+
+    # Prepare image data for rasterio (needs to be bands-first: [bands, height, width])
+    if len(img.shape) == 3:
+        # BGR to RGB and transpose to bands-first
+        img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        img_data = np.transpose(img_rgb, (2, 0, 1))  # (H, W, C) -> (C, H, W)
+    else:
+        img_data = img[np.newaxis, :, :]  # (H, W) -> (1, H, W)
+
+    # Write GeoTIFF
+    with rasterio.open(
+        output_path,
+        'w',
+        driver='GTiff',
+        height=height,
+        width=width,
+        count=bands,
+        dtype=img_data.dtype,
+        crs='EPSG:26917',  # UTM Zone 17N (Soo Locks area)
+        transform=transform,
+        compress='lzw'
+    ) as dst:
+        dst.write(img_data)
+
+    print(f"  Saved GeoTIFF: {output_path}")
 
 
 # Main workflow
@@ -558,9 +588,9 @@ def calibrate_all_cameras(gcp_file, image_dir, dem_path, resolution=0.005,
             print("\nOrthorectifying...")
             ortho_img = orthorectify_with_lookup(img, map_x, map_y)
             
-            # Save orthorectified image with world file
+            # Save orthorectified image as GeoTIFF
             ortho_path = ortho_dir / f"{camera_id}_ortho.tif"
-            save_with_worldfile(ortho_img, geotransform, ortho_path)
+            save_geotiff(ortho_img, geotransform, ortho_path)
 
             ##Save the calibrations for each camera in a unique file
             # cam_calib_file = output_path / f'{camera_id}_calibration.pkl'
@@ -686,9 +716,9 @@ def process_new_images_fast(new_image_dir, calibration_file, output_dir='new_ort
         # Orthorectify (FAST! Uses pre-computed lookup tables)
         ortho_img = orthorectify_with_lookup(img, calib['map_x'], calib['map_y'])
 
-        # Save with world file
+        # Save as GeoTIFF
         ortho_path = ortho_dir / f"{img_path.stem}_ortho.tif"
-        save_with_worldfile(ortho_img, calib['geotransform'], ortho_path)
+        save_geotiff(ortho_img, calib['geotransform'], ortho_path)
         print(f"  Orthorectified: {ortho_path.name}\n")
         processed_count += 1
 

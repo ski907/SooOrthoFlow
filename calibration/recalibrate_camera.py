@@ -469,7 +469,7 @@ def recalibrate_single_camera(image_path, gcp_file, camera_id, dem_path,
     """
     from undistort_and_orthorectify import (calibrate_fisheye_camera, create_orthorectification_params,
                           load_dem_from_tiff, create_ortho_lookup_tables_with_dem,
-                          orthorectify_with_lookup, save_with_worldfile, undistort_fisheye)
+                          orthorectify_with_lookup, save_geotiff, undistort_fisheye)
     
     print("="*60)
     print(f"Interactive Recalibration for {camera_id}")
@@ -732,7 +732,7 @@ def recalibrate_single_camera(image_path, gcp_file, camera_id, dem_path,
     ortho_dir = output_path / 'orthorectified'
     ortho_dir.mkdir(exist_ok=True)
     ortho_path = ortho_dir / f"{camera_id}_recalibrated_ortho.tif"
-    save_with_worldfile(ortho_img, geotransform, ortho_path)
+    save_geotiff(ortho_img, geotransform, ortho_path)
     
     # Save undistorted for QC
     undistorted_dir = output_path / 'undistorted'
@@ -779,11 +779,11 @@ def recalibrate_single_camera(image_path, gcp_file, camera_id, dem_path,
         calibrations = pickle.load(f)
 
     # Backup old calibration for this camera (if it exists)
-    if camera_id in calibrations:
-        backup_file = Path(str(calibration_file).replace('.pkl', f'_backup_{camera_id}_{date}.pkl'))
-        with open(backup_file, 'wb') as f:
-            pickle.dump({camera_id: calibrations[camera_id]}, f)
-        print(f"Backed up old calibration: {backup_file}")
+    #if camera_id in calibrations:
+    #    backup_file = Path(str(calibration_file).replace('.pkl', f'_backup_{camera_id}_{date}.pkl'))
+        # with open(backup_file, 'wb') as f:
+        #     pickle.dump({camera_id: calibrations[camera_id]}, f)
+        # print(f"Backed up old calibration: {backup_file}")
 
     # Update with new calibration for this camera
     calibrations[camera_id] = {

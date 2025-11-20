@@ -3,20 +3,22 @@ import numpy as np
 from pathlib import Path
 from scipy.ndimage import distance_transform_edt
 import argparse
+import rasterio
 
-def read_worldfile(tfw_path):
-    """Read world file and return geotransform parameters"""
-    with open(tfw_path, 'r') as f:
-        lines = f.readlines()
-    
-    return {
-        'pixel_width': float(lines[0].strip()),
-        'rotation_y': float(lines[1].strip()),
-        'rotation_x': float(lines[2].strip()),
-        'pixel_height': float(lines[3].strip()),
-        'x_min': float(lines[4].strip()),
-        'y_max': float(lines[5].strip())
-    }
+def read_geotiff_transform(tif_path):
+    """Read geotransform from GeoTIFF metadata"""
+    with rasterio.open(tif_path) as src:
+        transform = src.transform
+
+        # Convert rasterio transform to our geotransform dict format
+        return {
+            'pixel_width': transform.a,     # pixel width (x resolution)
+            'rotation_y': transform.b,       # rotation (usually 0)
+            'rotation_x': transform.d,       # rotation (usually 0)
+            'pixel_height': transform.e,     # pixel height (y resolution, negative)
+            'x_min': transform.c,            # x coordinate of upper-left corner
+            'y_max': transform.f             # y coordinate of upper-left corner
+        }
 
 
 def get_image_bounds(img_shape, geotransform):
@@ -34,31 +36,27 @@ def get_image_bounds(img_shape, geotransform):
 def compute_mosaic_bounds(ortho_dir):
     """Compute the overall bounds needed for the mosaic"""
     print("Computing mosaic bounds...")
-    
+
     x_mins, x_maxs, y_mins, y_maxs = [], [], [], []
-    
+
     tif_files = list(Path(ortho_dir).glob('*_ortho.tif'))
-    
+
     if not tif_files:
         raise ValueError(f"No *_ortho.tif files found in {ortho_dir}")
-    
-    print(f"Found {len(tif_files)} orthorectified images")
-    
+
+    print(f"Found {len(tif_files)} orthorectified GeoTIFF images")
+
     for tif_path in tif_files:
-        tfw_path = tif_path.with_suffix('.tfw')
-        
-        if not tfw_path.exists():
-            continue
-        
+        # Read image and geotransform from GeoTIFF
         img = cv2.imread(str(tif_path))
-        geotransform = read_worldfile(tfw_path)
+        geotransform = read_geotiff_transform(tif_path)
         x_min, x_max, y_min, y_max = get_image_bounds(img.shape, geotransform)
-        
+
         x_mins.append(x_min)
         x_maxs.append(x_max)
         y_mins.append(y_min)
         y_maxs.append(y_max)
-    
+
     return min(x_mins), max(x_maxs), min(y_mins), max(y_maxs)
 
 
@@ -136,44 +134,40 @@ def create_seam_carved_mosaic(ortho_dir, output_path, resolution=None,
     
     # Get resolution
     tif_files = sorted(Path(ortho_dir).glob('*_ortho.tif'))
-    first_tfw = tif_files[0].with_suffix('.tfw')
-    first_geotransform = read_worldfile(first_tfw)
-    
+    first_geotransform = read_geotiff_transform(tif_files[0])
+
     if resolution is None:
         resolution = first_geotransform['pixel_width']
-    
+
     print(f"\nMosaic resolution: {resolution*1000:.2f} mm/pixel")
-    
+
     # Compute mosaic dimensions
     mosaic_width = int((x_max - x_min) / resolution)
     mosaic_height = int((y_max - y_min) / abs(resolution))
-    
+
     print(f"Mosaic size: {mosaic_width} x {mosaic_height} pixels")
-    
+
     # Initialize mosaic and mask
     mosaic = np.zeros((mosaic_height, mosaic_width, 3), dtype=np.uint8)
     mosaic_mask = np.zeros((mosaic_height, mosaic_width), dtype=np.uint8)
     seam_map = np.zeros((mosaic_height, mosaic_width), dtype=np.uint8)  # For visualization
-    
+
     # Sort images by X position (left to right)
     image_data = []
     for tif_path in tif_files:
-        tfw_path = tif_path.with_suffix('.tfw')
-        if not tfw_path.exists():
-            continue
-        geotransform = read_worldfile(tfw_path)
-        image_data.append((geotransform['x_min'], tif_path, tfw_path))
-    
+        geotransform = read_geotiff_transform(tif_path)
+        image_data.append((geotransform['x_min'], tif_path))
+
     image_data.sort(key=lambda x: x[0])  # Sort by x_min
-    
-    print(f"\nProcessing {len(image_data)} images left-to-right with seam carving...")
-    
-    for i, (_, tif_path, tfw_path) in enumerate(image_data, 1):
+
+    print(f"\nProcessing {len(image_data)} GeoTIFF images left-to-right with seam carving...")
+
+    for i, (_, tif_path) in enumerate(image_data, 1):
         print(f"\n[{i}/{len(image_data)}] Processing {tif_path.name}")
-        
+
         # Load image and geotransform
         img = cv2.imread(str(tif_path))
-        geotransform = read_worldfile(tfw_path)
+        geotransform = read_geotiff_transform(tif_path)
         
         # Get image bounds
         img_x_min, img_x_max, img_y_min, img_y_max = get_image_bounds(img.shape, geotransform)
@@ -259,16 +253,41 @@ def create_seam_carved_mosaic(ortho_dir, output_path, resolution=None,
         
         print(f"  Added to mosaic")
     
-    # Save mosaic
-    print(f"\nSaving mosaic to {output_path}")
-    cv2.imwrite(str(output_path), mosaic)
-    
-    # Save world file
-    tfw_output = Path(str(output_path).rsplit('.', 1)[0] + '.tfw')
-    with open(tfw_output, 'w') as f:
-        f.write(f"{resolution}\n0\n0\n{-resolution}\n{x_min}\n{y_max}\n")
-    
-    print(f"Saved world file: {tfw_output}")
+    # Save mosaic as GeoTIFF
+    print(f"\nSaving mosaic as GeoTIFF to {output_path}")
+
+    from rasterio.transform import from_bounds
+
+    # Convert BGR to RGB
+    mosaic_rgb = cv2.cvtColor(mosaic, cv2.COLOR_BGR2RGB)
+    mosaic_data = np.transpose(mosaic_rgb, (2, 0, 1))  # (H, W, C) -> (C, H, W)
+
+    # Create geotransform
+    transform = from_bounds(
+        west=x_min,
+        south=y_min,
+        east=x_max,
+        north=y_max,
+        width=mosaic_width,
+        height=mosaic_height
+    )
+
+    # Write GeoTIFF
+    with rasterio.open(
+        output_path,
+        'w',
+        driver='GTiff',
+        height=mosaic_height,
+        width=mosaic_width,
+        count=3,
+        dtype=mosaic_data.dtype,
+        crs='EPSG:26917',  # UTM Zone 17N
+        transform=transform,
+        compress='lzw'
+    ) as dst:
+        dst.write(mosaic_data)
+
+    print(f"Saved mosaic GeoTIFF: {output_path}")
     
     # Save seam map
     if save_seam_map:
@@ -379,14 +398,13 @@ def create_mosaic_simple_priority(ortho_dir, output_path, resolution=None,
     
     # Compute overall bounds
     x_min, x_max, y_min, y_max = compute_mosaic_bounds(ortho_dir)
-    
+
     tif_files = sorted(Path(ortho_dir).glob('*_ortho.tif'))
-    first_tfw = tif_files[0].with_suffix('.tfw')
-    first_geotransform = read_worldfile(first_tfw)
-    
+    first_geotransform = read_geotiff_transform(tif_files[0])
+
     if resolution is None:
         resolution = first_geotransform['pixel_width']
-    
+
     mosaic_width = int((x_max - x_min) / resolution)
     mosaic_height = int((y_max - y_min) / abs(resolution))
     
@@ -398,14 +416,10 @@ def create_mosaic_simple_priority(ortho_dir, output_path, resolution=None,
     print(f"\nCreating mosaic with '{priority}' priority")
     
     for i, tif_path in enumerate(tif_files, 1):
-        tfw_path = tif_path.with_suffix('.tfw')
-        if not tfw_path.exists():
-            continue
-        
         print(f"[{i}/{len(tif_files)}] Processing {tif_path.name}")
-        
+
         img = cv2.imread(str(tif_path))
-        geotransform = read_worldfile(tfw_path)
+        geotransform = read_geotiff_transform(tif_path)
         
         img_x_min, img_x_max, img_y_min, img_y_max = get_image_bounds(img.shape, geotransform)
         
@@ -451,15 +465,41 @@ def create_mosaic_simple_priority(ortho_dir, output_path, resolution=None,
         mosaic[mosaic_row_start:mosaic_row_end, mosaic_col_start:mosaic_col_end] = mosaic_region
         priority_map[mosaic_row_start:mosaic_row_end, mosaic_col_start:mosaic_col_end] = priority_region
     
-    # Save
-    cv2.imwrite(str(output_path), mosaic)
-    
-    tfw_output = Path(str(output_path).rsplit('.', 1)[0] + '.tfw')
-    with open(tfw_output, 'w') as f:
-        f.write(f"{resolution}\n0\n0\n{-resolution}\n{x_min}\n{y_max}\n")
-    
-    print(f"\nSaved: {output_path}")
-    print(f"Saved world file: {tfw_output}")
+    # Save as GeoTIFF
+    print(f"\nSaving mosaic as GeoTIFF to {output_path}")
+
+    from rasterio.transform import from_bounds
+
+    # Convert BGR to RGB
+    mosaic_rgb = cv2.cvtColor(mosaic, cv2.COLOR_BGR2RGB)
+    mosaic_data = np.transpose(mosaic_rgb, (2, 0, 1))  # (H, W, C) -> (C, H, W)
+
+    # Create geotransform
+    transform = from_bounds(
+        west=x_min,
+        south=y_min,
+        east=x_max,
+        north=y_max,
+        width=mosaic_width,
+        height=mosaic_height
+    )
+
+    # Write GeoTIFF
+    with rasterio.open(
+        output_path,
+        'w',
+        driver='GTiff',
+        height=mosaic_height,
+        width=mosaic_width,
+        count=3,
+        dtype=mosaic_data.dtype,
+        crs='EPSG:26917',  # UTM Zone 17N
+        transform=transform,
+        compress='lzw'
+    ) as dst:
+        dst.write(mosaic_data)
+
+    print(f"Saved mosaic GeoTIFF: {output_path}")
     
     return mosaic
 
@@ -471,7 +511,7 @@ if __name__ == "__main__":
     
     parser.add_argument(
         'ortho_dir',
-        help='Directory containing *_ortho.tif and *.tfw files'
+        help='Directory containing *_ortho.tif GeoTIFF files'
     )
     
     parser.add_argument(
