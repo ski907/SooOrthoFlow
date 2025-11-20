@@ -50,6 +50,10 @@ class PipelineGUI:
         self.run_light_detection = tk.BooleanVar(value=True)
         self.light_detection_mask = tk.StringVar(value="analysis/ship_detection/area_to_review_ref.tif")
 
+        # Coordinate transformation settings
+        self.apply_world_transform = tk.BooleanVar(value=False)
+        self.world_file_path = tk.StringVar(value="orthorectification/model_to_world.wld")
+
         # Pipeline process reference
         self.pipeline_process = None
 
@@ -241,6 +245,19 @@ class PipelineGUI:
                   command=lambda: self.browse_file(self.light_detection_mask,
                                                    [("GeoTIFF Files", "*.tif;*.tiff"), ("All Files", "*.*")])).grid(row=row, column=2, pady=(5, 0))
 
+        row += 1
+        ttk.Checkbutton(postproc_frame, text="Transform mosaics to world coordinates",
+                       variable=self.apply_world_transform).grid(row=row, column=0, columnspan=2,
+                                                                 sticky=tk.W, pady=(5, 0))
+
+        row += 1
+        ttk.Label(postproc_frame, text="World File:").grid(row=row, column=0, sticky=tk.W)
+        ttk.Entry(postproc_frame, textvariable=self.world_file_path, width=70).grid(row=row, column=1,
+                                                                                     sticky=(tk.W, tk.E), padx=5)
+        ttk.Button(postproc_frame, text="Browse...",
+                  command=lambda: self.browse_file(self.world_file_path,
+                                                   [("World Files", "*.wld"), ("All Files", "*.*")])).grid(row=row, column=2)
+
         # Calibration Settings Section
         calib_frame = ttk.LabelFrame(main_frame, text="Calibration Settings", padding="5")
         calib_frame.grid(row=6, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=(0, 5))
@@ -369,6 +386,8 @@ class PipelineGUI:
             self.ortho_padding.set(str(processing.get('ortho_padding', 0.5)))
             self.run_light_detection.set(processing.get('run_light_detection', False))
             self.light_detection_mask.set(processing.get('light_detection_mask', ''))
+            self.apply_world_transform.set(processing.get('apply_world_transform', False))
+            self.world_file_path.set(processing.get('world_file_path', 'orthorectification/model_to_world.wld'))
 
             self.log_console(f"Loaded configuration from {self.config_path}")
             self.status_var.set("Configuration loaded")
@@ -388,6 +407,16 @@ class PipelineGUI:
             if not self.start_time.get() or not self.end_time.get():
                 messagebox.showwarning("Validation Error", "Start and end times are required")
                 return
+
+            # Load existing config to preserve extra fields (like camera_time_offsets)
+            existing_config = {}
+            if self.config_path.exists():
+                try:
+                    with open(self.config_path, 'r') as f:
+                        content = f.read().replace('\\', '/')
+                        existing_config = json.loads(content)
+                except:
+                    pass
 
             # Build config dictionary
             config = {
@@ -409,9 +438,16 @@ class PipelineGUI:
                     "ortho_resolution": float(self.ortho_resolution.get()),
                     "ortho_padding": float(self.ortho_padding.get()),
                     "run_light_detection": self.run_light_detection.get(),
-                    "light_detection_mask": self.light_detection_mask.get()
+                    "light_detection_mask": self.light_detection_mask.get(),
+                    "apply_world_transform": self.apply_world_transform.get(),
+                    "world_file_path": self.world_file_path.get()
                 }
             }
+
+            # Preserve extra fields from existing config (like camera_time_offsets)
+            for key in existing_config:
+                if key not in config:
+                    config[key] = existing_config[key]
 
             # Save to file
             with open(self.config_path, 'w') as f:

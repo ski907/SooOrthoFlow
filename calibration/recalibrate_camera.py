@@ -445,10 +445,10 @@ def solve_pose_only(gcp_world_coords, image_points, K, D, image_path,
 
 
 def recalibrate_single_camera(image_path, gcp_file, camera_id, dem_path,
-                              calibration_file, output_dir='output',
+                              calibration_file, output_dir=None,
                               resolution=0.005, padding_meters=0.5,
                               min_gcps=6, date=None, mode='pose-only',
-                              min_inlier_ratio=0.7, max_rms=10.0):  # NEW: override parameters
+                              min_inlier_ratio=0.7, max_rms=10.0):
     """
     Interactively recalibrate a single camera
 
@@ -587,13 +587,14 @@ def recalibrate_single_camera(image_path, gcp_file, camera_id, dem_path,
         'col_sample': p['col'],
         'row_sample': p['row']
     } for p in picked_points])
-    
-    # Save new GCP file for reference
-    output_path = Path(output_dir)
-    output_path.mkdir(exist_ok=True)
-    new_gcp_file = output_path / f'GCP_{camera_id}_recalibrated.csv'
-    new_gcp_data.to_csv(new_gcp_file, index=False)
-    print(f"Saved new GCP file: {new_gcp_file}")
+
+    # Save new GCP file for reference (optional)
+    output_path = Path(output_dir) if output_dir else None
+    if output_path:
+        output_path.mkdir(exist_ok=True)
+        new_gcp_file = output_path / f'GCP_{camera_id}_recalibrated.csv'
+        new_gcp_data.to_csv(new_gcp_file, index=False)
+        print(f"Saved GCP file: {new_gcp_file}")
     
     # Perform calibration based on mode
     print(f"\nRecalibrating {camera_id}...")
@@ -628,48 +629,44 @@ def recalibrate_single_camera(image_path, gcp_file, camera_id, dem_path,
         gcp_world = new_gcp_data[['X', 'Y', 'Z']].values
         gcp_image = new_gcp_data[['col_sample', 'row_sample']].values
 
-        # Try pose-only calibration with retry loop for threshold overrides
-        calibration_succeeded = False
-        current_min_inlier = min_inlier_ratio
-        current_max_rms = max_rms
+        # Try pose-only calibration with automatic threshold override option
+        try:
+            rvec, tvec, rms, image_size = solve_pose_only(
+                gcp_world, gcp_image, K, D, image_path,
+                min_inlier_ratio, max_rms
+            )
+            camera_gcps = new_gcp_data  # For orthorectification params
+        except ValueError as e:
+            print(f"\n⚠ WARNING: Pose refinement validation failed")
+            print(f"Error: {str(e)}")
+            print("\nThis may indicate:")
+            print("  - Some GCP picks were inaccurate")
+            print("  - Camera moved more than expected")
+            print("  - Outlier points in the selection")
 
-        while not calibration_succeeded:
-            try:
-                rvec, tvec, rms, image_size = solve_pose_only(
-                    gcp_world, gcp_image, K, D, image_path,
-                    current_min_inlier, current_max_rms
-                )
-                camera_gcps = new_gcp_data  # For orthorectification params
-                calibration_succeeded = True
-            except ValueError as e:
-                print(f"\n✗ Pose refinement failed!")
-                print(f"Error: {str(e)}")
+            # Offer to proceed anyway by ignoring thresholds
+            proceed = input("\nProceed anyway (ignore thresholds)? (y/n): ").strip().lower()
 
-                # Offer to override thresholds
-                override = input("\nOverride validation thresholds and retry? (y/n): ").strip().lower()
-
-                if override == 'y':
-                    inlier_input = input(f"  Minimum inlier ratio (current={current_min_inlier:.2f}): ").strip()
-                    if inlier_input:
-                        try:
-                            current_min_inlier = float(inlier_input)
-                        except ValueError:
-                            print(f"  Invalid input, keeping current value {current_min_inlier:.2f}")
-
-                    rms_input = input(f"  Maximum RMS error in pixels (current={current_max_rms:.1f}): ").strip()
-                    if rms_input:
-                        try:
-                            current_max_rms = float(rms_input)
-                        except ValueError:
-                            print(f"  Invalid input, keeping current value {current_max_rms:.1f}")
-
-                    print(f"\nRetrying with min_inlier_ratio={current_min_inlier:.2f}, max_rms={current_max_rms:.1f}")
-                else:
-                    print("\nSuggestions:")
-                    print("  - Re-run and pick points more accurately")
-                    print("  - Try picking more well-distributed points")
-                    print("  - If camera moved significantly, use --mode full instead")
+            if proceed == 'y':
+                print("\nRetrying with thresholds disabled...")
+                # Retry with very lenient thresholds
+                try:
+                    rvec, tvec, rms, image_size = solve_pose_only(
+                        gcp_world, gcp_image, K, D, image_path,
+                        min_inlier_ratio=0.0,  # Accept all points
+                        max_rms=1000.0  # Effectively no RMS limit
+                    )
+                    camera_gcps = new_gcp_data
+                    print("✓ Calibration completed (thresholds ignored)")
+                except ValueError as e2:
+                    print(f"\n✗ Calibration still failed: {str(e2)}")
                     return False
+            else:
+                print("\nSuggestions:")
+                print("  - Re-run and pick points more carefully")
+                print("  - Try picking more well-distributed points")
+                print("  - If camera moved significantly, use --mode full instead")
+                return False
 
     else:  # full mode
         try:
@@ -728,19 +725,13 @@ def recalibrate_single_camera(image_path, gcp_file, camera_id, dem_path,
     img = cv2.imread(str(image_path))
     ortho_img = orthorectify_with_lookup(img, map_x, map_y)
     
-    # Save outputs
-    ortho_dir = output_path / 'orthorectified'
-    ortho_dir.mkdir(exist_ok=True)
-    ortho_path = ortho_dir / f"{camera_id}_recalibrated_ortho.tif"
-    save_geotiff(ortho_img, geotransform, ortho_path)
-    
-    # Save undistorted for QC
-    undistorted_dir = output_path / 'undistorted'
-    undistorted_dir.mkdir(exist_ok=True)
-    undistorted = undistort_fisheye(img, K, D)
-    undist_path = undistorted_dir / f"{camera_id}_recalibrated_undistorted.tif"
-    cv2.imwrite(str(undist_path), undistorted)
-    print(f"Saved undistorted: {undist_path}")
+    # Save orthorectified test image for QC (optional, can be disabled if not needed)
+    if output_path:
+        ortho_dir = output_path / 'orthorectified'
+        ortho_dir.mkdir(parents=True, exist_ok=True)
+        ortho_path = ortho_dir / f"{camera_id}_recalibrated_ortho.tif"
+        save_geotiff(ortho_img, geotransform, ortho_path)
+        print(f"Saved test orthorectification: {ortho_path}")
     
     # Create date-stamped calibration file
     if date is None:
@@ -868,8 +859,8 @@ Instructions during picking:
                        help='DEM TIFF file')
     parser.add_argument('-cal', '--calibration', required=True,
                        help='Existing calibration file to update')
-    parser.add_argument('-o', '--output', default='recalibration_output',
-                       help='Output directory (default: recalibration_output)')
+    parser.add_argument('-o', '--output', default=None,
+                       help='Output directory for test orthorectification (optional, default: None - skips saving test image)')
     parser.add_argument('-r', '--resolution', type=float, default=0.005,
                        help='Resolution in m/pixel (default: 0.005)')
     parser.add_argument('-p', '--padding', type=float, default=0.5,

@@ -54,7 +54,7 @@ def generate_time_config(master_config):
     test_id = master_config['test_id']
     video_dir = master_config['video_folder']
     output_dir = Path(master_config['paths']['output_base']) / test_id / 'frames'
-    
+
     time_config = {
         "video_directory": video_dir,
         "mode": "time_range",
@@ -68,10 +68,14 @@ def generate_time_config(master_config):
         "recursive": master_config['processing']['recursive'],
         "filename_pattern": master_config['processing']['filename_pattern']
     }
-    
+
+    # Add camera time offsets if specified
+    if 'camera_time_offsets' in master_config:
+        time_config['camera_time_offsets'] = master_config['camera_time_offsets']
+
     with open('time_config.json', 'w') as f:
         json.dump(time_config, f, indent=4)
-    
+
     return time_config
 
 
@@ -249,8 +253,8 @@ def run_orthorectification(master_config, log_file, n_jobs=None):
 
 def _process_single_mosaic(args):
     """Worker function for parallel mosaicking"""
-    ts_folder, mosaic_dir, method, mosaic_script = args
-    
+    ts_folder, mosaic_dir, method, mosaic_script, world_file = args
+
     # Find orthorectified subfolder
     ortho_folder = ts_folder / 'orthorectified'
     if not ortho_folder.exists():
@@ -259,18 +263,22 @@ def _process_single_mosaic(args):
             'success': False,
             'error': 'No orthorectified folder found'
         }
-    
+
     output_file = mosaic_dir / f"mosaic_{ts_folder.name}.tif"
-    
+
     cmd = [
         'python', str(mosaic_script),
         str(ortho_folder),
         '-o', str(output_file),
         '-m', method
     ]
-    
+
+    # Add world file transformation if specified
+    if world_file:
+        cmd.extend(['--world-file', str(world_file)])
+
     result = subprocess.run(cmd, capture_output=True, text=True)
-    
+
     return {
         'folder': ts_folder.name,
         'success': result.returncode == 0,
@@ -282,31 +290,44 @@ def run_mosaicking(master_config, log_file, n_jobs=None):
     """Create mosaics for each timestamp in PARALLEL"""
     if n_jobs is None:
         n_jobs = cpu_count()
-    
+
     log(log_file, f"Starting mosaicking (using {n_jobs} cores)...")
-    
+
     test_dir = Path(master_config['paths']['output_base']) / master_config['test_id']
     ortho_base = test_dir / 'orthos'
     mosaic_dir = test_dir / 'mosaics'
     mosaic_dir.mkdir(exist_ok=True)
-    
+
     method = master_config['processing']['mosaic_method']
-    
+
+    # Check if world file transformation is requested
+    apply_transform = master_config['processing'].get('apply_world_transform', False)
+    world_file = None
+    if apply_transform:
+        world_file_path = master_config['processing'].get('world_file_path', 'orthorectification/model_to_world.wld')
+        world_file = ROOT_DIR / world_file_path
+        if not world_file.exists():
+            log(log_file, f"  Warning: World file not found: {world_file}")
+            log(log_file, f"  Proceeding without coordinate transformation")
+            world_file = None
+        else:
+            log(log_file, f"  Using world file for coordinate transformation: {world_file}")
+
     # Get all timestamp folders
     timestamp_folders = sorted([d for d in ortho_base.iterdir() if d.is_dir()])
-    
+
     log(log_file, f"Creating {len(timestamp_folders)} mosaics in parallel...")
-    
+
     # Prepare arguments for parallel processing
     mosaic_args = [
-        (ts_folder, mosaic_dir, method, MOSAIC)
+        (ts_folder, mosaic_dir, method, MOSAIC, world_file)
         for ts_folder in timestamp_folders
     ]
-    
+
     # Process in parallel
     with Pool(n_jobs) as pool:
         results = pool.map(_process_single_mosaic, mosaic_args)
-    
+
     # Log results
     success_count = 0
     for result in results:
@@ -315,7 +336,7 @@ def run_mosaicking(master_config, log_file, n_jobs=None):
             success_count += 1
         else:
             log(log_file, f"  ✗ {result['folder']}: {result.get('error', result.get('stderr', 'Unknown error'))}")
-    
+
     log(log_file, f"Mosaicking complete ({success_count}/{len(timestamp_folders)} succeeded)")
     return True
 

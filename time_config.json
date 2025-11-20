@@ -1,13 +1,16 @@
 {
-    "video_directory": "test_videos/20251119_Soo",
+    "video_directory": "test_videos//20251119_Soo",
     "mode": "time_range",
     "time_range": {
-        "start": "2025-11-19 15:25:00",
-        "end": "2025-11-19 15:37:00",
+        "start": "2025-11-19 15:32:00",
+        "end": "2025-11-19 15:34:00",
         "interval": "30s"
     },
     "output_directory": "output_data\\20251119_Soo\\frames",
     "output_format": "tiff",
     "recursive": true,
-    "filename_pattern": "CAMERA_DATETIME_DATETIME"
+    "filename_pattern": "CAMERA_DATETIME_DATETIME",
+    "camera_time_offsets": {
+        "NVR2": 80.0
+    }
 }

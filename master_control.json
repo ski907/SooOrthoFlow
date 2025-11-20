@@ -1,11 +1,11 @@
 {
-    "video_folder": "test_videos\\20251119_Soo",
-    "start_time": "2025-11-19 15:27:00",
+    "video_folder": "test_videos//20251119_Soo",
+    "start_time": "2025-11-19 15:25:00",
     "end_time": "2025-11-19 15:37:00",
     "interval": "30s",
     "paths": {
         "output_base": "output_data",
-        "calibration_file": "calibration\\camera_calibrations_20251119.pkl",
+        "calibration_file": "calibration//camera_calibrations_20251119.pkl",
         "gcp_file": "inputs/GCP_merged.csv",
         "dsm_file": "inputs/lidar_DSM_filled_cropped.tif"
     },
@@ -17,6 +17,11 @@
         "ortho_resolution": 0.0025,
         "ortho_padding": 0.5,
         "run_light_detection": false,
-        "light_detection_mask": "analysis//ship_detection//area_to_review_ref.tif"
+        "light_detection_mask": "analysis//ship_detection//area_to_review_ref.tif",
+        "apply_world_transform": true,
+        "world_file_path": "orthorectification/model_to_world.wld"
+    },
+    "camera_time_offsets": {
+        "NVR2": 80.0
     }
 }

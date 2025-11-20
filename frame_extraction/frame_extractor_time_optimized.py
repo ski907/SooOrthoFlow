@@ -198,12 +198,23 @@ def find_video_for_clock_time(camera_videos, target_time):
     return None
 
 
-def extract_frame_at_clock_time(cap, camera, video_info, target_time, output_dir, output_format, time_subfolder=None):
-    """Extract a frame from an already-opened video at a specific clock time."""
+def extract_frame_at_clock_time(cap, camera, video_info, target_time, output_dir, output_format, time_subfolder=None, camera_time_offset=0.0):
+    """Extract a frame from an already-opened video at a specific clock time.
+
+    Args:
+        camera_time_offset: Time offset in seconds to apply to this camera's video.
+                           Positive values mean the video is ahead (extract earlier frames).
+                           For example, if NVR2 videos are 15 seconds ahead of real time,
+                           use camera_time_offset=15.0 to extract frames 15 seconds earlier.
+    """
     start_time = video_info['start_time']
 
     time_offset = target_time - start_time
     offset_seconds = time_offset.total_seconds()
+
+    # Apply camera-specific time offset
+    # If video is ahead, we need to seek to an earlier position
+    offset_seconds -= camera_time_offset
 
     fps = cap.get(cv2.CAP_PROP_FPS)
     total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
@@ -251,52 +262,58 @@ def extract_frame_at_clock_time(cap, camera, video_info, target_time, output_dir
 
 def _process_single_camera(args):
     """Worker function to process a single camera in parallel"""
-    camera, camera_videos, target_times, output_dir, output_format = args
-    
+    camera, camera_videos, target_times, output_dir, output_format, camera_time_offset = args
+
     video_timestamps = defaultdict(list)
-    
+
     for target_time in target_times:
         video_info = find_video_for_clock_time(camera_videos, target_time)
         if video_info:
             video_timestamps[video_info['filename']].append(target_time)
-    
+
     if not video_timestamps:
         return {'camera': camera, 'success': 0}
-    
+
     success_count = 0
-    
+
     for video_file, timestamps_for_video in video_timestamps.items():
         cap = cv2.VideoCapture(video_file)
         if not cap.isOpened():
             continue
-        
+
         video_info = None
         for vi in camera_videos:
             if vi['filename'] == video_file:
                 video_info = vi
                 break
-        
+
         if not video_info:
             cap.release()
             continue
-        
+
         for target_time in timestamps_for_video:
             time_subfolder = target_time.strftime('%Y%m%d_%H%M%S')
-            if extract_frame_at_clock_time(cap, camera, video_info, target_time, 
-                                          output_dir, output_format, time_subfolder):
+            if extract_frame_at_clock_time(cap, camera, video_info, target_time,
+                                          output_dir, output_format, time_subfolder, camera_time_offset):
                 success_count += 1
-        
+
         cap.release()
-    
+
     return {'camera': camera, 'success': success_count}
 
 
 
-def extract_frames_at_clock_times(video_directory, clock_times, output_dir, 
-                                output_format, recursive=False, 
+def extract_frames_at_clock_times(video_directory, clock_times, output_dir,
+                                output_format, recursive=False,
                                 filename_pattern="CAMERA_DATETIME_DATETIME",
-                                n_jobs=None):
-    """Extract frames from multiple cameras at specific clock times - OPTIMIZED VERSION."""
+                                n_jobs=None, camera_time_offsets=None):
+    """Extract frames from multiple cameras at specific clock times - OPTIMIZED VERSION.
+
+    Args:
+        camera_time_offsets: Dict mapping camera name patterns to time offsets in seconds.
+                           Example: {"NVR2": 15.0} applies +15s offset to all cameras containing "NVR2".
+                           Positive offsets mean the video is ahead of real time.
+    """
     # Parse and sort clock times
     target_times = []
     for clock_time in clock_times:
@@ -343,18 +360,37 @@ def extract_frames_at_clock_times(video_directory, clock_times, output_dir,
 
     if n_jobs is None:
         n_jobs = cpu_count()
-    
+
     print(f"Using {n_jobs} CPU cores")
+
+    # Apply camera time offsets if provided
+    if camera_time_offsets is None:
+        camera_time_offsets = {}
+
+    # Function to find matching time offset for a camera
+    def get_camera_offset(camera_name):
+        """Find time offset for a camera by matching patterns in the name"""
+        for pattern, offset in camera_time_offsets.items():
+            if pattern in camera_name:
+                return offset
+        return 0.0
+
+    # Display time offset info
+    if camera_time_offsets:
+        print(f"\nCamera time offsets configured:")
+        for pattern, offset in camera_time_offsets.items():
+            print(f"  {pattern}: {offset:+.1f}s")
+
     print(f"\n{'='*60}")
     print("PARALLEL PROCESSING")
     print(f"{'='*60}\n")
-    
+
     # Prepare arguments for parallel processing
     camera_args = [
-        (camera, camera_videos, target_times, output_dir, output_format)
+        (camera, camera_videos, target_times, output_dir, output_format, get_camera_offset(camera))
         for camera, camera_videos in cameras.items()
     ]
-    
+
     # Process cameras in parallel
     with Pool(n_jobs) as pool:
         results = pool.map(_process_single_camera, camera_args)
@@ -576,10 +612,13 @@ def extract_frames(config_path):
         print(f"Output directory: {output_dir}")
         print(f"Format: {output_format.upper()}")
         print(f"Recursive: {recursive}")
-        
+
+        # Get camera time offsets if provided
+        camera_time_offsets = config.get('camera_time_offsets', None)
+
         return extract_frames_at_clock_times(
-            video_directory, clock_times_dt, output_dir, output_format, 
-            recursive, filename_pattern
+            video_directory, clock_times_dt, output_dir, output_format,
+            recursive, filename_pattern, camera_time_offsets=camera_time_offsets
         )
     
     else:

@@ -4,6 +4,55 @@ from pathlib import Path
 from scipy.ndimage import distance_transform_edt
 import argparse
 import rasterio
+from rasterio.warp import calculate_default_transform, reproject, Resampling
+
+def read_world_file(world_file_path):
+    """
+    Read affine transformation parameters from a world file.
+
+    World file format (6 lines):
+    Line 1: A - pixel size in x direction (x-scale)
+    Line 2: D - rotation term for row
+    Line 3: B - rotation term for column
+    Line 4: E - pixel size in y direction (y-scale, typically negative)
+    Line 5: C - x-coordinate of center of upper-left pixel
+    Line 6: F - y-coordinate of center of upper-left pixel
+
+    The affine transform matrix is:
+    | A  D  C |
+    | B  E  F |
+    | 0  0  1 |
+
+    This transforms from pixel coordinates to world coordinates.
+
+    Returns:
+        Affine transformation matrix as rasterio Affine object
+    """
+    from rasterio.transform import Affine
+
+    with open(world_file_path, 'r') as f:
+        params = [float(line.strip()) for line in f.readlines()[:6]]
+
+    print(f"  World file parameters:")
+    print(f"    Line 1 (A - x pixel size): {params[0]}")
+    print(f"    Line 2 (D - row rotation): {params[1]}")
+    print(f"    Line 3 (B - col rotation): {params[2]}")
+    print(f"    Line 4 (E - y pixel size): {params[3]}")
+    print(f"    Line 5 (C - x origin): {params[4]}")
+    print(f"    Line 6 (F - y origin): {params[5]}")
+
+    # Create affine transform: Affine(a, b, c, d, e, f)
+    # Maps to matrix: [a b c]
+    #                 [d e f]
+    # World file order is: A, D, B, E, C, F
+    # So: a=A, b=D, c=C, d=B, e=E, f=F
+    transform = Affine(params[0], params[1], params[4],
+                      params[2], params[3], params[5])
+
+    print(f"  Created transform: {transform}")
+
+    return transform
+
 
 def read_geotiff_transform(tif_path):
     """Read geotransform from GeoTIFF metadata"""
@@ -118,15 +167,19 @@ def compute_image_quality_map(img, method='gradient'):
     return cost_map
 
 
-def create_seam_carved_mosaic(ortho_dir, output_path, resolution=None, 
-                              seam_method='gradient', save_seam_map=False):
+def create_seam_carved_mosaic(ortho_dir, output_path, resolution=None,
+                              seam_method='gradient', save_seam_map=False,
+                              world_file_transform=None):
     """
     Create mosaic using seam carving - finds optimal non-blended boundaries
-    
+
     Strategy:
     1. Process images left-to-right (sorted by X position)
     2. For each new image, find optimal seam in overlap region
     3. Use hard cut at seam (no blending)
+
+    Args:
+        world_file_transform: Optional path to world file for coordinate transformation
     """
     
     # Compute overall bounds
@@ -262,7 +315,7 @@ def create_seam_carved_mosaic(ortho_dir, output_path, resolution=None,
     mosaic_rgb = cv2.cvtColor(mosaic, cv2.COLOR_BGR2RGB)
     mosaic_data = np.transpose(mosaic_rgb, (2, 0, 1))  # (H, W, C) -> (C, H, W)
 
-    # Create geotransform
+    # Create geotransform (in model coordinates)
     transform = from_bounds(
         west=x_min,
         south=y_min,
@@ -272,9 +325,18 @@ def create_seam_carved_mosaic(ortho_dir, output_path, resolution=None,
         height=mosaic_height
     )
 
-    # Write GeoTIFF
+    # Determine final output path
+    if world_file_transform:
+        # Save to temp file first, then transform
+        temp_path = str(output_path).rsplit('.', 1)[0] + '_model_coords.tif'
+        final_path = output_path
+    else:
+        temp_path = output_path
+        final_path = output_path
+
+    # Write GeoTIFF in model coordinates
     with rasterio.open(
-        output_path,
+        temp_path,
         'w',
         driver='GTiff',
         height=mosaic_height,
@@ -287,14 +349,20 @@ def create_seam_carved_mosaic(ortho_dir, output_path, resolution=None,
     ) as dst:
         dst.write(mosaic_data)
 
-    print(f"Saved mosaic GeoTIFF: {output_path}")
-    
+    print(f"Saved mosaic GeoTIFF: {temp_path}")
+
+    # Apply coordinate transformation if requested
+    if world_file_transform:
+        apply_coordinate_transform(temp_path, final_path, world_file_transform)
+        # Optionally remove temp file
+        # Path(temp_path).unlink()
+
     # Save seam map
     if save_seam_map:
         seam_path = Path(str(output_path).rsplit('.', 1)[0] + '_seams.tif')
         cv2.imwrite(str(seam_path), seam_map)
         print(f"Saved seam map: {seam_path}")
-    
+
     print("\nDone!")
     return mosaic
 
@@ -386,14 +454,124 @@ def find_seam_boundary(seam_mask):
     return boundary > 0
 
 
+def apply_coordinate_transform(input_tif, output_tif, world_file_path):
+    """
+    Apply coordinate transformation from world file to reproject the mosaic.
+
+    IMPORTANT: The world file is assumed to be created from the original reference image
+    in QGIS, mapping FROM pixel coordinates of that reference TO world coordinates.
+    We apply this transform directly to warp the mosaic image.
+
+    Args:
+        input_tif: Path to input GeoTIFF (in model coordinates)
+        output_tif: Path to output GeoTIFF (in world coordinates)
+        world_file_path: Path to world file with transformation parameters
+    """
+    print(f"\nApplying coordinate transformation from {world_file_path}")
+
+    # Read world file transform (pixel coords -> world coords)
+    # This was created in QGIS by georeferencing the original image
+    pixel_to_world = read_world_file(world_file_path)
+
+    with rasterio.open(input_tif) as src:
+        src_crs = src.crs
+        src_data = src.read()
+        src_height, src_width = src.height, src.width
+
+        print(f"  Source image dimensions: {src_width} x {src_height}")
+        print(f"  Pixel-to-world transform from world file:")
+        print(f"    {pixel_to_world}")
+
+        # Calculate the corners in pixel coordinates
+        pixel_corners = [
+            (0, 0),                    # top-left
+            (src_width, 0),            # top-right
+            (src_width, src_height),   # bottom-right
+            (0, src_height)            # bottom-left
+        ]
+
+        # Transform corners to world coordinates using the world file transform
+        world_corners = []
+        for px, py in pixel_corners:
+            wx, wy = pixel_to_world * (px, py)
+            world_corners.append((wx, wy))
+            print(f"    Pixel ({px}, {py}) -> World ({wx:.2f}, {wy:.2f})")
+
+        # Calculate world bounds
+        xs = [c[0] for c in world_corners]
+        ys = [c[1] for c in world_corners]
+        world_bounds = (min(xs), min(ys), max(xs), max(ys))
+
+        print(f"  World bounds: {world_bounds}")
+
+        # Calculate output dimensions to maintain pixel resolution
+        # Extract the resolution from the transform
+        import math
+        # For rotated transforms, calculate the actual pixel size
+        pixel_size_x = math.sqrt(pixel_to_world.a**2 + pixel_to_world.d**2)
+        pixel_size_y = math.sqrt(pixel_to_world.b**2 + pixel_to_world.e**2)
+
+        print(f"  Pixel resolution in world coords: {pixel_size_x:.6f} x {pixel_size_y:.6f}")
+
+        out_width = int(round((world_bounds[2] - world_bounds[0]) / pixel_size_x))
+        out_height = int(round((world_bounds[3] - world_bounds[1]) / pixel_size_y))
+
+        print(f"  Output dimensions: {out_width} x {out_height}")
+
+        # Create the destination transform for the output image
+        from rasterio.transform import from_bounds
+        dst_transform = from_bounds(
+            world_bounds[0], world_bounds[1],
+            world_bounds[2], world_bounds[3],
+            out_width, out_height
+        )
+
+        print(f"  Destination transform: {dst_transform}")
+
+        # Create output array
+        dst_data = np.zeros((src_data.shape[0], out_height, out_width), dtype=src_data.dtype)
+
+        # Reproject each band
+        # Source uses the world file transform directly (not the GeoTIFF transform)
+        print(f"  Reprojecting {src_data.shape[0]} bands...")
+        for band_idx in range(src_data.shape[0]):
+            reproject(
+                source=src_data[band_idx],
+                destination=dst_data[band_idx],
+                src_transform=pixel_to_world,  # Use world file transform directly
+                src_crs=src_crs,
+                dst_transform=dst_transform,
+                dst_crs=src_crs,
+                resampling=Resampling.bilinear
+            )
+
+        # Write output
+        out_profile = src.profile.copy()
+        out_profile.update({
+            'transform': dst_transform,
+            'width': out_width,
+            'height': out_height,
+            'crs': src_crs
+        })
+
+        with rasterio.open(output_tif, 'w', **out_profile) as dst:
+            dst.write(dst_data)
+
+    print(f"Transformed mosaic saved to: {output_tif}")
+    print(f"  Successfully transformed to world coordinates")
+
+
 def create_mosaic_simple_priority(ortho_dir, output_path, resolution=None,
-                                  priority='center'):
+                                  priority='center', world_file_transform=None):
     """
     Simple approach: Assign priority to each image, last one wins
-    
+
     Priority options:
     - 'center': Prefer images where content is near image center (less distortion)
     - 'order': Just use the order of images (e.g., left to right)
+
+    Args:
+        world_file_transform: Optional path to world file for coordinate transformation
     """
     
     # Compute overall bounds
@@ -474,7 +652,7 @@ def create_mosaic_simple_priority(ortho_dir, output_path, resolution=None,
     mosaic_rgb = cv2.cvtColor(mosaic, cv2.COLOR_BGR2RGB)
     mosaic_data = np.transpose(mosaic_rgb, (2, 0, 1))  # (H, W, C) -> (C, H, W)
 
-    # Create geotransform
+    # Create geotransform (in model coordinates)
     transform = from_bounds(
         west=x_min,
         south=y_min,
@@ -484,9 +662,18 @@ def create_mosaic_simple_priority(ortho_dir, output_path, resolution=None,
         height=mosaic_height
     )
 
-    # Write GeoTIFF
+    # Determine final output path
+    if world_file_transform:
+        # Save to temp file first, then transform
+        temp_path = str(output_path).rsplit('.', 1)[0] + '_model_coords.tif'
+        final_path = output_path
+    else:
+        temp_path = output_path
+        final_path = output_path
+
+    # Write GeoTIFF in model coordinates
     with rasterio.open(
-        output_path,
+        temp_path,
         'w',
         driver='GTiff',
         height=mosaic_height,
@@ -499,8 +686,14 @@ def create_mosaic_simple_priority(ortho_dir, output_path, resolution=None,
     ) as dst:
         dst.write(mosaic_data)
 
-    print(f"Saved mosaic GeoTIFF: {output_path}")
-    
+    print(f"Saved mosaic GeoTIFF: {temp_path}")
+
+    # Apply coordinate transformation if requested
+    if world_file_transform:
+        apply_coordinate_transform(temp_path, final_path, world_file_transform)
+        # Optionally remove temp file
+        # Path(temp_path).unlink()
+
     return mosaic
 
 
@@ -546,23 +739,32 @@ if __name__ == "__main__":
         action='store_true',
         help='Save seam visualization map'
     )
-    
+
+    parser.add_argument(
+        '--world-file',
+        type=str,
+        default=None,
+        help='Path to world file for coordinate transformation (optional)'
+    )
+
     args = parser.parse_args()
-    
+
     if args.method == 'seam':
         create_seam_carved_mosaic(
             args.ortho_dir,
             args.output,
             resolution=args.resolution,
             seam_method=args.seam_quality,
-            save_seam_map=args.save_seams
+            save_seam_map=args.save_seams,
+            world_file_transform=args.world_file
         )
     else:
         create_mosaic_simple_priority(
             args.ortho_dir,
             args.output,
             resolution=args.resolution,
-            priority=args.method
+            priority=args.method,
+            world_file_transform=args.world_file
         )
 
 #python ortho_mosaic.py output/orthorectified -o cse_all16IR_mosaic.tif -m center
