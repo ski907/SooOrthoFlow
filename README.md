@@ -446,3 +446,88 @@ conda install tk -c conda-forge
 
 ---
 
+## Updating the Codebase
+
+To get the latest updates from GitHub:
+
+### Check for Updates
+
+```bash
+# Make sure you're in the SooOrthoFlow directory
+cd SooOrthoFlow
+
+# Check current branch and status
+git status
+
+# Fetch latest changes from GitHub (doesn't modify your files yet)
+git fetch origin
+```
+
+### Update Your Code
+
+**If you have no local changes:**
+```bash
+# Pull latest changes from main branch
+git pull origin main
+```
+
+**If you have local modifications:**
+
+Option 1 - Stash your changes temporarily:
+```bash
+# Save your local changes
+git stash
+
+# Pull latest updates
+git pull origin main
+
+# Restore your local changes
+git stash pop
+```
+
+Option 2 - Commit your changes first:
+```bash
+# Commit your local modifications
+git add .
+git commit -m "My local changes"
+
+# Pull and merge with latest updates
+git pull origin main
+```
+
+### View What Changed
+
+```bash
+# See recent commits
+git log --oneline -10
+
+# See what files changed
+git diff HEAD~1
+
+# View changes in a specific file
+git diff HEAD~1 path/to/file.py
+```
+
+### Troubleshooting Updates
+
+**Merge conflicts:**
+If you get merge conflicts after `git pull`:
+1. Open the conflicted files (Git will show you which ones)
+2. Look for conflict markers: `<<<<<<<`, `=======`, `>>>>>>>`
+3. Edit to keep the version you want
+4. Remove the conflict markers
+5. Save and commit:
+   ```bash
+   git add .
+   git commit -m "Resolved merge conflicts"
+   ```
+
+**Reset to GitHub version (WARNING: loses local changes):**
+```bash
+# Only do this if you want to discard all local changes
+git fetch origin
+git reset --hard origin/main
+```
+
+---
+

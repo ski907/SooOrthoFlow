@@ -821,13 +821,20 @@ def recalibrate_single_camera(image_path, gcp_file, camera_id, dem_path,
     print(f"  - Updated calibration: {new_cal_file}")
     if camera_id in locals() and 'backup_file' in locals():
         print(f"  - Backup: {backup_file}")
-    print(f"  - Test ortho: {ortho_path}")
-    print(f"  - GCP file: {new_gcp_file}")
+    if output_path:
+        print(f"  - Test ortho: {ortho_path}")
+        print(f"  - GCP file: {new_gcp_file}")
     print(f"\nNext steps:")
-    print(f"  1. Load {ortho_path} in QGIS and verify alignment with GCPs")
-    print(f"  2. If good, process images with the dated calibration file:")
+    if output_path:
+        print(f"  1. Load {ortho_path} in QGIS and verify alignment with GCPs")
+        print(f"  2. If good, use the updated calibration file in your pipeline")
+    else:
+        print(f"  1. Use the updated calibration file in your pipeline:")
     print(f"     python undistort_and_orthorectify.py process -i images/ -o ortho/ -cal {new_cal_file}")
-    print(f"  3. If bad, delete {new_cal_file} and try again")
+    if output_path:
+        print(f"  3. If alignment is bad, delete {new_cal_file} and try again")
+    else:
+        print(f"  2. If results are bad, delete {new_cal_file} and try again")
 
     return True
 
