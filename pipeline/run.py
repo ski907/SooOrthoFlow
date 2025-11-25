@@ -268,7 +268,7 @@ def run_orthorectification(master_config, log_file, n_jobs=None):
 
 def _process_single_mosaic(args):
     """Worker function for parallel mosaicking"""
-    ts_folder, mosaic_dir, method, mosaic_script, world_file = args
+    ts_folder, mosaic_dir, method, mosaic_script, world_file, transform_params = args
 
     # Find orthorectified subfolder
     ortho_folder = ts_folder / 'orthorectified'
@@ -291,6 +291,13 @@ def _process_single_mosaic(args):
     # Add world file transformation if specified
     if world_file:
         cmd.extend(['--world-file', str(world_file)])
+        # Add optional transformation parameters
+        if transform_params.get('resampling'):
+            cmd.extend(['--world-resampling', transform_params['resampling']])
+        if transform_params.get('threads'):
+            cmd.extend(['--world-threads', str(transform_params['threads'])])
+        if transform_params.get('memory_mb'):
+            cmd.extend(['--world-memory', str(transform_params['memory_mb'])])
 
     result = subprocess.run(cmd, capture_output=True, text=True)
 
@@ -318,6 +325,8 @@ def run_mosaicking(master_config, log_file, n_jobs=None):
     # Check if world file transformation is requested
     apply_transform = master_config['processing'].get('apply_world_transform', False)
     world_file = None
+    transform_params = {}
+
     if apply_transform:
         world_file_path = master_config['processing'].get('world_file_path', 'orthorectification/model_to_world.wld')
         world_file = ROOT_DIR / world_file_path
@@ -328,6 +337,16 @@ def run_mosaicking(master_config, log_file, n_jobs=None):
         else:
             log(log_file, f"  Using world file for coordinate transformation: {world_file}")
 
+            # Get optional transformation parameters
+            transform_params = {
+                'resampling': master_config['processing'].get('world_transform_resampling', 'bilinear'),
+                'threads': master_config['processing'].get('world_transform_threads', None),
+                'memory_mb': master_config['processing'].get('world_transform_memory_mb', 512)
+            }
+            log(log_file, f"  Transform settings: resampling={transform_params['resampling']}, "
+                         f"threads={transform_params['threads'] or 'auto'}, "
+                         f"memory={transform_params['memory_mb']}MB")
+
     # Get all timestamp folders
     timestamp_folders = sorted([d for d in ortho_base.iterdir() if d.is_dir()])
 
@@ -335,7 +354,7 @@ def run_mosaicking(master_config, log_file, n_jobs=None):
 
     # Prepare arguments for parallel processing
     mosaic_args = [
-        (ts_folder, mosaic_dir, method, MOSAIC, world_file)
+        (ts_folder, mosaic_dir, method, MOSAIC, world_file, transform_params)
         for ts_folder in timestamp_folders
     ]
 

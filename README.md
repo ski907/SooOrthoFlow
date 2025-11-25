@@ -57,83 +57,21 @@ conda activate sooorthoflow
 
 ---
 
-## Working with Git and GitHub
+## Updating Your Code
 
-### Updating Your Code
+When notified of updates to the pipeline:
 
-To get the latest updates from the GitHub repository:
-
-**Check for updates:**
 ```bash
-# Make sure you're in the SooOrthoFlow directory
+# Navigate to the SooOrthoFlow directory
 cd SooOrthoFlow
 
-# Check current status
-git status
-
-# Fetch latest changes (doesn't modify your files yet)
-git fetch origin
-
-# See what's new
-git log HEAD..origin/main --oneline
-```
-
-**Update your code:**
-
-If you have **no local changes**:
-```bash
+# Get the latest updates
 git pull origin main
 ```
 
-If you have **local modifications**, choose one option:
+That's it! The pipeline will now be updated with the latest features and fixes.
 
-*Option 1 - Stash changes temporarily:*
-```bash
-git stash                # Save your changes
-git pull origin main     # Get updates
-git stash pop            # Restore your changes
-```
-
-*Option 2 - Commit changes first:*
-```bash
-git add .
-git commit -m "My local changes"
-git pull origin main
-```
-
-### Handling Merge Conflicts
-
-If `git pull` reports merge conflicts:
-1. Open the conflicted files (Git shows which ones)
-2. Look for conflict markers: `<<<<<<<`, `=======`, `>>>>>>>`
-3. Edit the file to keep the version you want
-4. Remove the conflict markers
-5. Save and commit:
-   ```bash
-   git add .
-   git commit -m "Resolved merge conflicts"
-   ```
-
-### Reverting to GitHub Version
-
-**WARNING:** This discards ALL local changes!
-```bash
-git fetch origin
-git reset --hard origin/main
-```
-
-### Viewing Changes
-
-```bash
-# See recent commits
-git log --oneline -10
-
-# See what changed in last commit
-git diff HEAD~1
-
-# View changes in specific file
-git diff HEAD~1 path/to/file.py
-```
+**Note:** If you get an error about local changes, contact the project lead for assistance.
 
 ---
 

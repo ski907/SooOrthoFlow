@@ -169,7 +169,10 @@ def compute_image_quality_map(img, method='gradient'):
 
 def create_seam_carved_mosaic(ortho_dir, output_path, resolution=None,
                               seam_method='gradient', save_seam_map=False,
-                              world_file_transform=None):
+                              world_file_transform=None,
+                              world_transform_resampling='bilinear',
+                              world_transform_threads=None,
+                              world_transform_memory_mb=512):
     """
     Create mosaic using seam carving - finds optimal non-blended boundaries
 
@@ -357,7 +360,12 @@ def create_seam_carved_mosaic(ortho_dir, output_path, resolution=None,
 
     # Apply coordinate transformation if requested
     if world_file_transform:
-        apply_coordinate_transform(temp_path, final_path, world_file_transform)
+        apply_coordinate_transform(
+            temp_path, final_path, world_file_transform,
+            resampling_method=world_transform_resampling,
+            num_threads=world_transform_threads,
+            warp_mem_limit_mb=world_transform_memory_mb
+        )
         # Optionally remove temp file
         # Path(temp_path).unlink()
 
@@ -458,7 +466,10 @@ def find_seam_boundary(seam_mask):
     return boundary > 0
 
 
-def apply_coordinate_transform(input_tif, output_tif, world_file_path):
+def apply_coordinate_transform(input_tif, output_tif, world_file_path,
+                               resampling_method='bilinear',
+                               num_threads=None,
+                               warp_mem_limit_mb=512):
     """
     Apply coordinate transformation from world file to reproject the mosaic.
 
@@ -470,8 +481,31 @@ def apply_coordinate_transform(input_tif, output_tif, world_file_path):
         input_tif: Path to input GeoTIFF (in model coordinates)
         output_tif: Path to output GeoTIFF (in world coordinates)
         world_file_path: Path to world file with transformation parameters
+        resampling_method: Resampling algorithm - 'nearest', 'bilinear', 'cubic', 'lanczos'
+                          (default: 'bilinear'). Use 'nearest' for faster processing.
+        num_threads: Number of threads for parallel processing (default: auto-detect CPU cores)
+        warp_mem_limit_mb: Warp memory limit in MB (default: 512). Increase for better performance
+                          on systems with more RAM.
     """
+    import multiprocessing
+    import math
+    from rasterio.transform import from_bounds
+
     print(f"\nApplying coordinate transformation from {world_file_path}")
+
+    # Set threading - auto-detect CPU cores if not specified
+    if num_threads is None:
+        num_threads = multiprocessing.cpu_count()
+
+    # Map resampling methods
+    resampling_map = {
+        'nearest': Resampling.nearest,
+        'bilinear': Resampling.bilinear,
+        'cubic': Resampling.cubic,
+        'cubic_spline': Resampling.cubic_spline,
+        'lanczos': Resampling.lanczos,
+    }
+    resampling_algo = resampling_map.get(resampling_method, Resampling.bilinear)
 
     # Read world file transform (pixel coords -> world coords)
     # This was created in QGIS by georeferencing the original image
@@ -479,10 +513,12 @@ def apply_coordinate_transform(input_tif, output_tif, world_file_path):
 
     with rasterio.open(input_tif) as src:
         src_crs = src.crs
-        src_data = src.read()
         src_height, src_width = src.height, src.width
+        num_bands = src.count
 
-        print(f"  Source image dimensions: {src_width} x {src_height}")
+        print(f"  Source image dimensions: {src_width} x {src_height}, {num_bands} bands")
+        print(f"  Using {num_threads} threads, {warp_mem_limit_mb}MB warp memory")
+        print(f"  Resampling method: {resampling_method}")
         print(f"  Pixel-to-world transform from world file:")
         print(f"    {pixel_to_world}")
 
@@ -495,10 +531,8 @@ def apply_coordinate_transform(input_tif, output_tif, world_file_path):
         ]
 
         # Transform corners to world coordinates using the world file transform
-        world_corners = []
-        for px, py in pixel_corners:
-            wx, wy = pixel_to_world * (px, py)
-            world_corners.append((wx, wy))
+        world_corners = [pixel_to_world * (px, py) for px, py in pixel_corners]
+        for (px, py), (wx, wy) in zip(pixel_corners, world_corners):
             print(f"    Pixel ({px}, {py}) -> World ({wx:.2f}, {wy:.2f})")
 
         # Calculate world bounds
@@ -509,11 +543,15 @@ def apply_coordinate_transform(input_tif, output_tif, world_file_path):
         print(f"  World bounds: {world_bounds}")
 
         # Calculate output dimensions to maintain pixel resolution
-        # Extract the resolution from the transform
-        import math
-        # For rotated transforms, calculate the actual pixel size
-        pixel_size_x = math.sqrt(pixel_to_world.a**2 + pixel_to_world.d**2)
-        pixel_size_y = math.sqrt(pixel_to_world.b**2 + pixel_to_world.e**2)
+        # Optimized: Check for rotation first
+        if abs(pixel_to_world.b) < 1e-6 and abs(pixel_to_world.d) < 1e-6:
+            # No rotation, use direct values (faster)
+            pixel_size_x = abs(pixel_to_world.a)
+            pixel_size_y = abs(pixel_to_world.e)
+        else:
+            # Rotated, use full calculation
+            pixel_size_x = math.sqrt(pixel_to_world.a**2 + pixel_to_world.d**2)
+            pixel_size_y = math.sqrt(pixel_to_world.b**2 + pixel_to_world.e**2)
 
         print(f"  Pixel resolution in world coords: {pixel_size_x:.6f} x {pixel_size_y:.6f}")
 
@@ -523,7 +561,6 @@ def apply_coordinate_transform(input_tif, output_tif, world_file_path):
         print(f"  Output dimensions: {out_width} x {out_height}")
 
         # Create the destination transform for the output image
-        from rasterio.transform import from_bounds
         dst_transform = from_bounds(
             world_bounds[0], world_bounds[1],
             world_bounds[2], world_bounds[3],
@@ -532,13 +569,20 @@ def apply_coordinate_transform(input_tif, output_tif, world_file_path):
 
         print(f"  Destination transform: {dst_transform}")
 
-        # Create output array
-        dst_data = np.zeros((src_data.shape[0], out_height, out_width), dtype=src_data.dtype)
+        # Load source data (optimized: read all bands at once)
+        src_data = src.read()
 
-        # Reproject each band
-        # Source uses the world file transform directly (not the GeoTIFF transform)
-        print(f"  Reprojecting {src_data.shape[0]} bands...")
-        for band_idx in range(src_data.shape[0]):
+        # Create output array
+        dst_data = np.zeros((num_bands, out_height, out_width), dtype=src_data.dtype)
+
+        # Reproject with optimizations
+        print(f"  Reprojecting {num_bands} bands...")
+        warp_mem_bytes = warp_mem_limit_mb * 1024 * 1024
+
+        for band_idx in range(num_bands):
+            if band_idx % 2 == 0 or num_bands <= 4:
+                print(f"    Band {band_idx + 1}/{num_bands}...")
+
             reproject(
                 source=src_data[band_idx],
                 destination=dst_data[band_idx],
@@ -546,16 +590,21 @@ def apply_coordinate_transform(input_tif, output_tif, world_file_path):
                 src_crs=src_crs,
                 dst_transform=dst_transform,
                 dst_crs=src_crs,
-                resampling=Resampling.bilinear
+                resampling=resampling_algo,
+                num_threads=num_threads,
+                warp_mem_limit=warp_mem_bytes
             )
 
-        # Write output
+        # Write output with optimized settings
         out_profile = src.profile.copy()
         out_profile.update({
             'transform': dst_transform,
             'width': out_width,
             'height': out_height,
-            'crs': src_crs
+            'crs': src_crs,
+            'tiled': True,
+            'blockxsize': 256,
+            'blockysize': 256,
         })
 
         with rasterio.open(output_tif, 'w', **out_profile) as dst:
@@ -566,7 +615,10 @@ def apply_coordinate_transform(input_tif, output_tif, world_file_path):
 
 
 def create_mosaic_simple_priority(ortho_dir, output_path, resolution=None,
-                                  priority='center', world_file_transform=None):
+                                  priority='center', world_file_transform=None,
+                                  world_transform_resampling='bilinear',
+                                  world_transform_threads=None,
+                                  world_transform_memory_mb=512):
     """
     Simple approach: Assign priority to each image, last one wins
 
@@ -698,7 +750,12 @@ def create_mosaic_simple_priority(ortho_dir, output_path, resolution=None,
 
     # Apply coordinate transformation if requested
     if world_file_transform:
-        apply_coordinate_transform(temp_path, final_path, world_file_transform)
+        apply_coordinate_transform(
+            temp_path, final_path, world_file_transform,
+            resampling_method=world_transform_resampling,
+            num_threads=world_transform_threads,
+            warp_mem_limit_mb=world_transform_memory_mb
+        )
         # Optionally remove temp file
         # Path(temp_path).unlink()
 
@@ -755,6 +812,28 @@ if __name__ == "__main__":
         help='Path to world file for coordinate transformation (optional)'
     )
 
+    parser.add_argument(
+        '--world-resampling',
+        type=str,
+        choices=['nearest', 'bilinear', 'cubic', 'lanczos'],
+        default='bilinear',
+        help='Resampling method for world coordinate transformation (default: bilinear). Use "nearest" for faster processing.'
+    )
+
+    parser.add_argument(
+        '--world-threads',
+        type=int,
+        default=None,
+        help='Number of threads for world coordinate transformation (default: auto-detect CPU cores)'
+    )
+
+    parser.add_argument(
+        '--world-memory',
+        type=int,
+        default=512,
+        help='Warp memory limit in MB for world coordinate transformation (default: 512)'
+    )
+
     args = parser.parse_args()
 
     if args.method == 'seam':
@@ -764,7 +843,10 @@ if __name__ == "__main__":
             resolution=args.resolution,
             seam_method=args.seam_quality,
             save_seam_map=args.save_seams,
-            world_file_transform=args.world_file
+            world_file_transform=args.world_file,
+            world_transform_resampling=args.world_resampling,
+            world_transform_threads=args.world_threads,
+            world_transform_memory_mb=args.world_memory
         )
     else:
         create_mosaic_simple_priority(
@@ -772,7 +854,10 @@ if __name__ == "__main__":
             args.output,
             resolution=args.resolution,
             priority=args.method,
-            world_file_transform=args.world_file
+            world_file_transform=args.world_file,
+            world_transform_resampling=args.world_resampling,
+            world_transform_threads=args.world_threads,
+            world_transform_memory_mb=args.world_memory
         )
 
 #python ortho_mosaic.py output/orthorectified -o cse_all16IR_mosaic.tif -m center
