@@ -33,6 +33,7 @@ class PipelineGUI:
         self.start_time = tk.StringVar()
         self.end_time = tk.StringVar()
         self.interval = tk.StringVar(value="1min")
+        self.time_mode = tk.StringVar(value="interval")  # "interval" or "endpoints"
 
         self.output_base = tk.StringVar(value="output_data")
         self.calibration_file = tk.StringVar(value="calibration/camera_calibrations.pkl")
@@ -136,8 +137,8 @@ class PipelineGUI:
         ttk.Label(input_frame, text="Start Time:").grid(row=row, column=0, sticky=tk.W, pady=(5, 0))
         ttk.Entry(input_frame, textvariable=self.start_time, width=80).grid(row=row, column=1,
                                                                              sticky=(tk.W, tk.E), padx=5, pady=(5, 0))
-        ttk.Label(input_frame, text="Format: YYYY-MM-DD HH:MM:SS",
-                 foreground="gray").grid(row=row, column=2, sticky=tk.W)
+        ttk.Button(input_frame, text="Auto-Detect Times",
+                  command=self.auto_detect_video_times).grid(row=row, column=2, pady=(5, 0))
 
         row += 1
         ttk.Label(input_frame, text="End Time:").grid(row=row, column=0, sticky=tk.W)
@@ -147,12 +148,23 @@ class PipelineGUI:
                  foreground="gray").grid(row=row, column=2, sticky=tk.W)
 
         row += 1
+        ttk.Label(input_frame, text="Time Mode:").grid(row=row, column=0, sticky=tk.W, pady=(5, 0))
+        time_mode_frame = ttk.Frame(input_frame)
+        time_mode_frame.grid(row=row, column=1, columnspan=2, sticky=tk.W, padx=5, pady=(5, 0))
+        ttk.Radiobutton(time_mode_frame, text="Use Interval", variable=self.time_mode,
+                       value="interval", command=self.on_time_mode_change).pack(side=tk.LEFT)
+        ttk.Radiobutton(time_mode_frame, text="Start/End Only (2 frames)", variable=self.time_mode,
+                       value="endpoints", command=self.on_time_mode_change).pack(side=tk.LEFT, padx=(20, 0))
+
+        row += 1
         ttk.Label(input_frame, text="Interval:").grid(row=row, column=0, sticky=tk.W, pady=(5, 0))
-        interval_frame = ttk.Frame(input_frame)
-        interval_frame.grid(row=row, column=1, sticky=tk.W, padx=5, pady=(5, 0))
-        ttk.Entry(interval_frame, textvariable=self.interval, width=20).pack(side=tk.LEFT)
-        ttk.Label(interval_frame, text="Examples: 30s, 1min, 5min",
-                 foreground="gray").pack(side=tk.LEFT, padx=(10, 0))
+        self.interval_frame = ttk.Frame(input_frame)
+        self.interval_frame.grid(row=row, column=1, sticky=tk.W, padx=5, pady=(5, 0))
+        self.interval_entry = ttk.Entry(self.interval_frame, textvariable=self.interval, width=20)
+        self.interval_entry.pack(side=tk.LEFT)
+        self.interval_label = ttk.Label(self.interval_frame, text="Examples: 30s, 1min, 5min",
+                 foreground="gray")
+        self.interval_label.pack(side=tk.LEFT, padx=(10, 0))
 
         # Paths Section
         paths_frame = ttk.LabelFrame(main_frame, text="File Paths", padding="5")
@@ -346,6 +358,176 @@ class PipelineGUI:
                 # Not relative to root_dir, use absolute path
                 var.set(filename)
 
+    def auto_detect_video_times(self):
+        """Scan all video files in the folder and detect earliest/latest times"""
+        video_folder = self.video_folder.get()
+        if not video_folder:
+            messagebox.showwarning("No Folder", "Please select a video folder first")
+            return
+
+        video_path = Path(video_folder)
+        if not video_path.exists():
+            messagebox.showerror("Error", f"Folder does not exist: {video_folder}")
+            return
+
+        self.log_console("Scanning video files for timestamps...")
+        self.status_var.set("Scanning videos...")
+
+        try:
+            import re
+
+            # Find all video files
+            video_extensions = ('.avi', '.mp4', '.mov', '.mkv', '.m4v')
+            video_files = []
+            for ext in video_extensions:
+                video_files.extend(video_path.rglob(f'*{ext}'))
+
+            if not video_files:
+                messagebox.showwarning("No Videos", "No video files found in the selected folder")
+                self.status_var.set("No videos found")
+                return
+
+            self.log_console(f"Found {len(video_files)} video files")
+
+            # Extract timestamps from filenames, grouped by camera
+            # Key: (NVR folder, channel), Value: list of (start_time, end_time) tuples
+            from collections import defaultdict
+            camera_times = defaultdict(list)
+
+            # Common timestamp patterns in filenames
+            patterns = [
+                r'(\d{4})[-_]?(\d{2})[-_]?(\d{2})[T_\s-]?(\d{2})[-_:]?(\d{2})[-_:]?(\d{2})',  # YYYYMMDD_HHMMSS
+                r'(\d{8})[T_-]?(\d{6})',  # YYYYMMDDHHMMSS
+            ]
+
+            for video_file in video_files:
+                filename = video_file.stem
+                parent_folder = video_file.parent.name  # e.g., "NVR1" or "NVR2"
+
+                # Extract channel from filename (e.g., "ch1", "ch2", etc.)
+                channel_match = re.search(r'ch(\d+)', filename, re.IGNORECASE)
+                if not channel_match:
+                    continue
+                channel = f"ch{channel_match.group(1)}"
+
+                # Extract all timestamps from filename (start and end times)
+                found_times = []
+                for pattern in patterns:
+                    for match in re.finditer(pattern, filename):
+                        try:
+                            if len(match.groups()) == 6:
+                                y, m, d, h, mins, s = match.groups()
+                                dt = datetime(int(y), int(m), int(d), int(h), int(mins), int(s))
+                            elif len(match.groups()) == 2:
+                                date_part, time_part = match.groups()
+                                y, m, d = date_part[:4], date_part[4:6], date_part[6:8]
+                                h, mins, s = time_part[:2], time_part[2:4], time_part[4:6]
+                                dt = datetime(int(y), int(m), int(d), int(h), int(mins), int(s))
+                            else:
+                                continue
+                            found_times.append(dt)
+                        except (ValueError, IndexError):
+                            continue
+
+                # Store start and end time for this video file
+                if len(found_times) >= 2:
+                    # Assume first timestamp is start, last is end
+                    camera_key = (parent_folder, channel)
+                    camera_times[camera_key].append((min(found_times), max(found_times)))
+                elif len(found_times) == 1:
+                    # Single timestamp - treat as both start and end
+                    camera_key = (parent_folder, channel)
+                    camera_times[camera_key].append((found_times[0], found_times[0]))
+
+            if not camera_times:
+                messagebox.showwarning("No Timestamps",
+                    "Could not extract timestamps from video filenames.\n"
+                    "Filenames should contain date/time in format like:\n"
+                    "YYYYMMDD_HHMMSS or YYYY-MM-DD-HH-MM-SS")
+                self.status_var.set("No timestamps found")
+                return
+
+            # For each camera, find earliest start and latest end across all its files
+            camera_ranges = {}
+            for camera_key, time_list in camera_times.items():
+                starts = [t[0] for t in time_list]
+                ends = [t[1] for t in time_list]
+                camera_ranges[camera_key] = (min(starts), max(ends))
+
+            self.log_console(f"Found {len(camera_ranges)} cameras:")
+            for camera_key, (start, end) in camera_ranges.items():
+                nvr, ch = camera_key
+                self.log_console(f"  {nvr}/{ch}: {start.strftime('%Y-%m-%d %H:%M:%S')} to {end.strftime('%Y-%m-%d %H:%M:%S')}")
+
+            # Find the latest start time (when all cameras are ready)
+            all_starts = [r[0] for r in camera_ranges.values()]
+            all_ends = [r[1] for r in camera_ranges.values()]
+            earliest = max(all_starts)  # Latest start = when all cameras have begun
+            latest = min(all_ends)      # Earliest end = when first camera stops
+
+            # Add 30 seconds to earliest and subtract 30 seconds from latest
+            # to avoid first/last frames
+            from datetime import timedelta
+            earliest_adjusted = earliest + timedelta(seconds=30)
+            latest_adjusted = latest - timedelta(seconds=30)
+
+            # Round to nearest 30-second increment
+            # Round down for start time
+            earliest_seconds = earliest_adjusted.second
+            if earliest_seconds % 30 != 0:
+                earliest_seconds = (earliest_seconds // 30) * 30
+                earliest_adjusted = earliest_adjusted.replace(second=earliest_seconds, microsecond=0)
+
+            # Round up for end time
+            latest_seconds = latest_adjusted.second
+            if latest_seconds % 30 != 0:
+                latest_seconds = ((latest_seconds // 30) + 1) * 30
+                if latest_seconds >= 60:
+                    latest_adjusted = latest_adjusted + timedelta(minutes=1)
+                    latest_seconds = 0
+                latest_adjusted = latest_adjusted.replace(second=latest_seconds, microsecond=0)
+
+            # Update GUI fields
+            self.start_time.set(earliest_adjusted.strftime("%Y-%m-%d %H:%M:%S"))
+            self.end_time.set(latest_adjusted.strftime("%Y-%m-%d %H:%M:%S"))
+
+            self.log_console(f"Detected time range:")
+            self.log_console(f"  Raw earliest (latest start): {earliest.strftime('%Y-%m-%d %H:%M:%S')}")
+            self.log_console(f"  Raw latest (earliest end): {latest.strftime('%Y-%m-%d %H:%M:%S')}")
+            self.log_console(f"  Adjusted start (+30s, rounded): {earliest_adjusted.strftime('%Y-%m-%d %H:%M:%S')}")
+            self.log_console(f"  Adjusted end (-30s, rounded): {latest_adjusted.strftime('%Y-%m-%d %H:%M:%S')}")
+            self.log_console(f"  Duration: {latest_adjusted - earliest_adjusted}")
+            self.status_var.set(f"Auto-detected times from {len(camera_ranges)} cameras")
+
+            messagebox.showinfo("Times Detected",
+                f"Adjusted Start: {earliest_adjusted.strftime('%Y-%m-%d %H:%M:%S')}\n"
+                f"Adjusted End: {latest_adjusted.strftime('%Y-%m-%d %H:%M:%S')}\n"
+                f"(+30s from latest start, -30s from earliest end, rounded to 30s intervals)\n"
+                f"Videos scanned: {len(video_files)}\n"
+                f"Cameras found: {len(camera_ranges)}")
+
+        except Exception as e:
+            import traceback
+            error_details = traceback.format_exc()
+            messagebox.showerror("Error", f"Failed to detect video times:\n{e}\n\nFull traceback:\n{error_details}")
+            self.log_console(f"ERROR: {e}")
+            self.log_console(f"TRACEBACK:\n{error_details}")
+            self.status_var.set("Time detection failed")
+
+    def on_time_mode_change(self):
+        """Handle time mode radio button changes"""
+        mode = self.time_mode.get()
+        if mode == "endpoints":
+            # Disable interval entry
+            self.interval_entry.config(state='disabled')
+            self.interval_label.config(foreground='lightgray')
+            self.log_console("Time mode: Start/End only (will extract 2 frames)")
+        else:
+            # Enable interval entry
+            self.interval_entry.config(state='normal')
+            self.interval_label.config(foreground='gray')
+            self.log_console(f"Time mode: Interval ({self.interval.get()})")
+
     def load_config(self):
         """Load configuration from master_control.json"""
         try:
@@ -368,6 +550,8 @@ class PipelineGUI:
             self.start_time.set(config.get('start_time', ''))
             self.end_time.set(config.get('end_time', ''))
             self.interval.set(config.get('interval', '1min'))
+            self.time_mode.set(config.get('time_mode', 'interval'))
+            self.on_time_mode_change()  # Update UI based on loaded mode
 
             # Load paths
             paths = config.get('paths', {})
@@ -424,6 +608,7 @@ class PipelineGUI:
                 "start_time": self.start_time.get(),
                 "end_time": self.end_time.get(),
                 "interval": self.interval.get(),
+                "time_mode": self.time_mode.get(),
                 "paths": {
                     "output_base": self.output_base.get(),
                     "calibration_file": self.calibration_file.get(),

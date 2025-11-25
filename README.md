@@ -57,6 +57,86 @@ conda activate sooorthoflow
 
 ---
 
+## Working with Git and GitHub
+
+### Updating Your Code
+
+To get the latest updates from the GitHub repository:
+
+**Check for updates:**
+```bash
+# Make sure you're in the SooOrthoFlow directory
+cd SooOrthoFlow
+
+# Check current status
+git status
+
+# Fetch latest changes (doesn't modify your files yet)
+git fetch origin
+
+# See what's new
+git log HEAD..origin/main --oneline
+```
+
+**Update your code:**
+
+If you have **no local changes**:
+```bash
+git pull origin main
+```
+
+If you have **local modifications**, choose one option:
+
+*Option 1 - Stash changes temporarily:*
+```bash
+git stash                # Save your changes
+git pull origin main     # Get updates
+git stash pop            # Restore your changes
+```
+
+*Option 2 - Commit changes first:*
+```bash
+git add .
+git commit -m "My local changes"
+git pull origin main
+```
+
+### Handling Merge Conflicts
+
+If `git pull` reports merge conflicts:
+1. Open the conflicted files (Git shows which ones)
+2. Look for conflict markers: `<<<<<<<`, `=======`, `>>>>>>>`
+3. Edit the file to keep the version you want
+4. Remove the conflict markers
+5. Save and commit:
+   ```bash
+   git add .
+   git commit -m "Resolved merge conflicts"
+   ```
+
+### Reverting to GitHub Version
+
+**WARNING:** This discards ALL local changes!
+```bash
+git fetch origin
+git reset --hard origin/main
+```
+
+### Viewing Changes
+
+```bash
+# See recent commits
+git log --oneline -10
+
+# See what changed in last commit
+git diff HEAD~1
+
+# View changes in specific file
+git diff HEAD~1 path/to/file.py
+```
+
+---
+
 ## Initial Setup
 
 ### 1. Required Input Files
@@ -443,91 +523,6 @@ conda install tk -c conda-forge
 - Reduce `ortho_resolution` to process faster (larger pixels)
 - Use fewer cores with environment variable: `export OMP_NUM_THREADS=4`
 - Process timestamps in batches using start/end times
-
----
-
-## Updating the Codebase
-
-To get the latest updates from GitHub:
-
-### Check for Updates
-
-```bash
-# Make sure you're in the SooOrthoFlow directory
-cd SooOrthoFlow
-
-# Check current branch and status
-git status
-
-# Fetch latest changes from GitHub (doesn't modify your files yet)
-git fetch origin
-```
-
-### Update Your Code
-
-**If you have no local changes:**
-```bash
-# Pull latest changes from main branch
-git pull origin main
-```
-
-**If you have local modifications:**
-
-Option 1 - Stash your changes temporarily:
-```bash
-# Save your local changes
-git stash
-
-# Pull latest updates
-git pull origin main
-
-# Restore your local changes
-git stash pop
-```
-
-Option 2 - Commit your changes first:
-```bash
-# Commit your local modifications
-git add .
-git commit -m "My local changes"
-
-# Pull and merge with latest updates
-git pull origin main
-```
-
-### View What Changed
-
-```bash
-# See recent commits
-git log --oneline -10
-
-# See what files changed
-git diff HEAD~1
-
-# View changes in a specific file
-git diff HEAD~1 path/to/file.py
-```
-
-### Troubleshooting Updates
-
-**Merge conflicts:**
-If you get merge conflicts after `git pull`:
-1. Open the conflicted files (Git will show you which ones)
-2. Look for conflict markers: `<<<<<<<`, `=======`, `>>>>>>>`
-3. Edit to keep the version you want
-4. Remove the conflict markers
-5. Save and commit:
-   ```bash
-   git add .
-   git commit -m "Resolved merge conflicts"
-   ```
-
-**Reset to GitHub version (WARNING: loses local changes):**
-```bash
-# Only do this if you want to discard all local changes
-git fetch origin
-git reset --hard origin/main
-```
 
 ---
 

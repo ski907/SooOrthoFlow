@@ -1,10 +1,11 @@
 {
-    "video_folder": "D:/11-20-25/Soo UB Path",
-    "start_time": "2025-11-20 11:27:30",
-    "end_time": "2025-11-20 11:32:30",
+    "video_folder": "test_videos//20251119_Soo",
+    "start_time": "2025-11-19 15:25:30",
+    "end_time": "2025-11-19 15:36:30",
     "interval": "30s",
+    "time_mode": "endpoints",
     "paths": {
-        "output_base": "D:/",
+        "output_base": "output_data",
         "calibration_file": "calibration//camera_calibrations_20251119.pkl",
         "gcp_file": "inputs/GCP_merged.csv",
         "dsm_file": "inputs/lidar_DSM_filled_cropped.tif"

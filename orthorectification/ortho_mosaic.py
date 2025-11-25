@@ -327,9 +327,13 @@ def create_seam_carved_mosaic(ortho_dir, output_path, resolution=None,
 
     # Determine final output path
     if world_file_transform:
-        # Save to temp file first, then transform
-        temp_path = str(output_path).rsplit('.', 1)[0] + '_model_coords.tif'
-        final_path = output_path
+        # Save model coords to original location
+        temp_path = output_path
+        # Save world coords to 'world_coords' subdirectory
+        output_dir = Path(output_path).parent
+        world_coords_dir = output_dir / 'world_coords'
+        world_coords_dir.mkdir(exist_ok=True)
+        final_path = world_coords_dir / Path(output_path).name
     else:
         temp_path = output_path
         final_path = output_path
@@ -664,9 +668,13 @@ def create_mosaic_simple_priority(ortho_dir, output_path, resolution=None,
 
     # Determine final output path
     if world_file_transform:
-        # Save to temp file first, then transform
-        temp_path = str(output_path).rsplit('.', 1)[0] + '_model_coords.tif'
-        final_path = output_path
+        # Save model coords to original location
+        temp_path = output_path
+        # Save world coords to 'world_coords' subdirectory
+        output_dir = Path(output_path).parent
+        world_coords_dir = output_dir / 'world_coords'
+        world_coords_dir.mkdir(exist_ok=True)
+        final_path = world_coords_dir / Path(output_path).name
     else:
         temp_path = output_path
         final_path = output_path

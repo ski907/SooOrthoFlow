@@ -584,23 +584,40 @@ def extract_frames(config_path):
         
         if using_time_range:
             time_range = config['time_range']
-            
-            if 'start' not in time_range or 'end' not in time_range or 'interval' not in time_range:
-                print("Error: time_range needs 'start', 'end', 'interval'")
+            endpoints_only = config.get('endpoints_only', False)
+
+            if 'start' not in time_range or 'end' not in time_range:
+                print("Error: time_range needs 'start' and 'end'")
                 return False
-            
+
             try:
-                clock_times_dt = generate_clock_times_from_range(
-                    time_range['start'],
-                    time_range['end'],
-                    time_range['interval']
-                )
-                
-                print(f"Time range mode: {len(clock_times_dt)} timestamps")
-                print(f"Start: {time_range['start']}")
-                print(f"End: {time_range['end']}")
-                print(f"Interval: {time_range['interval']}")
-                
+                if endpoints_only:
+                    # Extract only start and end frames
+                    from datetime import datetime
+                    start_dt = datetime.strptime(time_range['start'], '%Y-%m-%d %H:%M:%S')
+                    end_dt = datetime.strptime(time_range['end'], '%Y-%m-%d %H:%M:%S')
+                    clock_times_dt = [start_dt, end_dt]
+
+                    print(f"Endpoints mode: 2 timestamps")
+                    print(f"Start: {time_range['start']}")
+                    print(f"End: {time_range['end']}")
+                else:
+                    # Standard interval-based extraction
+                    if 'interval' not in time_range:
+                        print("Error: time_range needs 'interval' when not in endpoints mode")
+                        return False
+
+                    clock_times_dt = generate_clock_times_from_range(
+                        time_range['start'],
+                        time_range['end'],
+                        time_range['interval']
+                    )
+
+                    print(f"Time range mode: {len(clock_times_dt)} timestamps")
+                    print(f"Start: {time_range['start']}")
+                    print(f"End: {time_range['end']}")
+                    print(f"Interval: {time_range['interval']}")
+
             except ValueError as e:
                 print(f"Error in time_range: {e}")
                 return False

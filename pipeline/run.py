@@ -55,19 +55,34 @@ def generate_time_config(master_config):
     video_dir = master_config['video_folder']
     output_dir = Path(master_config['paths']['output_base']) / test_id / 'frames'
 
+    # Check time mode (default to "interval" for backward compatibility)
+    time_mode = master_config.get('time_mode', 'interval')
+
     time_config = {
         "video_directory": video_dir,
         "mode": "time_range",
-        "time_range": {
-            "start": master_config['start_time'],
-            "end": master_config['end_time'],
-            "interval": master_config['interval']
-        },
         "output_directory": str(output_dir),
         "output_format": master_config['processing']['output_format'],
         "recursive": master_config['processing']['recursive'],
         "filename_pattern": master_config['processing']['filename_pattern']
     }
+
+    # Configure time range based on mode
+    if time_mode == 'endpoints':
+        # Extract only start and end frames (2 frames total)
+        time_config["time_range"] = {
+            "start": master_config['start_time'],
+            "end": master_config['end_time'],
+            "interval": None  # No interval, just endpoints
+        }
+        time_config["endpoints_only"] = True
+    else:
+        # Standard interval-based extraction
+        time_config["time_range"] = {
+            "start": master_config['start_time'],
+            "end": master_config['end_time'],
+            "interval": master_config['interval']
+        }
 
     # Add camera time offsets if specified
     if 'camera_time_offsets' in master_config:
