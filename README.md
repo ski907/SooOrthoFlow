@@ -68,10 +68,7 @@ cd SooOrthoFlow
 # Get the latest updates
 git pull origin main
 ```
-
-That's it! The pipeline will now be updated with the latest features and fixes.
-
-**Note:** If you get an error about local changes, contact the project lead for assistance.
+The pipeline will now be updated with the latest features and fixes.
 
 ---
 
