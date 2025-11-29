@@ -1,14 +1,14 @@
 {
-    "video_folder": "test_videos//20251119_Soo",
-    "start_time": "2025-11-19 15:25:30",
-    "end_time": "2025-11-19 15:36:30",
+    "video_folder": "test_videos\\Lidar Video",
+    "start_time": "2025-11-20 14:05:30",
+    "end_time": "2025-11-20 14:09:30",
     "interval": "30s",
     "time_mode": "endpoints",
     "paths": {
         "output_base": "output_data",
-        "calibration_file": "calibration//camera_calibrations_20251119.pkl",
-        "gcp_file": "inputs/GCP_merged.csv",
-        "dsm_file": "inputs/lidar_DSM_filled_cropped.tif"
+        "calibration_file": "calibration\\camera_calibrations_20251120.csv",
+        "gcp_file": "inputs\\GCP_24cameras_utm.csv",
+        "dsm_file": "inputs\\TLS_DTM_utm.tif"
     },
     "processing": {
         "output_format": "tiff",
@@ -19,10 +19,43 @@
         "ortho_padding": 0.5,
         "run_light_detection": false,
         "light_detection_mask": "analysis//ship_detection//area_to_review_ref.tif",
-        "apply_world_transform": true,
+        "apply_world_transform": false,
         "world_file_path": "orthorectification/model_to_world.wld"
     },
     "camera_time_offsets": {
         "NVR2": 0.0
+    },
+    "coordinate_system": {
+        "model_crs": "EPSG:26919",
+        "local_origin_x": 266495.0,
+        "local_origin_y": 4691250.0,
+        "local_origin_x_old": 0.0,
+        "local_origin_y_old": 0.0,
+        "local_origin_z": 0.0
+    },
+    "calibration": {
+        "bounds": {
+            "fx_min": 1500,
+            "fx_max": 3000,
+            "fy_min": 1500,
+            "fy_max": 3000,
+            "cx_min_ratio": 0.3,
+            "cx_max_ratio": 0.7,
+            "cy_min_ratio": 0.3,
+            "cy_max_ratio": 0.7,
+            "k1_min": -2.0,
+            "k1_max": 2.0,
+            "k2_min": -10.0,
+            "k2_max": 10.0,
+            "k3_min": -50.0,
+            "k3_max": 50.0,
+            "k4_min": -100.0,
+            "k4_max": 100.0
+        },
+        "validation": {
+            "max_rms": 10.0,
+            "focal_ratio_min": 0.95,
+            "focal_ratio_max": 1.05
+        }
     }
 }

@@ -281,9 +281,64 @@ class PipelineGUI:
         ttk.Radiobutton(calib_frame, text="Full (complete recalibration)",
                        variable=self.calib_mode, value='full').grid(row=1, column=1, sticky=tk.W)
 
+        # Initial Calibration Section
+        initial_calib_frame = ttk.LabelFrame(main_frame, text="Initial Calibration (from GCPs)", padding="5")
+        initial_calib_frame.grid(row=7, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=(5, 5))
+        initial_calib_frame.columnconfigure(1, weight=1)
+
+        # GCP file for calibration
+        self.calib_gcp_file = tk.StringVar(value="inputs/GCP_merged.csv")
+        row = 0
+        ttk.Label(initial_calib_frame, text="GCP File:").grid(row=row, column=0, sticky=tk.W, pady=2)
+        ttk.Entry(initial_calib_frame, textvariable=self.calib_gcp_file, width=50).grid(row=row, column=1, sticky=(tk.W, tk.E), padx=(5, 2))
+        ttk.Button(initial_calib_frame, text="Browse",
+                  command=lambda: self.browse_file(self.calib_gcp_file,
+                                                   [("CSV Files", "*.csv"), ("All Files", "*.*")])).grid(row=row, column=2)
+
+        # Image folder with concurrent images
+        self.calib_image_folder = tk.StringVar(value="inputs/IR_concurrent_with_lidar")
+        row += 1
+        ttk.Label(initial_calib_frame, text="Image Folder:").grid(row=row, column=0, sticky=tk.W, pady=2)
+        ttk.Entry(initial_calib_frame, textvariable=self.calib_image_folder, width=50).grid(row=row, column=1, sticky=(tk.W, tk.E), padx=(5, 2))
+        ttk.Button(initial_calib_frame, text="Browse",
+                  command=lambda: self.browse_folder(self.calib_image_folder)).grid(row=row, column=2)
+
+        # DEM file
+        self.calib_dem_file = tk.StringVar(value="inputs/lidar_DSM_filled_cropped.tif")
+        row += 1
+        ttk.Label(initial_calib_frame, text="DEM File:").grid(row=row, column=0, sticky=tk.W, pady=2)
+        ttk.Entry(initial_calib_frame, textvariable=self.calib_dem_file, width=50).grid(row=row, column=1, sticky=(tk.W, tk.E), padx=(5, 2))
+        ttk.Button(initial_calib_frame, text="Browse",
+                  command=lambda: self.browse_file(self.calib_dem_file,
+                                                   [("GeoTIFF Files", "*.tif *.tiff"), ("All Files", "*.*")])).grid(row=row, column=2)
+
+        # Output resolution
+        self.calib_resolution = tk.StringVar(value="0.0025")
+        row += 1
+        ttk.Label(initial_calib_frame, text="Resolution (m/pixel):").grid(row=row, column=0, sticky=tk.W, pady=2)
+        ttk.Entry(initial_calib_frame, textvariable=self.calib_resolution, width=15).grid(row=row, column=1, sticky=tk.W, padx=(5, 2))
+        ttk.Label(initial_calib_frame, text="(e.g., 0.0025 = 2.5mm/pixel)", foreground="gray").grid(row=row, column=1, sticky=tk.E)
+
+        # Output directory
+        self.calib_output_dir = tk.StringVar(value="output_calibration")
+        row += 1
+        ttk.Label(initial_calib_frame, text="Output Directory:").grid(row=row, column=0, sticky=tk.W, pady=2)
+        ttk.Entry(initial_calib_frame, textvariable=self.calib_output_dir, width=50).grid(row=row, column=1, sticky=(tk.W, tk.E), padx=(5, 2))
+        ttk.Button(initial_calib_frame, text="Browse",
+                  command=lambda: self.browse_folder(self.calib_output_dir)).grid(row=row, column=2)
+
+        # Run button
+        row += 1
+        ttk.Button(initial_calib_frame, text="Run Initial Calibration",
+                  command=self.run_initial_calibration,
+                  style='Accent.TButton').grid(row=row, column=0, columnspan=3, pady=(10, 5))
+
+        ttk.Label(initial_calib_frame, text="Note: This will create a new camera_calibrations_YYYYMMDD.csv file",
+                 foreground="gray", font=('Arial', 8)).grid(row=row+1, column=0, columnspan=3, sticky=tk.W)
+
         # Progress Section
         progress_frame = ttk.LabelFrame(main_frame, text="Pipeline Progress", padding="5")
-        progress_frame.grid(row=7, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=(0, 5))
+        progress_frame.grid(row=8, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=(0, 5))
         progress_frame.columnconfigure(0, weight=1)
 
         # Current step label
@@ -312,7 +367,7 @@ class PipelineGUI:
 
         # Action Buttons
         button_frame = ttk.Frame(main_frame)
-        button_frame.grid(row=8, column=0, columnspan=3, pady=(5, 0))
+        button_frame.grid(row=9, column=0, columnspan=3, pady=(5, 0))
 
         self.run_button = ttk.Button(button_frame, text="Run Pipeline",
                                      command=self.run_pipeline, style='Accent.TButton')
@@ -752,6 +807,124 @@ class PipelineGUI:
             self.overall_progress['value'] = 100
             self.step_progress['value'] = 100
             self.step_label_var.set("All done!")
+
+    def run_initial_calibration(self):
+        """Run initial camera calibration from GCPs"""
+        try:
+            # Validate inputs
+            gcp_file = Path(self.calib_gcp_file.get())
+            image_folder = Path(self.calib_image_folder.get())
+            dem_file = Path(self.calib_dem_file.get())
+
+            if not gcp_file.exists():
+                messagebox.showerror("Error", f"GCP file not found:\n{gcp_file}")
+                return
+
+            if not image_folder.exists():
+                messagebox.showerror("Error", f"Image folder not found:\n{image_folder}")
+                return
+
+            if not dem_file.exists():
+                messagebox.showerror("Error", f"DEM file not found:\n{dem_file}")
+                return
+
+            # Get resolution and output directory
+            try:
+                resolution = float(self.calib_resolution.get())
+                if resolution <= 0:
+                    raise ValueError("Resolution must be positive")
+            except ValueError as e:
+                messagebox.showerror("Error", f"Invalid resolution value:\n{e}")
+                return
+
+            output_dir = Path(self.calib_output_dir.get())
+            output_dir.mkdir(parents=True, exist_ok=True)
+
+            self.log_console("=" * 60)
+            self.log_console("Starting Initial Camera Calibration")
+            self.log_console("=" * 60)
+            self.log_console(f"GCP file: {gcp_file}")
+            self.log_console(f"Image folder: {image_folder}")
+            self.log_console(f"DEM file: {dem_file}")
+            self.log_console(f"Resolution: {resolution} m/pixel")
+            self.log_console(f"Output directory: {output_dir}")
+            self.status_var.set("Running initial calibration...")
+
+            # Build command
+            calibrate_script = self.root_dir / 'orthorectification' / 'undistort_and_orthorectify.py'
+            cmd = [
+                sys.executable,
+                str(calibrate_script),
+                'calibrate',
+                '-g', str(gcp_file),
+                '-i', str(image_folder),
+                '-d', str(dem_file),
+                '-r', str(resolution),
+                '-o', str(output_dir)
+            ]
+
+            self.log_console(f"\nRunning command: {' '.join(cmd)}\n")
+
+            # Run calibration in background thread
+            thread = threading.Thread(
+                target=self._run_calibration_thread,
+                args=(cmd,),
+                daemon=True
+            )
+            thread.start()
+
+        except Exception as e:
+            import traceback
+            error_details = traceback.format_exc()
+            messagebox.showerror("Error", f"Failed to start calibration:\n{e}")
+            self.log_console(f"ERROR: {e}")
+            self.log_console(f"TRACEBACK:\n{error_details}")
+            self.status_var.set("Calibration failed to start")
+
+    def _run_calibration_thread(self, cmd):
+        """Run calibration in background thread"""
+        try:
+            # Set environment to force unbuffered output
+            import os
+            env = os.environ.copy()
+            env['PYTHONUNBUFFERED'] = '1'
+            env['PYTHONIOENCODING'] = 'utf-8'
+
+            # Run calibration with unbuffered output
+            process = subprocess.Popen(
+                cmd,
+                cwd=str(self.root_dir),
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+                encoding='utf-8',
+                errors='replace',
+                bufsize=1,
+                env=env
+            )
+
+            # Stream output line by line
+            for line in iter(process.stdout.readline, ''):
+                if line:
+                    self.root.after(0, self.log_console, line.rstrip())
+
+            process.wait()
+
+            if process.returncode == 0:
+                self.root.after(0, self.log_console, "\n" + "=" * 60)
+                self.root.after(0, self.log_console, "Initial calibration completed successfully!")
+                self.root.after(0, self.log_console, "=" * 60)
+                self.root.after(0, self.status_var.set, "Calibration completed")
+            else:
+                self.root.after(0, self.log_console, f"\nCalibration failed with exit code {process.returncode}")
+                self.root.after(0, self.status_var.set, "Calibration failed")
+
+        except Exception as e:
+            import traceback
+            error_details = traceback.format_exc()
+            self.root.after(0, self.log_console, f"ERROR: {e}")
+            self.root.after(0, self.log_console, f"TRACEBACK:\n{error_details}")
+            self.root.after(0, self.status_var.set, "Calibration error")
 
     def run_pipeline(self):
         """Run the processing pipeline"""

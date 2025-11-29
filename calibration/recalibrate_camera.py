@@ -749,11 +749,20 @@ def recalibrate_single_camera(image_path, gcp_file, camera_id, dem_path,
         D = calibrations[camera_id]['D']
         image_size = calibrations[camera_id]['image_size']
 
+        # Get local origin from existing calibration
+        local_origin = np.array([
+            calibrations[camera_id].get('local_origin_x', 0.0),
+            calibrations[camera_id].get('local_origin_y', 0.0),
+            calibrations[camera_id].get('local_origin_z', 0.0)
+        ], dtype=np.float64)
+
         print(f"✓ Loaded K and D from {source_file}")
         print(f"  Using existing lens parameters")
+        print(f"  Local origin: X={local_origin[0]:.1f}, Y={local_origin[1]:.1f}, Z={local_origin[2]:.1f}")
 
-        # Extract GCP world coordinates and image points
-        gcp_world = new_gcp_data[['X', 'Y', 'Z']].values
+        # Extract GCP world coordinates (absolute) and convert to local
+        gcp_world_absolute = new_gcp_data[['X', 'Y', 'Z']].values
+        gcp_world = gcp_world_absolute - local_origin  # Convert to LOCAL coordinates
         gcp_image = new_gcp_data[['col_sample', 'row_sample']].values
 
         # Try pose-only calibration with automatic threshold override option
@@ -832,19 +841,38 @@ def recalibrate_single_camera(image_path, gcp_file, camera_id, dem_path,
             print("Aborting. Try picking points more carefully.")
             return False
     
+    # Get local origin for orthorectification (from loaded calibrations if available)
+    local_origin_ortho = None
+    if mode == 'pose-only':
+        # We already loaded local_origin earlier in pose-only mode
+        local_origin_ortho = local_origin
+    else:
+        # For full mode, check if calibrations exist from source file
+        source_file = find_most_recent_calibration(calibration_file, date)
+        try:
+            calibrations_check = load_camera_calibrations(source_file)
+            if camera_id in calibrations_check:
+                local_origin_ortho = np.array([
+                    calibrations_check[camera_id].get('local_origin_x', 0.0),
+                    calibrations_check[camera_id].get('local_origin_y', 0.0),
+                    calibrations_check[camera_id].get('local_origin_z', 0.0)
+                ], dtype=np.float64)
+        except:
+            pass  # If can't load, local_origin_ortho stays None
+
     # Create orthorectification parameters
     width, height, geotransform = create_orthorectification_params(
-        camera_gcps, resolution, padding_meters
+        camera_gcps, resolution, padding_meters, local_origin=local_origin_ortho
     )
-    
+
     # Load DEM
     print("\nLoading DEM...")
     dem_array = load_dem_from_tiff(dem_path, width, height, geotransform)
-    
+
     # Create lookup tables
     print("\nCreating lookup tables...")
     map_x, map_y = create_ortho_lookup_tables_with_dem(
-        K, D, rvec, tvec, width, height, geotransform, dem_array
+        K, D, rvec, tvec, width, height, geotransform, dem_array, local_origin=local_origin_ortho
     )
     
     # Orthorectify
@@ -899,12 +927,25 @@ def recalibrate_single_camera(image_path, gcp_file, camera_id, dem_path,
     cache_dir = Path(calibration_file).parent.parent / 'orthorectification' / 'ortho_cache'
     delete_old_ortho_cache(camera_id, cache_dir=str(cache_dir))
 
+    # Get local_origin and model_crs from existing calibration (if pose-only) or source file
+    if camera_id in calibrations:
+        local_origin_x = calibrations[camera_id].get('local_origin_x', 0.0)
+        local_origin_y = calibrations[camera_id].get('local_origin_y', 0.0)
+        local_origin_z = calibrations[camera_id].get('local_origin_z', 0.0)
+        model_crs = calibrations[camera_id].get('model_crs', 'EPSG:26917')
+    else:
+        # Default if camera not in previous calibrations
+        local_origin_x = 0.0
+        local_origin_y = 0.0
+        local_origin_z = 0.0
+        model_crs = 'EPSG:26917'
+
     # Update with new calibration for this camera (parameters only, no cache)
     calibrations[camera_id] = {
         'K': K,
         'D': D,
-        'rvec': rvec,
-        'tvec': tvec,
+        'rvec': rvec,  # Translation in LOCAL coordinates
+        'tvec': tvec,  # Translation in LOCAL coordinates
         'rms': rms,
         'image_size': image_size,
         'n_gcps': len(picked_points),
@@ -924,7 +965,11 @@ def recalibrate_single_camera(image_path, gcp_file, camera_id, dem_path,
                 'row': p['row']
             }
             for p in picked_points
-        ]
+        ],
+        'local_origin_x': local_origin_x,
+        'local_origin_y': local_origin_y,
+        'local_origin_z': local_origin_z,
+        'model_crs': model_crs
     }
 
     # Save ortho cache separately

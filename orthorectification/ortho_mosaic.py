@@ -172,7 +172,8 @@ def create_seam_carved_mosaic(ortho_dir, output_path, resolution=None,
                               world_file_transform=None,
                               world_transform_resampling='bilinear',
                               world_transform_threads=None,
-                              world_transform_memory_mb=512):
+                              world_transform_memory_mb=512,
+                              crs='EPSG:26919'):
     """
     Create mosaic using seam carving - finds optimal non-blended boundaries
 
@@ -350,7 +351,7 @@ def create_seam_carved_mosaic(ortho_dir, output_path, resolution=None,
         width=mosaic_width,
         count=3,
         dtype=mosaic_data.dtype,
-        crs='EPSG:26917',  # UTM Zone 17N
+        crs=crs,  # Use parameter instead of hardcoded
         transform=transform,
         compress='lzw'
     ) as dst:
@@ -618,7 +619,8 @@ def create_mosaic_simple_priority(ortho_dir, output_path, resolution=None,
                                   priority='center', world_file_transform=None,
                                   world_transform_resampling='bilinear',
                                   world_transform_threads=None,
-                                  world_transform_memory_mb=512):
+                                  world_transform_memory_mb=512,
+                                  crs='EPSG:26919'):
     """
     Simple approach: Assign priority to each image, last one wins
 
@@ -740,7 +742,7 @@ def create_mosaic_simple_priority(ortho_dir, output_path, resolution=None,
         width=mosaic_width,
         count=3,
         dtype=mosaic_data.dtype,
-        crs='EPSG:26917',  # UTM Zone 17N
+        crs=crs,  # Use parameter instead of hardcoded
         transform=transform,
         compress='lzw'
     ) as dst:

@@ -12,3 +12,6 @@
 output_data/
 output/
 alternate_methods/
+test_videos/
+output_calibration/
+analysis/

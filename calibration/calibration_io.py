@@ -117,7 +117,11 @@ def load_camera_calibrations(csv_file: str) -> Dict[str, Dict[str, Any]]:
             'gcps_skipped': int(row['gcps_skipped']),
             'output_width': int(row['output_width']) if 'output_width' in row and pd.notna(row['output_width']) else None,
             'output_height': int(row['output_height']) if 'output_height' in row and pd.notna(row['output_height']) else None,
-            'gcp_pixel_coords': gcp_pixel_coords
+            'gcp_pixel_coords': gcp_pixel_coords,
+            'local_origin_x': float(row['local_origin_x']) if 'local_origin_x' in row and pd.notna(row['local_origin_x']) else 0.0,
+            'local_origin_y': float(row['local_origin_y']) if 'local_origin_y' in row and pd.notna(row['local_origin_y']) else 0.0,
+            'local_origin_z': float(row['local_origin_z']) if 'local_origin_z' in row and pd.notna(row['local_origin_z']) else 0.0,
+            'model_crs': str(row['model_crs']) if 'model_crs' in row and pd.notna(row['model_crs']) else 'EPSG:26919'
         }
 
     return calibrations
@@ -199,6 +203,12 @@ def save_camera_calibrations(calibrations: Dict[str, Dict[str, Any]], csv_file: 
 
             # GCP pixel coordinates (JSON)
             'gcp_pixel_coords': gcp_pixel_coords_json,
+
+            # Coordinate system info
+            'local_origin_x': calib.get('local_origin_x', 0.0),
+            'local_origin_y': calib.get('local_origin_y', 0.0),
+            'local_origin_z': calib.get('local_origin_z', 0.0),
+            'model_crs': calib.get('model_crs', 'EPSG:26919'),
         }
 
         csv_data.append(row)
@@ -219,7 +229,9 @@ def save_camera_calibrations(calibrations: Dict[str, Dict[str, Any]], csv_file: 
         'geotransform_pixel_width', 'geotransform_pixel_height',
         'output_width', 'output_height',
         'recalibrated', 'recalibration_mode', 'gcps_skipped',
-        'gcp_pixel_coords'
+        'gcp_pixel_coords',
+        'local_origin_x', 'local_origin_y', 'local_origin_z',
+        'model_crs'
     ]
 
     df = df[column_order]
