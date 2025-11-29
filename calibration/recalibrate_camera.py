@@ -8,16 +8,26 @@ from matplotlib.widgets import Button
 import argparse
 from datetime import datetime
 
+# Import new calibration I/O utilities
+from calibration_io import (
+    load_camera_calibrations,
+    save_camera_calibrations,
+    update_camera_calibration,
+    find_most_recent_calibration_csv,
+    save_ortho_cache,
+    delete_old_ortho_cache
+)
+
 def find_most_recent_calibration(calibration_file, date=None):
     """
-    Find the most recent calibration file to load from.
+    Find the most recent calibration CSV file to load from.
     Priority:
-    1. Today's dated file (if it exists)
+    1. File with specified date (if it exists)
     2. Most recent dated file
-    3. Original file
+    3. Fall back to calibration directory search
 
     Args:
-        calibration_file: Path to original calibration file
+        calibration_file: Path to calibration CSV file
         date: Date string (YYYYMMDD). If None, uses today.
 
     Returns:
@@ -28,14 +38,21 @@ def find_most_recent_calibration(calibration_file, date=None):
 
     cal_path = Path(calibration_file)
 
-    # Check if today's dated file exists
-    todays_file = cal_path.parent / f"{cal_path.stem}_{date}.pkl"
-    if todays_file.exists():
+    # Check if specified date's file exists
+    dated_file = cal_path.parent / f"camera_calibrations_{date}.csv"
+    if dated_file.exists():
         print(f"Found existing calibration for {date}, will update it")
-        return todays_file
+        return dated_file
 
-    # Find all dated calibration files
-    dated_files = sorted(cal_path.parent.glob(f"{cal_path.stem}_????????.pkl"))
+    # Find all dated calibration CSV files
+    dated_files = sorted(
+        p for p in cal_path.parent.iterdir()
+        if p.is_file()
+        and p.name.startswith("camera_calibrations_")
+        and p.name.endswith(".csv")
+        and len(p.stem.split("_")[-1]) == 8
+        and p.stem.split("_")[-1].isdigit()
+    )
 
     if dated_files:
         # Return the most recent dated file
@@ -44,31 +61,84 @@ def find_most_recent_calibration(calibration_file, date=None):
         print(f"Loading from most recent calibration: {recent_date}")
         return most_recent
 
-    # Fall back to original
-    print(f"Loading from original calibration file")
-    return cal_path
+    # Try to find any calibration file
+    any_cal = find_most_recent_calibration_csv(str(cal_path.parent))
+    if any_cal:
+        print(f"Loading from found calibration file: {any_cal}")
+        return any_cal
+
+    raise FileNotFoundError(f"No calibration CSV files found in {cal_path.parent}")
 
 
-def load_gcp_targets(gcp_file, camera_id):
+def load_gcp_targets(gcp_file, camera_id, calibration_file=None):
     """
-    Load GCP world coordinates for a specific camera
-    Returns list of GCP names and their X,Y,Z coordinates
+    Load GCP world coordinates and pixel coordinates for a specific camera.
+
+    Priority order:
+    1. If calibration_file provided: Check calibration CSV for gcp_pixel_coords
+    2. Otherwise: Check for camera-specific updated GCP file (from old recalibrations)
+    3. Fall back to main GCP file
+
+    Note: World coordinates (X, Y, Z) always come from the main GCP file (they don't change).
+    Only pixel coordinates may come from the calibration CSV.
+
+    Returns list of GCP names and their X,Y,Z coordinates and pixel coordinates
     """
+    # Always load world coordinates from main GCP file (they never change)
     gcp_data = pd.read_csv(gcp_file)
     camera_gcps = gcp_data[gcp_data['camera_name'].str.contains(camera_id)]
-    
-    # Get unique GCP identifiers and their world coordinates
+
+    # Try to get pixel coordinates from calibration CSV if provided
+    pixel_coords_from_calib = None
+    if calibration_file:
+        try:
+            from calibration_io import load_camera_calibrations
+            calibrations = load_camera_calibrations(calibration_file)
+            if camera_id in calibrations:
+                gcp_pixel_coords = calibrations[camera_id].get('gcp_pixel_coords', [])
+                if gcp_pixel_coords:
+                    print(f"  Using GCP pixel coordinates from calibration CSV")
+                    # Convert to dict for easy lookup by world coords
+                    pixel_coords_from_calib = {
+                        (gcp['X'], gcp['Y'], gcp['Z']): (gcp['col'], gcp['row'])
+                        for gcp in gcp_pixel_coords
+                    }
+        except Exception as e:
+            print(f"  Warning: Could not load GCP pixel coords from calibration: {e}")
+
+    # If no pixel coords from calibration, check for old-style updated GCP file
+    if pixel_coords_from_calib is None:
+        gcp_path = Path(gcp_file)
+        updated_gcp_file = gcp_path.parent / f'GCP_{camera_id}_updated.csv'
+
+        if updated_gcp_file.exists():
+            print(f"  Using updated GCP locations from {updated_gcp_file.name}")
+            updated_data = pd.read_csv(updated_gcp_file)
+            camera_gcps = updated_data
+
+    # Build GCP list with world coords and pixel coords
     gcps = []
     for idx, row in camera_gcps.iterrows():
+        # Use pixel coords from calibration if available, otherwise from GCP file
+        if pixel_coords_from_calib:
+            key = (row['X'], row['Y'], row['Z'])
+            if key in pixel_coords_from_calib:
+                col, row_coord = pixel_coords_from_calib[key]
+            else:
+                # Fall back to original if not in calibration
+                col, row_coord = row['col_sample'], row['row_sample']
+        else:
+            col, row_coord = row['col_sample'], row['row_sample']
+
         gcps.append({
             'name': f"GCP_{idx}",
             'X': row['X'],
             'Y': row['Y'],
             'Z': row['Z'],
-            'original_col': row['col_sample'],
-            'original_row': row['row_sample']
+            'original_col': col,
+            'original_row': row_coord
         })
-    
+
     return gcps
 
 
@@ -358,7 +428,13 @@ def solve_pose_only(gcp_world_coords, image_points, K, D, image_path,
     """
     Solve for camera pose (R, t) only, keeping intrinsics (K, D) fixed
 
-    Uses cv2.solvePnP with RANSAC for robustness to outliers.
+    Correct workflow for fisheye camera pose estimation:
+    1. Undistort distorted points to normalized rays
+    2. Convert normalized rays to pinhole pixel coordinates
+    3. Use solvePnPRansac with pinhole model for initial robust estimate
+    4. Refine pose using fisheye.calibrate with fixed intrinsics
+    5. Validate with fisheye projection
+
     This is appropriate when cameras have shifted slightly but lens parameters haven't changed.
 
     Args:
@@ -371,7 +447,7 @@ def solve_pose_only(gcp_world_coords, image_points, K, D, image_path,
         max_rms: Maximum acceptable RMS reprojection error in pixels (default 10.0)
 
     Returns:
-        (rvec, tvec, rms): Rotation vector, translation vector, reprojection RMS error
+        (rvec, tvec, rms, image_size): Rotation vector, translation vector, RMS error, image size
 
     Raises:
         ValueError: If pose solving fails or solution is degenerate
@@ -386,48 +462,97 @@ def solve_pose_only(gcp_world_coords, image_points, K, D, image_path,
         raise ValueError(f"Could not load image: {image_path}")
     image_size = (img.shape[1], img.shape[0])
 
-    # Undistort image points using fixed K and D
-    print("Undistorting image points using fixed calibration...")
-    image_points_undistorted = cv2.fisheye.undistortPoints(
+    # Step 1: Undistort to NORMALIZED rays (not pixel coordinates)
+    print("Step 1: Undistorting to normalized rays...")
+    image_points_normalized = cv2.fisheye.undistortPoints(
         image_points.reshape(-1, 1, 2).astype(np.float32),
-        K, D, None, K
+        K, D, None, None  # P=None gives normalized coordinates
     ).reshape(-1, 2)
 
-    # Solve PnP with RANSAC for robustness
-    print(f"Solving pose with {len(gcp_world_coords)} GCPs...")
-    success, rvec, tvec, inliers = cv2.solvePnPRansac(
+    # Step 2: Create pinhole K matrix and convert to pinhole pixels
+    print("Step 2: Converting to pinhole pixel coordinates...")
+    fx_pinhole = (K[0, 0] + K[1, 1]) / 2.0  # Mean focal length
+    Kp = np.array([
+        [fx_pinhole, 0, 0],
+        [0, fx_pinhole, 0],
+        [0, 0, 1]
+    ], dtype=np.float64)
+
+    # Convert normalized rays to pinhole pixel coordinates
+    image_points_pinhole = image_points_normalized * fx_pinhole
+
+    # Step 3: Solve PnP with RANSAC for initial robust estimate
+    print(f"Step 3: Solving PnP with RANSAC ({len(gcp_world_coords)} GCPs)...")
+    success, rvec_init, tvec_init, inliers = cv2.solvePnPRansac(
         gcp_world_coords.astype(np.float32),
-        image_points_undistorted.astype(np.float32),
-        K,
-        None,  # No additional distortion (already undistorted)
+        image_points_pinhole.astype(np.float32),
+        Kp,
+        None,  # No distortion for pinhole model
         flags=cv2.SOLVEPNP_ITERATIVE,
-        reprojectionError=8.0,  # Pixels
+        reprojectionError=8.0,  # Pixels in pinhole space
         confidence=0.99
     )
 
-    if not success or rvec is None or tvec is None:
+    if not success or rvec_init is None or tvec_init is None:
         raise ValueError("Pose solving failed - could not find valid solution")
 
     if inliers is None or len(inliers) < 4:
         raise ValueError(f"Pose solving failed - only {len(inliers) if inliers is not None else 0} inliers found (need >= 4)")
 
     inlier_ratio = len(inliers) / len(gcp_world_coords)
-    print(f"  Inliers: {len(inliers)}/{len(gcp_world_coords)} ({inlier_ratio*100:.1f}%)")
+    print(f"  Initial RANSAC inliers: {len(inliers)}/{len(gcp_world_coords)} ({inlier_ratio*100:.1f}%)")
 
     if inlier_ratio < min_inlier_ratio:
         raise ValueError(f"Too many outliers ({inlier_ratio*100:.1f}% inliers < {min_inlier_ratio*100:.0f}%)")
 
-    # Compute reprojection error
+    # Step 4: Nonlinear refinement using fisheye model with ALL points
+    print("Step 4: Refining pose with fisheye model...")
+    object_points = [gcp_world_coords.astype(np.float32)]
+    image_points_list = [image_points.astype(np.float32)]
+
+    # Calibration flags: fix intrinsics, only optimize extrinsics
+    flags = (cv2.fisheye.CALIB_USE_INTRINSIC_GUESS |
+             cv2.fisheye.CALIB_FIX_INTRINSIC |
+             cv2.fisheye.CALIB_RECOMPUTE_EXTRINSIC)
+
+    criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 1e-6)
+
+    try:
+        rms_refined, K_out, D_out, rvecs, tvecs = cv2.fisheye.calibrate(
+            object_points,
+            image_points_list,
+            image_size,
+            K.copy(),  # Initial guess (will be fixed)
+            D.copy(),  # Initial guess (will be fixed)
+            rvecs=[rvec_init],  # Initial pose from PnP
+            tvecs=[tvec_init],
+            flags=flags,
+            criteria=criteria
+        )
+
+        rvec_refined = rvecs[0]
+        tvec_refined = tvecs[0]
+        print(f"  Refinement RMS: {rms_refined:.4f} pixels")
+
+    except cv2.error as e:
+        print(f"  ⚠ WARNING: Fisheye refinement failed ({e})")
+        print(f"  Falling back to initial RANSAC solution")
+        rvec_refined = rvec_init
+        tvec_refined = tvec_init
+        rms_refined = None
+
+    # Step 5: Validate with fisheye projection
+    print("Step 5: Validating with fisheye projection...")
     projected_pts, _ = cv2.fisheye.projectPoints(
         gcp_world_coords.reshape(-1, 1, 3).astype(np.float32),
-        rvec, tvec, K, D
+        rvec_refined, tvec_refined, K, D
     )
     projected_pts = projected_pts.reshape(-1, 2)
 
     errors = np.linalg.norm(projected_pts - image_points, axis=1)
     rms = np.sqrt(np.mean(errors**2))
 
-    print(f"  RMS reprojection error: {rms:.4f} pixels")
+    print(f"  Final RMS reprojection error: {rms:.4f} pixels")
     print(f"  Max error: {errors.max():.4f} pixels")
     print(f"  Mean error: {errors.mean():.4f} pixels")
 
@@ -441,7 +566,7 @@ def solve_pose_only(gcp_world_coords, image_points, K, D, image_path,
 
     print(f"{'='*60}\n")
 
-    return rvec, tvec, rms, image_size
+    return rvec_refined, tvec_refined, rms, image_size
 
 
 def recalibrate_single_camera(image_path, gcp_file, camera_id, dem_path,
@@ -494,7 +619,7 @@ def recalibrate_single_camera(image_path, gcp_file, camera_id, dem_path,
 
     # Load GCPs
     print(f"\nLoading GCP targets from {gcp_file}...")
-    gcps = load_gcp_targets(gcp_file, camera_id)
+    gcps = load_gcp_targets(gcp_file, camera_id, calibration_file)
     print(f"Found {len(gcps)} GCP targets")
     print(f"\nFor good calibration with limited targets:")
     print(f"  - Pick at least {min_gcps} points (ideally {min_gcps + 2}-{min_gcps + 4})")
@@ -577,8 +702,8 @@ def recalibrate_single_camera(image_path, gcp_file, camera_id, dem_path,
     if len(skipped_gcps) > 0:
         print(f"\nSkipped {len(skipped_gcps)} GCPs (clustered margin targets, etc)")
     
-    # Create new GCP dataframe
-    print(f"\nCreating updated GCP data with {len(picked_points)} points...")
+    # Create new GCP dataframe (for use in calibration)
+    print(f"\nCreating GCP data with {len(picked_points)} points...")
     new_gcp_data = pd.DataFrame([{
         'camera_name': camera_id,
         'X': p['gcp']['X'],
@@ -588,13 +713,16 @@ def recalibrate_single_camera(image_path, gcp_file, camera_id, dem_path,
         'row_sample': p['row']
     } for p in picked_points])
 
-    # Save new GCP file for reference (optional)
+    # Note: GCP pixel coordinates will be saved to calibration CSV
+    # (not to a separate file in inputs/)
+
+    # Save to output directory if specified (for reference)
     output_path = Path(output_dir) if output_dir else None
     if output_path:
         output_path.mkdir(exist_ok=True)
-        new_gcp_file = output_path / f'GCP_{camera_id}_recalibrated.csv'
-        new_gcp_data.to_csv(new_gcp_file, index=False)
-        print(f"Saved GCP file: {new_gcp_file}")
+        backup_gcp_file = output_path / f'GCP_{camera_id}_recalibrated_{date}.csv'
+        new_gcp_data.to_csv(backup_gcp_file, index=False)
+        print(f"Saved backup GCP file: {backup_gcp_file}")
     
     # Perform calibration based on mode
     print(f"\nRecalibrating {camera_id}...")
@@ -607,8 +735,7 @@ def recalibrate_single_camera(image_path, gcp_file, camera_id, dem_path,
         print(f"\nLoading existing calibration to get K and D...")
         source_file = find_most_recent_calibration(calibration_file, date)
 
-        with open(source_file, 'rb') as f:
-            calibrations = pickle.load(f)
+        calibrations = load_camera_calibrations(source_file)
 
         if camera_id not in calibrations:
             print(f"\n✗ Error: Camera {camera_id} not found in calibration file")
@@ -766,17 +893,13 @@ def recalibrate_single_camera(image_path, gcp_file, camera_id, dem_path,
     source_file = find_most_recent_calibration(calibration_file, date)
 
     # Load ALL calibrations from the most recent source
-    with open(source_file, 'rb') as f:
-        calibrations = pickle.load(f)
+    calibrations = load_camera_calibrations(source_file)
 
-    # Backup old calibration for this camera (if it exists)
-    #if camera_id in calibrations:
-    #    backup_file = Path(str(calibration_file).replace('.pkl', f'_backup_{camera_id}_{date}.pkl'))
-        # with open(backup_file, 'wb') as f:
-        #     pickle.dump({camera_id: calibrations[camera_id]}, f)
-        # print(f"Backed up old calibration: {backup_file}")
+    # Delete old ortho cache for this camera
+    cache_dir = Path(calibration_file).parent.parent / 'orthorectification' / 'ortho_cache'
+    delete_old_ortho_cache(camera_id, cache_dir=str(cache_dir))
 
-    # Update with new calibration for this camera
+    # Update with new calibration for this camera (parameters only, no cache)
     calibrations[camera_id] = {
         'K': K,
         'D': D,
@@ -786,27 +909,45 @@ def recalibrate_single_camera(image_path, gcp_file, camera_id, dem_path,
         'image_size': image_size,
         'n_gcps': len(picked_points),
         'geotransform': geotransform,
-        'dem_array': dem_array,
+        'calibration_date': date,
+        'recalibrated': True,
+        'recalibration_mode': mode,
+        'gcps_skipped': len(skipped_gcps),
+        'output_width': width,
+        'output_height': height,
+        'gcp_pixel_coords': [
+            {
+                'X': p['gcp']['X'],
+                'Y': p['gcp']['Y'],
+                'Z': p['gcp']['Z'],
+                'col': p['col'],
+                'row': p['row']
+            }
+            for p in picked_points
+        ]
+    }
+
+    # Save ortho cache separately
+    cache_data = {
         'map_x': map_x,
         'map_y': map_y,
         'output_width': width,
-        'output_height': height,
-        'recalibrated': True,
-        'recalibration_date': date,
-        'recalibration_mode': mode,  # NEW: Track refinement type
-        'gcps_skipped': len(skipped_gcps)
+        'output_height': height
     }
+    save_ortho_cache(camera_id, date, cache_data, cache_dir=str(cache_dir))
+    print(f"  ✓ Saved ortho cache: {camera_id}_ortho_cache_{date}.pkl")
 
-    # Save ALL calibrations to today's dated file
+    # Save ALL calibrations to dated CSV file
     cal_path = Path(calibration_file)
-    new_cal_file = cal_path.parent / f"{cal_path.stem}_{date}.pkl"
+    if cal_path.suffix == '.pkl':
+        # Convert legacy path to CSV
+        cal_path = cal_path.with_suffix('.csv')
 
-    with open(new_cal_file, 'wb') as f:
-        pickle.dump(calibrations, f)
+    new_cal_file = cal_path.parent / f"camera_calibrations_{date}.csv"
+    save_camera_calibrations(calibrations, new_cal_file)
 
-    print(f"✓ Saved calibration file: {new_cal_file}")
-    print(f"  Contains {len(calibrations)} camera(s), updated {camera_id}")
-    print(f"  Original calibration file unchanged: {calibration_file}")
+    print(f"✓ Saved calibration CSV: {new_cal_file}")
+    print(f"  Contains {len(calibrations)} camera(s), updated {camera_id} with date={date}")
     
     print("\n" + "="*60)
     print("Recalibration Complete!")

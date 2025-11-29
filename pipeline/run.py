@@ -134,31 +134,6 @@ def log(log_file, message):
         f.flush()  # Force file flush too
 
 
-def _process_single_ortho(args):
-    """Worker function for parallel orthorectification"""
-    ts_folder, ortho_base, calib_file, orthorectify_script = args
-    
-    output_dir = ortho_base / ts_folder.name
-    output_dir.mkdir(parents=True, exist_ok=True)
-    
-    cmd = [
-        'python', str(orthorectify_script), 'process',
-        '-i', str(ts_folder),
-        '-c', calib_file,
-        '-o', str(output_dir),
-        '--no-undistorted'
-    ]
-    
-    result = subprocess.run(cmd, capture_output=True, text=True, encoding='utf-8', errors='replace')
-    
-    return {
-        'folder': ts_folder.name,
-        'success': result.returncode == 0,
-        'stdout': result.stdout,
-        'stderr': result.stderr
-    }
-
-
 def run_extraction(master_config, log_file, show_output=True):
     """Run frame extraction"""
     log(log_file, "Starting frame extraction...")
@@ -187,11 +162,11 @@ def run_extraction(master_config, log_file, show_output=True):
 
 def _process_single_ortho(args):
     """Worker function for parallel orthorectification"""
-    ts_folder, ortho_base, calib_file, orthorectify_script = args
-    
+    ts_folder, ortho_base, calib_file, dem_file, orthorectify_script = args
+
     output_dir = ortho_base / ts_folder.name
     output_dir.mkdir(parents=True, exist_ok=True)
-    
+
     cmd = [
         'python', str(orthorectify_script), 'process',
         '-i', str(ts_folder),
@@ -199,9 +174,13 @@ def _process_single_ortho(args):
         '-o', str(output_dir),
         '--no-undistorted'
     ]
-    
+
+    # Add DEM path if provided (for cache regeneration)
+    if dem_file:
+        cmd.extend(['-d', dem_file])
+
     result = subprocess.run(cmd, capture_output=True, text=True, encoding='utf-8', errors='replace')
-    
+
     return {
         'folder': ts_folder.name,
         'success': result.returncode == 0,
@@ -222,15 +201,16 @@ def run_orthorectification(master_config, log_file, n_jobs=None):
     ortho_base = test_dir / 'orthos'
     ortho_base.mkdir(parents=True, exist_ok=True)
     calib_file = master_config['paths']['calibration_file']
-    
+    dem_file = master_config['paths'].get('dsm_file')  # Optional, for cache regeneration
+
     # Get all timestamp folders
     timestamp_folders = sorted([d for d in frames_dir.iterdir() if d.is_dir()])
-    
+
     log(log_file, f"Processing {len(timestamp_folders)} timestamps in parallel...")
-    
+
     # Prepare arguments for parallel processing
     process_args = [
-        (ts_folder, ortho_base, calib_file, ORTHORECTIFY)
+        (ts_folder, ortho_base, calib_file, dem_file, ORTHORECTIFY)
         for ts_folder in timestamp_folders
     ]
     

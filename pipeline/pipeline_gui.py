@@ -184,7 +184,7 @@ class PipelineGUI:
                                                                                    sticky=(tk.W, tk.E), padx=5, pady=(5, 0))
         ttk.Button(paths_frame, text="Browse...",
                   command=lambda: self.browse_file(self.calibration_file,
-                                                   [("Pickle Files", "*.pkl"), ("All Files", "*.*")])).grid(row=row, column=2, pady=(5, 0))
+                                                   [("CSV Files", "*.csv"), ("Pickle Files", "*.pkl"), ("All Files", "*.*")])).grid(row=row, column=2, pady=(5, 0))
 
         row += 1
         ttk.Label(paths_frame, text="GCP File:").grid(row=row, column=0, sticky=tk.W)

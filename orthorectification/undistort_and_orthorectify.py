@@ -6,6 +6,17 @@ import pickle
 import rasterio
 from rasterio.transform import rowcol
 import argparse
+import sys
+
+# Import new calibration I/O utilities
+sys.path.append(str(Path(__file__).parent.parent / 'calibration'))
+from calibration_io import (
+    load_camera_calibrations,
+    save_camera_calibrations,
+    load_ortho_cache,
+    save_ortho_cache,
+    delete_old_ortho_cache
+)
 
 def calibrate_fisheye_camera(gcp_data, image_path, camera_id):
     """
@@ -491,12 +502,13 @@ def save_geotiff(img, geotransform, output_path):
 
 
 # Main workflow
-def calibrate_all_cameras(gcp_file, image_dir, dem_path, resolution=0.005, 
-                         padding_meters=0.5, output_dir='output', 
-                         save_undistorted=True, use_fast_resample=False):
+def calibrate_all_cameras(gcp_file, image_dir, dem_path, resolution=0.005,
+                         padding_meters=0.5, output_dir='output',
+                         save_undistorted=True, use_fast_resample=False,
+                         calibration_date=None):
     """
     Calibrate all cameras and create orthorectified outputs using actual DEM
-    
+
     Parameters:
     - gcp_file: CSV file with GCP correspondences
     - image_dir: directory with camera images
@@ -506,10 +518,27 @@ def calibrate_all_cameras(gcp_file, image_dir, dem_path, resolution=0.005,
     - output_dir: where to save outputs
     - save_undistorted: whether to save simple undistorted images for QC
     - use_fast_resample: if True, use rasterio's resampling (faster but potentially less accurate)
+    - calibration_date: Date stamp (YYYYMMDD) for calibration file. If None, auto-detected from image folder.
     """
+    # Auto-detect calibration date from image folder if not provided
+    if calibration_date is None:
+        # Try to extract YYYYMMDD from folder name
+        folder_name = Path(image_dir).name
+        import re
+        date_match = re.search(r'(\d{8})', folder_name)
+        if date_match:
+            calibration_date = date_match.group(1)
+        else:
+            # Default to current date
+            from datetime import datetime
+            calibration_date = datetime.now().strftime('%Y%m%d')
+            print(f"Warning: Could not extract date from folder '{folder_name}', using today's date: {calibration_date}")
+
+    print(f"Calibration date: {calibration_date}")
+
     # Load GCP data
     gcp_data = pd.read_csv(gcp_file)
-    
+
     # Get unique camera IDs
     #gcp_data['camera_id'] = gcp_data['image_name'].str.extract(r'(ch\d+)')
     gcp_data['camera_id'] = gcp_data['camera_name']
@@ -530,14 +559,20 @@ def calibrate_all_cameras(gcp_file, image_dir, dem_path, resolution=0.005,
         print(f"\n{'='*60}")
         print(f"Processing {camera_id}")
         print(f"{'='*60}")
-        
-        # Find the image file for this camera
-        image_files = list(Path(image_dir).glob(f"*{camera_id}*.tif*"))
-        if not image_files:
-            print(f"Warning: No image found for {camera_id}")
+
+        # Find the image file for this camera using image_name from GCP file
+        camera_gcp_rows = gcp_data[gcp_data['camera_id'] == camera_id]
+        if len(camera_gcp_rows) == 0:
+            print(f"Warning: No GCP data for {camera_id}")
             continue
-            
-        image_path = image_files[0]
+
+        image_name = camera_gcp_rows.iloc[0]['image_name']
+        image_path = Path(image_dir) / image_name
+
+        if not image_path.exists():
+            print(f"Warning: Image not found: {image_path}")
+            continue
+
         print(f"Image: {image_path.name}")
         
         try:
@@ -574,13 +609,13 @@ def calibrate_all_cameras(gcp_file, image_dir, dem_path, resolution=0.005,
                     dem_path, width, height, geotransform
                 )
             else:
-                dem_array = load_dem_from_tiff_vectorized(
+                dem_array = load_dem_from_tiff(
                     dem_path, width, height, geotransform
                 )
             
             # Create lookup tables using DEM
             print("\nCreating lookup tables with DEM...")
-            map_x, map_y = create_ortho_lookup_tables_with_dem_vectorized(
+            map_x, map_y = create_ortho_lookup_tables_with_dem(
                 K, D, rvec, tvec, width, height, geotransform, dem_array
             )
             
@@ -613,8 +648,8 @@ def calibrate_all_cameras(gcp_file, image_dir, dem_path, resolution=0.005,
             #     pickle.dump(cam_calibration_results, f)
             # print(f"\nSaved calibration data: {cam_calib_file}")
 
-            
-            # Store results for future use
+
+            # Store calibration parameters (no DEM or lookup tables)
             calibration_results[camera_id] = {
                 'K': K,
                 'D': D,
@@ -624,24 +659,37 @@ def calibrate_all_cameras(gcp_file, image_dir, dem_path, resolution=0.005,
                 'image_size': image_size,
                 'n_gcps': n_gcps,
                 'geotransform': geotransform,
-                'dem_array': dem_array,
+                'calibration_date': calibration_date,
+                'recalibrated': False,
+                'recalibration_mode': '',
+                'gcps_skipped': 0,
+                'output_width': width,
+                'output_height': height,
+                'gcp_pixel_coords': []  # Will be populated during recalibration
+            }
+
+            # Save ortho cache separately
+            cache_dir = output_path.parent / 'orthorectification' / 'ortho_cache'
+            cache_data = {
                 'map_x': map_x,
                 'map_y': map_y,
                 'output_width': width,
                 'output_height': height
             }
-            
+            save_ortho_cache(camera_id, calibration_date, cache_data, cache_dir=str(cache_dir))
+            print(f"  Saved ortho cache: {camera_id}_ortho_cache_{calibration_date}.pkl")
+
         except Exception as e:
             print(f"Error processing {camera_id}: {e}")
             import traceback
             traceback.print_exc()
             continue
-    
-    # Save calibration data
-    calib_file = output_path / 'camera_calibrations.pkl'
-    with open(calib_file, 'wb') as f:
-        pickle.dump(calibration_results, f)
-    print(f"\nSaved calibration data: {calib_file}")
+
+    # Save calibration data as CSV
+    csv_file = output_path.parent / 'calibration' / f'camera_calibrations_{calibration_date}.csv'
+    csv_file.parent.mkdir(exist_ok=True)
+    save_camera_calibrations(calibration_results, csv_file)
+    print(f"\nSaved calibration CSV: {csv_file}")
     
     print("\n" + "="*60)
     print("Processing Summary:")
@@ -650,23 +698,84 @@ def calibrate_all_cameras(gcp_file, image_dir, dem_path, resolution=0.005,
         print(f"{cam_id}:")
         print(f"  RMS error: {results['rms']:.4f} px")
         print(f"  GCPs: {results['n_gcps']}")
-        print(f"  Output: {results['output_width']}x{results['output_height']} pixels")
-        print(f"  Resolution: {results['geotransform']['pixel_width']*1000:.1f} mm/pixel")
-        print(f"  DEM range: Z=[{results['dem_array'].min():.3f}, {results['dem_array'].max():.3f}]")
+        print(f"  Calibration date: {results['calibration_date']}")
     
     return calibration_results
 
 
 # Fast processing of new images using saved calibration
-def process_new_images_fast(new_image_dir, calibration_file, output_dir='new_ortho', 
-                            save_undistorted=True):
+def process_new_images_fast(new_image_dir, calibration_file, output_dir='new_ortho',
+                            save_undistorted=True, dem_path=None, cache_dir='orthorectification/ortho_cache'):
     """
-    Quickly process new images using pre-computed calibration and DEM
+    Quickly process new images using pre-computed calibration and cached ortho lookup tables.
+
+    This function now uses the new CSV + cache format. It will:
+    1. Load calibration parameters from CSV
+    2. Check for ortho cache files (map_x, map_y)
+    3. Regenerate cache if missing or outdated
+    4. Process images using cached lookup tables
+
+    Parameters:
+    - new_image_dir: directory with images to process
+    - calibration_file: path to camera_calibrations_YYYYMMDD.csv
+    - output_dir: where to save outputs
+    - save_undistorted: whether to save undistorted images for QC
+    - dem_path: path to DEM file (required if cache needs regeneration)
+    - cache_dir: directory containing ortho cache files
     """
-    print("Loading calibration...")
-    with open(calibration_file, 'rb') as f:
-        calibrations = pickle.load(f)
-    
+    print("Loading calibration from CSV...")
+    calibrations = load_camera_calibrations(calibration_file)
+
+    # PRE-GENERATE any missing cache files before parallel processing
+    # This prevents multiple processes from regenerating the same cache
+    if dem_path:
+        print("\nChecking ortho cache files...")
+        missing_caches = []
+        for camera_id, calib in calibrations.items():
+            cal_date = calib['calibration_date']
+            cache_data = load_ortho_cache(camera_id, cal_date, cache_dir=cache_dir)
+            if cache_data is None:
+                missing_caches.append((camera_id, calib))
+
+        if missing_caches:
+            print(f"Found {len(missing_caches)} cameras with missing cache files")
+            print("Generating cache files (this may take a few minutes)...\n")
+
+            for camera_id, calib in missing_caches:
+                cal_date = calib['calibration_date']
+
+                # Verify we have output dimensions
+                if calib.get('output_width') is None or calib.get('output_height') is None:
+                    print(f"  WARNING: Skipping {camera_id} - no output dimensions in calibration")
+                    continue
+
+                print(f"  Generating cache for {camera_id}...")
+                width = calib['output_width']
+                height = calib['output_height']
+
+                # Load DEM
+                dem_array = load_dem_from_tiff(dem_path, width, height, calib['geotransform'])
+
+                # Create lookup tables
+                map_x, map_y = create_ortho_lookup_tables_with_dem(
+                    calib['K'], calib['D'], calib['rvec'], calib['tvec'],
+                    width, height, calib['geotransform'], dem_array
+                )
+
+                # Save cache
+                cache_data = {
+                    'map_x': map_x,
+                    'map_y': map_y,
+                    'output_width': width,
+                    'output_height': height
+                }
+                save_ortho_cache(camera_id, cal_date, cache_data, cache_dir=cache_dir)
+                print(f"    OK: Cache saved for {camera_id}")
+
+            print(f"\nCache generation complete! All {len(missing_caches)} cache files created.\n")
+        else:
+            print("  All cache files present\n")
+
     # Create output directories
     output_path = Path(output_dir)
     output_path.mkdir(exist_ok=True)
@@ -693,19 +802,28 @@ def process_new_images_fast(new_image_dir, calibration_file, output_dir='new_ort
                 break
 
         if camera_id is None:
-            print(f"⚠ SKIPPING {img_path.name} - no matching calibration")
+            print(f"WARNING: SKIPPING {img_path.name} - no matching calibration")
             print(f"  Available calibrations: {list(calibrations.keys())}")
             skipped_count += 1
             continue
         
         print(f"Processing {img_path.name} with {camera_id} calibration")
-        
+
         # Get calibration for this camera
         calib = calibrations[camera_id]
-        
+        cal_date = calib['calibration_date']
+
+        # Load ortho cache (should exist after pre-generation)
+        cache_data = load_ortho_cache(camera_id, cal_date, cache_dir=cache_dir)
+
+        if cache_data is None:
+            print(f"  ERROR: Cache missing for {camera_id} despite pre-generation. Skipping.")
+            skipped_count += 1
+            continue
+
         # Load image
         img = cv2.imread(str(img_path))
-        
+
         # Save undistorted for QC
         if save_undistorted:
             undistorted = undistort_fisheye(img, calib['K'], calib['D'], balance=0.0)
@@ -713,8 +831,8 @@ def process_new_images_fast(new_image_dir, calibration_file, output_dir='new_ort
             cv2.imwrite(str(undist_path), undistorted)
             print(f"  Undistorted: {undist_path.name}")
 
-        # Orthorectify (FAST! Uses pre-computed lookup tables)
-        ortho_img = orthorectify_with_lookup(img, calib['map_x'], calib['map_y'])
+        # Orthorectify (FAST! Uses pre-computed lookup tables from cache)
+        ortho_img = orthorectify_with_lookup(img, cache_data['map_x'], cache_data['map_y'])
 
         # Save as GeoTIFF
         ortho_path = ortho_dir / f"{img_path.stem}_ortho.tif"
@@ -730,7 +848,7 @@ def process_new_images_fast(new_image_dir, calibration_file, output_dir='new_ort
     print("="*60)
 
     if processed_count == 0:
-        print("\n✗ ERROR: No images were processed!")
+        print("\nERROR: No images were processed!")
         print("Possible causes:")
         print("  1. Camera names in images don't match calibration file")
         print("  2. Wrong calibration file specified")
@@ -778,6 +896,9 @@ Examples:
                            help='Calibration file (default: output/camera_calibrations.pkl)')
     proc_parser.add_argument('-o', '--output', default='new_ortho',
                            help='Output directory (default: new_ortho)')
+    proc_parser.add_argument('-d', '--dem', help='DEM TIFF file (required for cache regeneration if cache missing)')
+    proc_parser.add_argument('--cache-dir', default='orthorectification/ortho_cache',
+                           help='Ortho cache directory (default: orthorectification/ortho_cache)')
     proc_parser.add_argument('--no-undistorted', action='store_true',
                            help='Skip saving undistorted images (faster)')
     
@@ -800,7 +921,9 @@ Examples:
             new_image_dir=args.image_dir,
             calibration_file=args.calibration,
             output_dir=args.output,
-            save_undistorted=not args.no_undistorted
+            save_undistorted=not args.no_undistorted,
+            dem_path=args.dem,
+            cache_dir=args.cache_dir
         )
     
     else:
