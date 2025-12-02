@@ -1,13 +1,13 @@
 {
-    "video_directory": "test_videos/Lidar Video",
+    "video_directory": "test_videos/12-1-25/Initial Ice Pack",
     "mode": "time_range",
-    "output_directory": "output_data\\Lidar Video\\frames",
+    "output_directory": "output_data\\Initial Ice Pack\\frames",
     "output_format": "tiff",
     "recursive": true,
     "filename_pattern": "CAMERA_DATETIME_DATETIME",
     "time_range": {
-        "start": "2025-11-20 14:05:30",
-        "end": "2025-11-20 14:09:30",
+        "start": "2025-12-01 10:26:30",
+        "end": "2025-12-01 10:27:30",
         "interval": null
     },
     "endpoints_only": true,

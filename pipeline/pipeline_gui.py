@@ -270,71 +270,71 @@ class PipelineGUI:
                   command=lambda: self.browse_file(self.world_file_path,
                                                    [("World Files", "*.wld"), ("All Files", "*.*")])).grid(row=row, column=2)
 
-        # Calibration Settings Section
-        calib_frame = ttk.LabelFrame(main_frame, text="Calibration Settings", padding="5")
-        calib_frame.grid(row=6, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=(0, 5))
+        # # Calibration Settings Section
+        # calib_frame = ttk.LabelFrame(main_frame, text="Calibration Settings", padding="5")
+        # calib_frame.grid(row=6, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=(0, 5))
 
-        self.calib_mode = tk.StringVar(value='pose-only')
-        ttk.Label(calib_frame, text="Recalibration Mode:").grid(row=0, column=0, sticky=tk.W, padx=(0, 10))
-        ttk.Radiobutton(calib_frame, text="Pose-only (faster, for small camera shifts)",
-                       variable=self.calib_mode, value='pose-only').grid(row=0, column=1, sticky=tk.W)
-        ttk.Radiobutton(calib_frame, text="Full (complete recalibration)",
-                       variable=self.calib_mode, value='full').grid(row=1, column=1, sticky=tk.W)
+        # self.calib_mode = tk.StringVar(value='pose-only')
+        # ttk.Label(calib_frame, text="Recalibration Mode:").grid(row=0, column=0, sticky=tk.W, padx=(0, 10))
+        # ttk.Radiobutton(calib_frame, text="Pose-only (faster, for small camera shifts)",
+        #                variable=self.calib_mode, value='pose-only').grid(row=0, column=1, sticky=tk.W)
+        # ttk.Radiobutton(calib_frame, text="Full (complete recalibration)",
+        #                variable=self.calib_mode, value='full').grid(row=1, column=1, sticky=tk.W)
 
-        # Initial Calibration Section
-        initial_calib_frame = ttk.LabelFrame(main_frame, text="Initial Calibration (from GCPs)", padding="5")
-        initial_calib_frame.grid(row=7, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=(5, 5))
-        initial_calib_frame.columnconfigure(1, weight=1)
+        # # Initial Calibration Section
+        # initial_calib_frame = ttk.LabelFrame(main_frame, text="Initial Calibration (from GCPs)", padding="5")
+        # initial_calib_frame.grid(row=7, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=(5, 5))
+        # initial_calib_frame.columnconfigure(1, weight=1)
 
-        # GCP file for calibration
-        self.calib_gcp_file = tk.StringVar(value="inputs/GCP_merged.csv")
-        row = 0
-        ttk.Label(initial_calib_frame, text="GCP File:").grid(row=row, column=0, sticky=tk.W, pady=2)
-        ttk.Entry(initial_calib_frame, textvariable=self.calib_gcp_file, width=50).grid(row=row, column=1, sticky=(tk.W, tk.E), padx=(5, 2))
-        ttk.Button(initial_calib_frame, text="Browse",
-                  command=lambda: self.browse_file(self.calib_gcp_file,
-                                                   [("CSV Files", "*.csv"), ("All Files", "*.*")])).grid(row=row, column=2)
+        # # GCP file for calibration
+        # self.calib_gcp_file = tk.StringVar(value="inputs/GCP_merged.csv")
+        # row = 0
+        # ttk.Label(initial_calib_frame, text="GCP File:").grid(row=row, column=0, sticky=tk.W, pady=2)
+        # ttk.Entry(initial_calib_frame, textvariable=self.calib_gcp_file, width=50).grid(row=row, column=1, sticky=(tk.W, tk.E), padx=(5, 2))
+        # ttk.Button(initial_calib_frame, text="Browse",
+        #           command=lambda: self.browse_file(self.calib_gcp_file,
+        #                                            [("CSV Files", "*.csv"), ("All Files", "*.*")])).grid(row=row, column=2)
 
-        # Image folder with concurrent images
-        self.calib_image_folder = tk.StringVar(value="inputs/IR_concurrent_with_lidar")
-        row += 1
-        ttk.Label(initial_calib_frame, text="Image Folder:").grid(row=row, column=0, sticky=tk.W, pady=2)
-        ttk.Entry(initial_calib_frame, textvariable=self.calib_image_folder, width=50).grid(row=row, column=1, sticky=(tk.W, tk.E), padx=(5, 2))
-        ttk.Button(initial_calib_frame, text="Browse",
-                  command=lambda: self.browse_folder(self.calib_image_folder)).grid(row=row, column=2)
+        # # Image folder with concurrent images
+        # self.calib_image_folder = tk.StringVar(value="inputs/IR_concurrent_with_lidar")
+        # row += 1
+        # ttk.Label(initial_calib_frame, text="Image Folder:").grid(row=row, column=0, sticky=tk.W, pady=2)
+        # ttk.Entry(initial_calib_frame, textvariable=self.calib_image_folder, width=50).grid(row=row, column=1, sticky=(tk.W, tk.E), padx=(5, 2))
+        # ttk.Button(initial_calib_frame, text="Browse",
+        #           command=lambda: self.browse_folder(self.calib_image_folder)).grid(row=row, column=2)
 
-        # DEM file
-        self.calib_dem_file = tk.StringVar(value="inputs/lidar_DSM_filled_cropped.tif")
-        row += 1
-        ttk.Label(initial_calib_frame, text="DEM File:").grid(row=row, column=0, sticky=tk.W, pady=2)
-        ttk.Entry(initial_calib_frame, textvariable=self.calib_dem_file, width=50).grid(row=row, column=1, sticky=(tk.W, tk.E), padx=(5, 2))
-        ttk.Button(initial_calib_frame, text="Browse",
-                  command=lambda: self.browse_file(self.calib_dem_file,
-                                                   [("GeoTIFF Files", "*.tif *.tiff"), ("All Files", "*.*")])).grid(row=row, column=2)
+        # # DEM file
+        # self.calib_dem_file = tk.StringVar(value="inputs/lidar_DSM_filled_cropped.tif")
+        # row += 1
+        # ttk.Label(initial_calib_frame, text="DEM File:").grid(row=row, column=0, sticky=tk.W, pady=2)
+        # ttk.Entry(initial_calib_frame, textvariable=self.calib_dem_file, width=50).grid(row=row, column=1, sticky=(tk.W, tk.E), padx=(5, 2))
+        # ttk.Button(initial_calib_frame, text="Browse",
+        #           command=lambda: self.browse_file(self.calib_dem_file,
+        #                                            [("GeoTIFF Files", "*.tif *.tiff"), ("All Files", "*.*")])).grid(row=row, column=2)
 
-        # Output resolution
-        self.calib_resolution = tk.StringVar(value="0.0025")
-        row += 1
-        ttk.Label(initial_calib_frame, text="Resolution (m/pixel):").grid(row=row, column=0, sticky=tk.W, pady=2)
-        ttk.Entry(initial_calib_frame, textvariable=self.calib_resolution, width=15).grid(row=row, column=1, sticky=tk.W, padx=(5, 2))
-        ttk.Label(initial_calib_frame, text="(e.g., 0.0025 = 2.5mm/pixel)", foreground="gray").grid(row=row, column=1, sticky=tk.E)
+        # # Output resolution
+        # self.calib_resolution = tk.StringVar(value="0.0025")
+        # row += 1
+        # ttk.Label(initial_calib_frame, text="Resolution (m/pixel):").grid(row=row, column=0, sticky=tk.W, pady=2)
+        # ttk.Entry(initial_calib_frame, textvariable=self.calib_resolution, width=15).grid(row=row, column=1, sticky=tk.W, padx=(5, 2))
+        # ttk.Label(initial_calib_frame, text="(e.g., 0.0025 = 2.5mm/pixel)", foreground="gray").grid(row=row, column=1, sticky=tk.E)
 
-        # Output directory
-        self.calib_output_dir = tk.StringVar(value="output_calibration")
-        row += 1
-        ttk.Label(initial_calib_frame, text="Output Directory:").grid(row=row, column=0, sticky=tk.W, pady=2)
-        ttk.Entry(initial_calib_frame, textvariable=self.calib_output_dir, width=50).grid(row=row, column=1, sticky=(tk.W, tk.E), padx=(5, 2))
-        ttk.Button(initial_calib_frame, text="Browse",
-                  command=lambda: self.browse_folder(self.calib_output_dir)).grid(row=row, column=2)
+        # # Output directory
+        # self.calib_output_dir = tk.StringVar(value="output_calibration")
+        # row += 1
+        # ttk.Label(initial_calib_frame, text="Output Directory:").grid(row=row, column=0, sticky=tk.W, pady=2)
+        # ttk.Entry(initial_calib_frame, textvariable=self.calib_output_dir, width=50).grid(row=row, column=1, sticky=(tk.W, tk.E), padx=(5, 2))
+        # ttk.Button(initial_calib_frame, text="Browse",
+        #           command=lambda: self.browse_folder(self.calib_output_dir)).grid(row=row, column=2)
 
-        # Run button
-        row += 1
-        ttk.Button(initial_calib_frame, text="Run Initial Calibration",
-                  command=self.run_initial_calibration,
-                  style='Accent.TButton').grid(row=row, column=0, columnspan=3, pady=(10, 5))
+        # # Run button
+        # row += 1
+        # ttk.Button(initial_calib_frame, text="Run Initial Calibration",
+        #           command=self.run_initial_calibration,
+        #           style='Accent.TButton').grid(row=row, column=0, columnspan=3, pady=(10, 5))
 
-        ttk.Label(initial_calib_frame, text="Note: This will create a new camera_calibrations_YYYYMMDD.csv file",
-                 foreground="gray", font=('Arial', 8)).grid(row=row+1, column=0, columnspan=3, sticky=tk.W)
+        # ttk.Label(initial_calib_frame, text="Note: This will create a new camera_calibrations_YYYYMMDD.csv file",
+        #          foreground="gray", font=('Arial', 8)).grid(row=row+1, column=0, columnspan=3, sticky=tk.W)
 
         # Progress Section
         progress_frame = ttk.LabelFrame(main_frame, text="Pipeline Progress", padding="5")
@@ -382,7 +382,7 @@ class PipelineGUI:
         # Status bar
         self.status_var = tk.StringVar(value="Ready")
         status_bar = ttk.Label(main_frame, textvariable=self.status_var, relief=tk.SUNKEN)
-        status_bar.grid(row=9, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=(3, 0))
+        status_bar.grid(row=10, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=(3, 0))
 
     def browse_directory(self, var):
         """Open directory browser"""

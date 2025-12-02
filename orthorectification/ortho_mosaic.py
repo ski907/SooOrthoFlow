@@ -173,7 +173,8 @@ def create_seam_carved_mosaic(ortho_dir, output_path, resolution=None,
                               world_transform_resampling='bilinear',
                               world_transform_threads=None,
                               world_transform_memory_mb=512,
-                              crs='EPSG:26919'):
+                              crs='EPSG:26919',
+                              output_crs='EPSG:26917'):
     """
     Create mosaic using seam carving - finds optimal non-blended boundaries
 
@@ -365,7 +366,8 @@ def create_seam_carved_mosaic(ortho_dir, output_path, resolution=None,
             temp_path, final_path, world_file_transform,
             resampling_method=world_transform_resampling,
             num_threads=world_transform_threads,
-            warp_mem_limit_mb=world_transform_memory_mb
+            warp_mem_limit_mb=world_transform_memory_mb,
+            output_crs=output_crs
         )
         # Optionally remove temp file
         # Path(temp_path).unlink()
@@ -470,7 +472,8 @@ def find_seam_boundary(seam_mask):
 def apply_coordinate_transform(input_tif, output_tif, world_file_path,
                                resampling_method='bilinear',
                                num_threads=None,
-                               warp_mem_limit_mb=512):
+                               warp_mem_limit_mb=512,
+                               output_crs='EPSG:26917'):
     """
     Apply coordinate transformation from world file to reproject the mosaic.
 
@@ -487,6 +490,7 @@ def apply_coordinate_transform(input_tif, output_tif, world_file_path,
         num_threads: Number of threads for parallel processing (default: auto-detect CPU cores)
         warp_mem_limit_mb: Warp memory limit in MB (default: 512). Increase for better performance
                           on systems with more RAM.
+        output_crs: CRS for the output GeoTIFF (default: 'EPSG:26917')
     """
     import multiprocessing
     import math
@@ -588,9 +592,9 @@ def apply_coordinate_transform(input_tif, output_tif, world_file_path,
                 source=src_data[band_idx],
                 destination=dst_data[band_idx],
                 src_transform=pixel_to_world,  # Use world file transform directly
-                src_crs=src_crs,
+                src_crs=output_crs,
                 dst_transform=dst_transform,
-                dst_crs=src_crs,
+                dst_crs=output_crs,
                 resampling=resampling_algo,
                 num_threads=num_threads,
                 warp_mem_limit=warp_mem_bytes
@@ -602,7 +606,7 @@ def apply_coordinate_transform(input_tif, output_tif, world_file_path,
             'transform': dst_transform,
             'width': out_width,
             'height': out_height,
-            'crs': src_crs,
+            'crs': output_crs,
             'tiled': True,
             'blockxsize': 256,
             'blockysize': 256,
@@ -620,7 +624,8 @@ def create_mosaic_simple_priority(ortho_dir, output_path, resolution=None,
                                   world_transform_resampling='bilinear',
                                   world_transform_threads=None,
                                   world_transform_memory_mb=512,
-                                  crs='EPSG:26919'):
+                                  crs='EPSG:26919',
+                                  output_crs='EPSG:26917'):
     """
     Simple approach: Assign priority to each image, last one wins
 
@@ -756,7 +761,8 @@ def create_mosaic_simple_priority(ortho_dir, output_path, resolution=None,
             temp_path, final_path, world_file_transform,
             resampling_method=world_transform_resampling,
             num_threads=world_transform_threads,
-            warp_mem_limit_mb=world_transform_memory_mb
+            warp_mem_limit_mb=world_transform_memory_mb,
+            output_crs=output_crs
         )
         # Optionally remove temp file
         # Path(temp_path).unlink()

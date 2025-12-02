@@ -1,14 +1,14 @@
 {
-    "video_folder": "test_videos\\Lidar Video",
-    "start_time": "2025-11-20 14:05:30",
-    "end_time": "2025-11-20 14:09:30",
+    "video_folder": "test_videos\\12-1-25\\Initial Ice Pack",
+    "start_time": "2025-12-01 10:26:30",
+    "end_time": "2025-12-01 10:27:30",
     "interval": "30s",
     "time_mode": "endpoints",
     "paths": {
         "output_base": "output_data",
-        "calibration_file": "calibration\\camera_calibrations_20251120.csv",
-        "gcp_file": "inputs\\GCP_24cameras_utm.csv",
-        "dsm_file": "inputs\\TLS_DTM_utm.tif"
+        "calibration_file": "calibration//camera_calibrations_20251120.csv",
+        "gcp_file": "inputs//GCP_24cameras_utm.csv",
+        "dsm_file": "inputs//TLS_DTM_cropped_filled_utmNAD8319N.tif"
     },
     "processing": {
         "output_format": "tiff",
@@ -19,8 +19,8 @@
         "ortho_padding": 0.5,
         "run_light_detection": false,
         "light_detection_mask": "analysis//ship_detection//area_to_review_ref.tif",
-        "apply_world_transform": false,
-        "world_file_path": "orthorectification/model_to_world.wld"
+        "apply_world_transform": true,
+        "world_file_path": "orthorectification//model_to_world_20251120.wld"
     },
     "camera_time_offsets": {
         "NVR2": 0.0
