@@ -35,13 +35,19 @@ Download and install [Miniconda](https://docs.conda.io/en/latest/miniconda.html)
 
 ### Step 3: Clone the Repository
 
+**Latest Version (with support for 24 cameras):**
 ```bash
 git clone https://github.com/ski907/SooOrthoFlow.git
 cd SooOrthoFlow
 ```
 
-### Step 4: Create Conda Environment
+**Stable Version (v0.1 only supports original 16 cameras):**
+```bash
+git clone --branch v0.1-stable https://github.com/ski907/SooOrthoFlow.git
+cd SooOrthoFlow
+```
 
+### Step 4: Create Conda Environment
 ```bash
 # Create the environment from the provided file
 conda env create -f environment.yml
@@ -61,6 +67,7 @@ conda activate sooorthoflow
 
 When notified of updates to the pipeline:
 
+**If using the latest version:**
 ```bash
 # Navigate to the SooOrthoFlow directory
 cd SooOrthoFlow
@@ -68,7 +75,9 @@ cd SooOrthoFlow
 # Get the latest updates
 git pull origin main
 ```
-The pipeline will now be updated with the latest features and fixes.
+
+**If using the stable version (v0.1-stable):**
+The stable version is tagged and does not receive updates. To switch to the latest version, clone the repository without the `--branch` flag.
 
 ---
 
@@ -99,118 +108,6 @@ Before running the pipeline, ensure you have:
            └── camera2_video2.avi
    ```
 
-### 2. Configure Master Control File
-
-Copy the template and edit with your paths:
-
-```bash
-cp master_control.template.json master_control.json
-```
-
-Edit `master_control.json` to set your base paths (one-time setup):
-```json
-{
-    "video_folder": "test_videos/20251119_Soo",
-    "start_time": "2025-11-19 15:27:00",
-    "end_time": "2025-11-19 15:37:00",
-    "interval": "30s",
-    "paths": {
-        "output_base": "output_data",
-        "calibration_file": "calibration/camera_calibrations.pkl",
-        "gcp_file": "inputs/GCP_merged.csv",
-        "dsm_file": "inputs/lidar_DSM_filled_cropped.tif"
-    },
-    "processing": {
-        "output_format": "tiff",
-        "recursive": true,
-        "filename_pattern": "CAMERA_DATETIME_DATETIME",
-        "mosaic_method": "center",
-        "ortho_resolution": 0.0025,
-        "ortho_padding": 0.5,
-        "run_light_detection": false,
-        "light_detection_mask": "analysis/ship_detection/area_to_review_ref.tif",
-        "apply_world_transform": false,
-        "world_file_path": "orthorectification/model_to_world.wld"
-    }
-}
-```
-
----
-
-## Initial Calibration
-
-The first step is to calibrate your fisheye cameras. This determines the intrinsic parameters (lens distortion) and extrinsic parameters (camera position and orientation) for each camera.
-
-### Prerequisites
-
-**IMPORTANT:** Initial calibration requires a pre-made GCP CSV file that contains BOTH:
-- World coordinates (X, Y, Z) in your coordinate system
-- Image pixel coordinates (col_sample, row_sample) for each GCP in each camera image
-
-This GCP file must be created before running calibration, typically using:
-- QGIS or other GIS software for georeferencing
-- Manual image annotation tools
-- Provided by project lead who has already established GCP correspondences
-
-**Required GCP CSV Format:**
-```csv
-image_name,channel,camera_name,X,Y,Z,col_sample,row_sample
-camera1.jpg,1,NVR1_N910A6_ch1_main,10.5,20.3,100.2,1024,768
-camera1.jpg,1,NVR1_N910A6_ch1_main,15.2,25.1,100.5,1234,890
-...
-```
-
-Each camera should have 15-30 well-distributed GCPs for best results.
-
-### Preparation
-
-1. **GCP File**: Ensure `inputs/GCP_merged.csv` exists with world AND pixel coordinates
-
-2. **Calibration Images**: One clear frame per camera showing the monitoring area
-   ```
-   calibration_images/
-   ├── NVR1_N910A6_ch1_main.jpg
-   ├── NVR1_N910A6_ch2_main.jpg
-   └── ...
-   ```
-
-3. **DEM File**: `inputs/lidar_DSM_filled_cropped.tif`
-
-### Running Initial Calibration
-
-**Command Line (Automated):**
-```bash
-python orthorectification/undistort_and_orthorectify.py calibrate \
-  -g inputs/GCP_merged.csv \
-  -i calibration_images/ \
-  -d inputs/lidar_DSM_filled_cropped.tif \
-  -o calibration/
-```
-
-This will:
-1. Read pre-defined GCP world coordinates and pixel coordinates from the CSV
-2. Process each camera image found in the calibration images directory
-3. Solve for camera parameters using OpenCV's fisheye calibration
-4. Save calibration to `calibration/camera_calibrations_YYYYMMDD.pkl`
-
-**No manual clicking required** - all GCP correspondences are pre-defined in the CSV file.
-
-**Calibration Output:**
-The calibration .pkl file contains for each camera:
-- `K`: Camera intrinsic matrix (focal length, principal point)
-- `D`: Distortion coefficients (fisheye model parameters)
-- `rvec`: Rotation vector (camera orientation in 3D space)
-- `tvec`: Translation vector (camera position in 3D space)
-- `rms`: Reprojection error (lower is better, <2 pixels is good)
-
-**Quality Check:**
-After calibration, check the RMS values:
-- < 2 pixels: Excellent
-- 2-5 pixels: Good
-- > 5 pixels: Review GCP pixel coordinates for accuracy
-
----
-
 ## Running the Pipeline
 
 ### Using the GUI (Recommended)
@@ -220,36 +117,6 @@ The easiest way to run the pipeline is using the graphical interface:
 ```bash
 python pipeline/pipeline_gui.py
 ```
-
-See [Pipeline GUI Workflow](#pipeline-gui-workflow) below for detailed instructions.
-
-### Using Command Line
-
-```bash
-python pipeline/run.py
-```
-
-The pipeline will:
-1. Extract frames from videos at specified timestamps
-2. Undistort and orthorectify each frame
-3. Create mosaics for each timestamp
-4. Optionally detect boat lights (if enabled)
-5. Optionally transform to world coordinates (if enabled)
-
-### Partial Runs (for troubleshooting)
-
-```bash
-# Extract frames only
-python pipeline/run.py --extract-only
-
-# Process existing frames (skip extraction)
-python pipeline/run.py --process-only
-
-# Create mosaics only (skip extraction and orthorectification)
-python pipeline/run.py --mosaic-only
-```
-
----
 
 ## Pipeline GUI Workflow
 
@@ -274,9 +141,9 @@ python pipeline/pipeline_gui.py
 
 **Output Directory**: Where to save processed data (default: `output_data`)
 
-**Calibration File**: Path to camera calibration pickle file
+**Calibration File**: Path to camera calibration CSV file
 - Created during initial calibration
-- Example: `calibration/camera_calibrations_20251119.pkl`
+- Example: `calibration/camera_calibrations_20251119.csv`
 
 **GCP File**: Ground control points CSV
 
@@ -299,9 +166,6 @@ python pipeline/pipeline_gui.py
 
 ### 5. Post-Processing Options
 
-**Detect boat lights**: Analyze mosaics for bright spots (boats)
-- Optional mask file to limit search area
-
 **Transform mosaics to world coordinates**:
 - Enable this to transform output mosaics from model to world coordinates
 - Requires a world file created by georeferencing in QGIS
@@ -309,9 +173,8 @@ python pipeline/pipeline_gui.py
 
 ### 6. Run the Pipeline
 
-1. Click **"Save"** to save your configuration
-2. Click **"Run Pipeline"** to start processing
-3. Monitor progress in the GUI:
+1. Click **"Run Pipeline"** to start processing
+32. Monitor progress in the GUI:
    - Overall progress bar shows pipeline phase
    - Step progress shows current operation
    - Detailed messages appear at the bottom
@@ -344,11 +207,37 @@ output_data/
 
 ---
 
-## Advanced Features
+### Using Command Line
+
+```bash
+python pipeline/run.py
+```
+
+The pipeline will:
+1. Extract frames from videos at specified timestamps
+2. Undistort and orthorectify each frame
+3. Create mosaics for each timestamp
+4. Optionally detect boat lights (if enabled)
+5. Optionally transform to world coordinates (if enabled)
+
+### Partial Runs (for troubleshooting)
+
+```bash
+# Extract frames only
+python pipeline/run.py --extract-only
+
+# Process existing frames (skip extraction)
+python pipeline/run.py --process-only
+
+# Create mosaics only (skip extraction and orthorectification)
+python pipeline/run.py --mosaic-only
+```
+
+---
 
 ### Camera Time Offsets
 
-If your video recording systems are not perfectly synchronized, you can specify time offsets in `master_control.json`:
+If the video recording systems are not perfectly synchronized, you can specify time offsets in `master_control.json`:
 
 ```json
 {
@@ -453,11 +342,4 @@ conda install tk -c conda-forge
 ```
 
 
-### Performance Optimization
-
-- Reduce `ortho_resolution` to process faster (larger pixels)
-- Use fewer cores with environment variable: `export OMP_NUM_THREADS=4`
-- Process timestamps in batches using start/end times
-
----
 
