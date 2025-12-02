@@ -349,21 +349,12 @@ class PipelineGUI:
         # Overall progress bar
         ttk.Label(progress_frame, text="Overall:").grid(row=1, column=0, sticky=tk.W)
         self.overall_progress = ttk.Progressbar(progress_frame, mode='determinate', length=600)
-        self.overall_progress.grid(row=2, column=0, sticky=(tk.W, tk.E), pady=(0, 5))
-
-        # Step progress bar with label
-        self.step_label_var = tk.StringVar(value="")
-        self.step_progress_label = ttk.Label(progress_frame, textvariable=self.step_label_var,
-                                              font=('Arial', 8))
-        self.step_progress_label.grid(row=3, column=0, sticky=tk.W)
-
-        self.step_progress = ttk.Progressbar(progress_frame, mode='determinate', length=600)
-        self.step_progress.grid(row=4, column=0, sticky=(tk.W, tk.E), pady=(0, 2))
+        self.overall_progress.grid(row=2, column=0, sticky=(tk.W, tk.E), pady=(0, 10))
 
         # Detailed status text
         self.detail_var = tk.StringVar(value="")
         ttk.Label(progress_frame, textvariable=self.detail_var,
-                 foreground="gray", font=('Arial', 8)).grid(row=5, column=0, sticky=tk.W)
+                 foreground="black", font=('Arial', 9)).grid(row=3, column=0, sticky=tk.W)
 
         # Action Buttons
         button_frame = ttk.Frame(main_frame)
@@ -378,11 +369,6 @@ class PipelineGUI:
         self.recalibrate_button.pack(side=tk.LEFT, padx=5)
 
         ttk.Button(button_frame, text="Close", command=self.root.quit).pack(side=tk.LEFT, padx=5)
-
-        # Status bar
-        self.status_var = tk.StringVar(value="Ready")
-        status_bar = ttk.Label(main_frame, textvariable=self.status_var, relief=tk.SUNKEN)
-        status_bar.grid(row=10, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=(3, 0))
 
     def browse_directory(self, var):
         """Open directory browser"""
@@ -426,7 +412,6 @@ class PipelineGUI:
             return
 
         self.log_console("Scanning video files for timestamps...")
-        self.status_var.set("Scanning videos...")
 
         try:
             import re
@@ -439,7 +424,6 @@ class PipelineGUI:
 
             if not video_files:
                 messagebox.showwarning("No Videos", "No video files found in the selected folder")
-                self.status_var.set("No videos found")
                 return
 
             self.log_console(f"Found {len(video_files)} video files")
@@ -499,7 +483,6 @@ class PipelineGUI:
                     "Could not extract timestamps from video filenames.\n"
                     "Filenames should contain date/time in format like:\n"
                     "YYYYMMDD_HHMMSS or YYYY-MM-DD-HH-MM-SS")
-                self.status_var.set("No timestamps found")
                 return
 
             # For each camera, find earliest start and latest end across all its files
@@ -552,7 +535,6 @@ class PipelineGUI:
             self.log_console(f"  Adjusted start (+30s, rounded): {earliest_adjusted.strftime('%Y-%m-%d %H:%M:%S')}")
             self.log_console(f"  Adjusted end (-30s, rounded): {latest_adjusted.strftime('%Y-%m-%d %H:%M:%S')}")
             self.log_console(f"  Duration: {latest_adjusted - earliest_adjusted}")
-            self.status_var.set(f"Auto-detected times from {len(camera_ranges)} cameras")
 
             messagebox.showinfo("Times Detected",
                 f"Adjusted Start: {earliest_adjusted.strftime('%Y-%m-%d %H:%M:%S')}\n"
@@ -567,7 +549,6 @@ class PipelineGUI:
             messagebox.showerror("Error", f"Failed to detect video times:\n{e}\n\nFull traceback:\n{error_details}")
             self.log_console(f"ERROR: {e}")
             self.log_console(f"TRACEBACK:\n{error_details}")
-            self.status_var.set("Time detection failed")
 
     def on_time_mode_change(self):
         """Handle time mode radio button changes"""
@@ -629,7 +610,6 @@ class PipelineGUI:
             self.world_file_path.set(processing.get('world_file_path', 'orthorectification/model_to_world.wld'))
 
             self.log_console(f"Loaded configuration from {self.config_path}")
-            self.status_var.set("Configuration loaded")
 
         except Exception as e:
             messagebox.showerror("Error", f"Failed to load configuration:\n{e}")
@@ -694,7 +674,6 @@ class PipelineGUI:
                 json.dump(config, f, indent=4)
 
             self.log_console(f"Saved configuration to {self.config_path}")
-            self.status_var.set("Configuration saved")
             messagebox.showinfo("Success", "Configuration saved successfully")
 
         except Exception as e:
@@ -717,77 +696,64 @@ class PipelineGUI:
             self.current_phase = 'extraction'
             self.current_step_var.set("Step 1/3: Extracting frames from videos")
             self.overall_progress['value'] = 0
-            self.step_progress['value'] = 0
-            self.step_label_var.set("Processing videos...")
 
         # Frame extraction complete
         elif "Frame extraction complete" in message:
             self.overall_progress['value'] = 33
-            self.step_progress['value'] = 100
 
         # Starting orthorectification
         elif "Starting orthorectification" in message:
             self.current_phase = 'ortho'
             self.current_step_var.set("Step 2/3: Orthorectifying images")
             self.overall_progress['value'] = 33
-            self.step_progress['value'] = 0
             self.completed_orthos = 0
 
             # Extract number of timestamps
             match = re.search(r'Processing (\d+) timestamps', message)
             if match:
                 self.total_timestamps = int(match.group(1))
-                self.step_label_var.set(f"Orthorectifying 0/{self.total_timestamps} timestamps...")
 
         # Ortho progress (individual timestamp completed)
         elif self.current_phase == 'ortho' and "files)" in message and ("✓" in message or "?" in message):
             self.completed_orthos += 1
             if self.total_timestamps > 0:
-                progress = (self.completed_orthos / self.total_timestamps) * 100
-                self.step_progress['value'] = progress
-                self.step_label_var.set(f"Orthorectifying {self.completed_orthos}/{self.total_timestamps} timestamps...")
+                progress = 33 + (self.completed_orthos / self.total_timestamps) * 33
+                self.overall_progress['value'] = progress
                 self.root.update_idletasks()
 
         # Orthorectification complete
         elif "Orthorectification complete" in message:
             self.overall_progress['value'] = 66
-            self.step_progress['value'] = 100
 
         # Starting mosaicking
         elif "Starting mosaicking" in message:
             self.current_phase = 'mosaic'
             self.current_step_var.set("Step 3/3: Creating mosaics")
             self.overall_progress['value'] = 66
-            self.step_progress['value'] = 0
             self.completed_mosaics = 0
 
             # Extract number of mosaics
             match = re.search(r'Creating (\d+) mosaics', message)
             if match:
                 self.total_timestamps = int(match.group(1))
-                self.step_label_var.set(f"Mosaicking 0/{self.total_timestamps} timestamps...")
 
         # Mosaic progress (individual mosaic completed)
         elif self.current_phase == 'mosaic' and ("✓" in message or "?" in message) and message.strip().startswith("["):
             self.completed_mosaics += 1
             if self.total_timestamps > 0:
-                progress = (self.completed_mosaics / self.total_timestamps) * 100
-                self.step_progress['value'] = progress
-                self.step_label_var.set(f"Mosaicking {self.completed_mosaics}/{self.total_timestamps} timestamps...")
+                progress = 66 + (self.completed_mosaics / self.total_timestamps) * 9
+                self.overall_progress['value'] = progress
                 self.root.update_idletasks()
 
         # Mosaicking complete
         elif "Mosaicking complete" in message:
             self.overall_progress['value'] = 75  # Leave room for optional light detection
-            self.step_progress['value'] = 100
 
         # Starting light detection
         elif "Starting light detection" in message:
             self.current_phase = 'lights'
             self.current_step_var.set("Step 4/4: Detecting boat lights (optional)")
             self.overall_progress['value'] = 75
-            self.step_progress['value'] = 0
-            self.step_label_var.set("Analyzing mosaics...")
 
         # Light detection progress (per-image)
         elif self.current_phase == 'lights' and " lights" in message and "mosaic_" in message:
@@ -798,15 +764,11 @@ class PipelineGUI:
         # Light detection complete
         elif "Light detection complete" in message:
             self.overall_progress['value'] = 100
-            self.step_progress['value'] = 100
-            self.step_label_var.set("Light detection complete")
 
         # Pipeline complete
         elif "Pipeline completed in" in message:
             self.current_step_var.set("Pipeline complete!")
             self.overall_progress['value'] = 100
-            self.step_progress['value'] = 100
-            self.step_label_var.set("All done!")
 
     def run_initial_calibration(self):
         """Run initial camera calibration from GCPs"""
@@ -848,7 +810,6 @@ class PipelineGUI:
             self.log_console(f"DEM file: {dem_file}")
             self.log_console(f"Resolution: {resolution} m/pixel")
             self.log_console(f"Output directory: {output_dir}")
-            self.status_var.set("Running initial calibration...")
 
             # Build command
             calibrate_script = self.root_dir / 'orthorectification' / 'undistort_and_orthorectify.py'
@@ -879,7 +840,6 @@ class PipelineGUI:
             messagebox.showerror("Error", f"Failed to start calibration:\n{e}")
             self.log_console(f"ERROR: {e}")
             self.log_console(f"TRACEBACK:\n{error_details}")
-            self.status_var.set("Calibration failed to start")
 
     def _run_calibration_thread(self, cmd):
         """Run calibration in background thread"""
@@ -914,17 +874,14 @@ class PipelineGUI:
                 self.root.after(0, self.log_console, "\n" + "=" * 60)
                 self.root.after(0, self.log_console, "Initial calibration completed successfully!")
                 self.root.after(0, self.log_console, "=" * 60)
-                self.root.after(0, self.status_var.set, "Calibration completed")
             else:
                 self.root.after(0, self.log_console, f"\nCalibration failed with exit code {process.returncode}")
-                self.root.after(0, self.status_var.set, "Calibration failed")
 
         except Exception as e:
             import traceback
             error_details = traceback.format_exc()
             self.root.after(0, self.log_console, f"ERROR: {e}")
             self.root.after(0, self.log_console, f"TRACEBACK:\n{error_details}")
-            self.root.after(0, self.status_var.set, "Calibration error")
 
     def run_pipeline(self):
         """Run the processing pipeline"""
@@ -942,15 +899,11 @@ class PipelineGUI:
         # Reset progress bars
         self.current_step_var.set("Initializing pipeline...")
         self.overall_progress['value'] = 0
-        self.step_progress['value'] = 0
-        self.step_label_var.set("")
         self.detail_var.set("Starting...")
         self.total_timestamps = 0
         self.completed_orthos = 0
         self.completed_mosaics = 0
         self.current_phase = None
-
-        self.status_var.set("Pipeline running...")
 
         # Run pipeline in separate thread
         thread = threading.Thread(target=self._run_pipeline_thread, daemon=True)
@@ -992,14 +945,11 @@ class PipelineGUI:
 
             if process.returncode == 0:
                 self.root.after(0, self.log_console, "Pipeline completed successfully!")
-                self.root.after(0, self.status_var.set, "Pipeline completed successfully")
             else:
                 self.root.after(0, self.log_console, f"Pipeline failed with exit code {process.returncode}")
-                self.root.after(0, self.status_var.set, "Pipeline failed")
 
         except Exception as e:
             self.root.after(0, self.log_console, f"ERROR: {e}")
-            self.root.after(0, self.status_var.set, "Pipeline error")
 
         finally:
             self.pipeline_process = None
@@ -1016,7 +966,6 @@ class PipelineGUI:
             mode = self.calib_mode.get()
             self.log_console(f"Launching recalibration interface (preferred mode: {mode})...")
             self.log_console("Note: You will be prompted to confirm the mode in the terminal")
-            self.status_var.set("Recalibration in progress...")
 
             # Launch recalibration script in a new terminal window
             recalibrate_script = self.script_dir / 'recalibrate.py'
@@ -1031,12 +980,10 @@ class PipelineGUI:
                                 sys.executable, str(recalibrate_script), '--interactive'])
 
             self.log_console("Recalibration interface launched in new window")
-            self.status_var.set("Ready")
 
         except Exception as e:
             messagebox.showerror("Error", f"Failed to launch recalibration:\n{e}")
             self.log_console(f"ERROR: {e}")
-            self.status_var.set("Ready")
 
 
 def main():
