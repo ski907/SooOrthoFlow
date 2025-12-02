@@ -630,13 +630,13 @@ def create_mosaic_simple_priority(ortho_dir, output_path, resolution=None,
     Simple approach: Assign priority to each image, last one wins
 
     Priority options:
-    - 'center': Prefer images where content is near image center (less distortion)
+    - 'center': Prefer images based on distance to the centroid of their valid orthorectified pixels
     - 'order': Just use the order of images (e.g., left to right)
 
     Args:
         world_file_transform: Optional path to world file for coordinate transformation
     """
-    
+
     # Compute overall bounds
     x_min, x_max, y_min, y_max = compute_mosaic_bounds(ortho_dir)
 
@@ -648,63 +648,154 @@ def create_mosaic_simple_priority(ortho_dir, output_path, resolution=None,
 
     mosaic_width = int((x_max - x_min) / resolution)
     mosaic_height = int((y_max - y_min) / abs(resolution))
-    
-    print(f"Mosaic size: {mosaic_width} x {mosaic_height} pixels")
-    
-    mosaic = np.zeros((mosaic_height, mosaic_width, 3), dtype=np.uint8)
-    priority_map = np.zeros((mosaic_height, mosaic_width), dtype=np.float32)
-    
-    print(f"\nCreating mosaic with '{priority}' priority")
-    
-    for i, tif_path in enumerate(tif_files, 1):
-        print(f"[{i}/{len(tif_files)}] Processing {tif_path.name}")
 
-        img = cv2.imread(str(tif_path))
-        geotransform = read_geotiff_transform(tif_path)
-        
-        img_x_min, img_x_max, img_y_min, img_y_max = get_image_bounds(img.shape, geotransform)
-        
-        mosaic_col_start = max(0, int((img_x_min - x_min) / resolution))
-        mosaic_row_start = max(0, int((y_max - img_y_max) / abs(resolution)))
-        mosaic_col_end = min(mosaic_width, mosaic_col_start + img.shape[1])
-        mosaic_row_end = min(mosaic_height, mosaic_row_start + img.shape[0])
-        
-        img_col_start = max(0, -int((img_x_min - x_min) / resolution))
-        img_row_start = max(0, -int((y_max - img_y_max) / abs(resolution)))
-        img_col_end = img_col_start + (mosaic_col_end - mosaic_col_start)
-        img_row_end = img_row_start + (mosaic_row_end - mosaic_row_start)
-        
-        img_region = img[img_row_start:img_row_end, img_col_start:img_col_end]
-        
-        # Compute priority for this image
-        if priority == 'center':
-            # Higher priority for pixels near image center
-            h, w = img_region.shape[:2]
+    print(f"Mosaic size: {mosaic_width} x {mosaic_height} pixels")
+
+    mosaic = np.zeros((mosaic_height, mosaic_width, 3), dtype=np.uint8)
+
+    # For center method, we need to track distance to nearest centroid
+    if priority == 'center':
+        distance_map = np.full((mosaic_height, mosaic_width), np.inf, dtype=np.float32)
+        source_map = np.full((mosaic_height, mosaic_width), -1, dtype=np.int32)
+    else:
+        priority_map = np.zeros((mosaic_height, mosaic_width), dtype=np.float32)
+
+    print(f"\nCreating mosaic with '{priority}' priority")
+
+    # For center method, collect all image data first to compute global priorities
+    if priority == 'center':
+        image_data_list = []
+
+        for i, tif_path in enumerate(tif_files, 1):
+            print(f"[{i}/{len(tif_files)}] Loading {tif_path.name}")
+
+            img = cv2.imread(str(tif_path))
+            geotransform = read_geotiff_transform(tif_path)
+
+            img_x_min, img_x_max, img_y_min, img_y_max = get_image_bounds(img.shape, geotransform)
+
+            mosaic_col_start = max(0, int((img_x_min - x_min) / resolution))
+            mosaic_row_start = max(0, int((y_max - img_y_max) / abs(resolution)))
+            mosaic_col_end = min(mosaic_width, mosaic_col_start + img.shape[1])
+            mosaic_row_end = min(mosaic_height, mosaic_row_start + img.shape[0])
+
+            img_col_start = max(0, -int((img_x_min - x_min) / resolution))
+            img_row_start = max(0, -int((y_max - img_y_max) / abs(resolution)))
+            img_col_end = img_col_start + (mosaic_col_end - mosaic_col_start)
+            img_row_end = img_row_start + (mosaic_row_end - mosaic_row_start)
+
+            img_region = img[img_row_start:img_row_end, img_col_start:img_col_end]
+
+            # Find valid (non-black) pixels
+            valid_mask = np.any(img_region > 0, axis=2)
+
+            if np.any(valid_mask):
+                # Compute centroid of valid pixels in mosaic coordinates
+                valid_rows, valid_cols = np.where(valid_mask)
+                centroid_row = mosaic_row_start + np.mean(valid_rows)
+                centroid_col = mosaic_col_start + np.mean(valid_cols)
+
+                print(f"  Centroid at mosaic coords: ({centroid_col:.1f}, {centroid_row:.1f})")
+
+                image_data_list.append({
+                    'idx': i - 1,
+                    'img_region': img_region,
+                    'valid_mask': valid_mask,
+                    'mosaic_row_start': mosaic_row_start,
+                    'mosaic_row_end': mosaic_row_end,
+                    'mosaic_col_start': mosaic_col_start,
+                    'mosaic_col_end': mosaic_col_end,
+                    'centroid_row': centroid_row,
+                    'centroid_col': centroid_col,
+                    'name': tif_path.name
+                })
+
+        # Now assign pixels based on which centroid is closest
+        print("\nAssigning pixels based on nearest centroid...")
+        for img_data in image_data_list:
+            print(f"Processing {img_data['name']}")
+
+            # Get the region in the mosaic for this image
+            mosaic_region = mosaic[img_data['mosaic_row_start']:img_data['mosaic_row_end'],
+                                  img_data['mosaic_col_start']:img_data['mosaic_col_end']]
+            distance_region = distance_map[img_data['mosaic_row_start']:img_data['mosaic_row_end'],
+                                          img_data['mosaic_col_start']:img_data['mosaic_col_end']]
+            source_region = source_map[img_data['mosaic_row_start']:img_data['mosaic_row_end'],
+                                      img_data['mosaic_col_start']:img_data['mosaic_col_end']]
+
+            # Compute distance from each pixel to this image's centroid
+            h, w = img_data['img_region'].shape[:2]
             y_coords, x_coords = np.ogrid[:h, :w]
-            center_y, center_x = h / 2, w / 2
-            dist_from_center = np.sqrt((x_coords - center_x)**2 + (y_coords - center_y)**2)
-            max_dist = np.sqrt(center_x**2 + center_y**2)
-            img_priority = 1.0 - (dist_from_center / max_dist)
-        else:  # 'order'
+
+            # Distances in mosaic coordinates
+            mosaic_y_coords = img_data['mosaic_row_start'] + y_coords
+            mosaic_x_coords = img_data['mosaic_col_start'] + x_coords
+
+            dist_to_centroid = np.sqrt(
+                (mosaic_x_coords - img_data['centroid_col'])**2 +
+                (mosaic_y_coords - img_data['centroid_row'])**2
+            )
+
+            # Only update where this pixel is valid AND closer to this centroid
+            valid_mask = img_data['valid_mask']
+            update_mask = valid_mask & (dist_to_centroid < distance_region)
+
+            # Update mosaic where this image is closer
+            for c in range(3):
+                mosaic_region[:, :, c][update_mask] = img_data['img_region'][:, :, c][update_mask]
+
+            distance_region[update_mask] = dist_to_centroid[update_mask]
+            source_region[update_mask] = img_data['idx']
+
+            # Update the maps
+            mosaic[img_data['mosaic_row_start']:img_data['mosaic_row_end'],
+                  img_data['mosaic_col_start']:img_data['mosaic_col_end']] = mosaic_region
+            distance_map[img_data['mosaic_row_start']:img_data['mosaic_row_end'],
+                        img_data['mosaic_col_start']:img_data['mosaic_col_end']] = distance_region
+            source_map[img_data['mosaic_row_start']:img_data['mosaic_row_end'],
+                      img_data['mosaic_col_start']:img_data['mosaic_col_end']] = source_region
+
+    else:  # 'order' priority
+        for i, tif_path in enumerate(tif_files, 1):
+            print(f"[{i}/{len(tif_files)}] Processing {tif_path.name}")
+
+            img = cv2.imread(str(tif_path))
+            geotransform = read_geotiff_transform(tif_path)
+
+            img_x_min, img_x_max, img_y_min, img_y_max = get_image_bounds(img.shape, geotransform)
+
+            mosaic_col_start = max(0, int((img_x_min - x_min) / resolution))
+            mosaic_row_start = max(0, int((y_max - img_y_max) / abs(resolution)))
+            mosaic_col_end = min(mosaic_width, mosaic_col_start + img.shape[1])
+            mosaic_row_end = min(mosaic_height, mosaic_row_start + img.shape[0])
+
+            img_col_start = max(0, -int((img_x_min - x_min) / resolution))
+            img_row_start = max(0, -int((y_max - img_y_max) / abs(resolution)))
+            img_col_end = img_col_start + (mosaic_col_end - mosaic_col_start)
+            img_row_end = img_row_start + (mosaic_row_end - mosaic_row_start)
+
+            img_region = img[img_row_start:img_row_end, img_col_start:img_col_end]
+
+            # Simple order-based priority
             img_priority = np.ones((img_region.shape[0], img_region.shape[1])) * i
-        
-        # Valid pixels
-        valid_mask = np.any(img_region > 0, axis=2)
-        img_priority = img_priority * valid_mask
-        
-        # Update where this image has higher priority
-        mosaic_region = mosaic[mosaic_row_start:mosaic_row_end, mosaic_col_start:mosaic_col_end]
-        priority_region = priority_map[mosaic_row_start:mosaic_row_end, mosaic_col_start:mosaic_col_end]
-        
-        update_mask = (img_priority > priority_region) & valid_mask
-        
-        for c in range(3):
-            mosaic_region[:, :, c][update_mask] = img_region[:, :, c][update_mask]
-        
-        priority_region[update_mask] = img_priority[update_mask]
-        
-        mosaic[mosaic_row_start:mosaic_row_end, mosaic_col_start:mosaic_col_end] = mosaic_region
-        priority_map[mosaic_row_start:mosaic_row_end, mosaic_col_start:mosaic_col_end] = priority_region
+
+            # Valid pixels
+            valid_mask = np.any(img_region > 0, axis=2)
+            img_priority = img_priority * valid_mask
+
+            # Update where this image has higher priority
+            mosaic_region = mosaic[mosaic_row_start:mosaic_row_end, mosaic_col_start:mosaic_col_end]
+            priority_region = priority_map[mosaic_row_start:mosaic_row_end, mosaic_col_start:mosaic_col_end]
+
+            update_mask = (img_priority > priority_region) & valid_mask
+
+            for c in range(3):
+                mosaic_region[:, :, c][update_mask] = img_region[:, :, c][update_mask]
+
+            priority_region[update_mask] = img_priority[update_mask]
+
+            mosaic[mosaic_row_start:mosaic_row_end, mosaic_col_start:mosaic_col_end] = mosaic_region
+            priority_map[mosaic_row_start:mosaic_row_end, mosaic_col_start:mosaic_col_end] = priority_region
     
     # Save as GeoTIFF
     print(f"\nSaving mosaic as GeoTIFF to {output_path}")
