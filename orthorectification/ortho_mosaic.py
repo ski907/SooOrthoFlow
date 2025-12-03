@@ -5,6 +5,8 @@ from scipy.ndimage import distance_transform_edt
 import argparse
 import rasterio
 from rasterio.warp import calculate_default_transform, reproject, Resampling
+from rasterio.mask import mask as rasterio_mask
+import fiona
 
 def read_world_file(world_file_path):
     """
@@ -174,7 +176,12 @@ def create_seam_carved_mosaic(ortho_dir, output_path, resolution=None,
                               world_transform_threads=None,
                               world_transform_memory_mb=512,
                               crs='EPSG:26919',
-                              output_crs='EPSG:26917'):
+                              output_crs='EPSG:26917',
+                              clip_shapefile=None,
+                              keep_intermediate=False,
+                              save_downscaled=False,
+                              downscaled_resolution=0.25,
+                              compress_output=True):
     """
     Create mosaic using seam carving - finds optimal non-blended boundaries
 
@@ -185,8 +192,10 @@ def create_seam_carved_mosaic(ortho_dir, output_path, resolution=None,
 
     Args:
         world_file_transform: Optional path to world file for coordinate transformation
+        clip_shapefile: Optional path to shapefile for clipping the mosaic in model coordinates
+        keep_intermediate: If True, keep model-space clipped mosaic; if False, delete after transformation (default: False)
     """
-    
+
     # Compute overall bounds
     x_min, x_max, y_min, y_max = compute_mosaic_bounds(ortho_dir)
     
@@ -352,13 +361,22 @@ def create_seam_carved_mosaic(ortho_dir, output_path, resolution=None,
         width=mosaic_width,
         count=3,
         dtype=mosaic_data.dtype,
-        crs=crs,  # Use parameter instead of hardcoded
+        crs=crs,
         transform=transform,
-        compress='lzw'
     ) as dst:
         dst.write(mosaic_data)
 
     print(f"Saved mosaic GeoTIFF: {temp_path}")
+
+    # Clip to shapefile if requested (in model coordinates)
+    if clip_shapefile:
+        clipped_path = Path(str(temp_path).rsplit('.', 1)[0] + '_clipped.tif')
+        clip_raster_to_shapefile(temp_path, clipped_path, clip_shapefile)
+        # Always delete the unclipped version (we don't need it)
+        Path(temp_path).unlink()
+        print(f"  Deleted unclipped mosaic: {temp_path}")
+        # Replace temp_path with clipped version for subsequent operations
+        temp_path = clipped_path
 
     # Apply coordinate transformation if requested
     if world_file_transform:
@@ -369,8 +387,27 @@ def create_seam_carved_mosaic(ortho_dir, output_path, resolution=None,
             warp_mem_limit_mb=world_transform_memory_mb,
             output_crs=output_crs
         )
-        # Optionally remove temp file
-        # Path(temp_path).unlink()
+        # Delete the model coordinate clipped version after transformation unless keeping intermediates
+        if not keep_intermediate:
+            Path(temp_path).unlink()
+            print(f"  Deleted model space clipped mosaic: {temp_path}")
+
+        # Create downscaled version if requested (only for world-transformed outputs)
+        if save_downscaled and downscaled_resolution:
+            downscaled_path = Path(str(final_path).rsplit('.', 1)[0] + f'_downscaled_{int(downscaled_resolution*100)}cm.tif')
+            create_downscaled_mosaic(final_path, downscaled_path, downscaled_resolution)
+
+    # Apply LZW compression to final output if requested
+    if compress_output:
+        print(f"\nApplying LZW compression to final mosaic...")
+        compress_geotiff(final_path)
+        print(f"  Compressed: {final_path}")
+
+        # Also compress the model-space clipped version if it was kept
+        if world_file_transform and keep_intermediate and Path(temp_path).exists():
+            print(f"  Compressing intermediate mosaic...")
+            compress_geotiff(temp_path)
+            print(f"  Compressed: {temp_path}")
 
     # Save seam map
     if save_seam_map:
@@ -469,11 +506,191 @@ def find_seam_boundary(seam_mask):
     return boundary > 0
 
 
+def clip_raster_to_shapefile(input_tif, output_tif, shapefile_path):
+    """
+    Clip a raster to the boundaries of a shapefile.
+
+    Args:
+        input_tif: Path to input GeoTIFF
+        output_tif: Path to output clipped GeoTIFF
+        shapefile_path: Path to shapefile for clipping
+    """
+    print(f"\nClipping raster to shapefile: {shapefile_path}")
+
+    # Read the shapefile
+    with fiona.open(shapefile_path, "r") as shapefile:
+        shapes = [feature["geometry"] for feature in shapefile]
+        print(f"  Found {len(shapes)} polygon(s) in shapefile")
+
+    # Clip the raster
+    with rasterio.open(input_tif) as src:
+        print(f"  Input raster CRS: {src.crs}")
+        print(f"  Input raster bounds: {src.bounds}")
+
+        out_image, out_transform = rasterio_mask(src, shapes, crop=True, all_touched=False)
+        out_meta = src.meta.copy()
+
+        # Update metadata
+        out_meta.update({
+            "driver": "GTiff",
+            "height": out_image.shape[1],
+            "width": out_image.shape[2],
+            "transform": out_transform,
+            "compress": "lzw"
+        })
+
+        print(f"  Clipped dimensions: {out_image.shape[2]} x {out_image.shape[1]}")
+
+        # Write clipped raster
+        with rasterio.open(output_tif, "w", **out_meta) as dest:
+            dest.write(out_image)
+
+    print(f"  Clipped raster saved to: {output_tif}")
+
+
+def compress_geotiff(input_tif, output_tif=None):
+    """
+    Compress a GeoTIFF file using LZW compression.
+
+    Args:
+        input_tif: Path to input GeoTIFF
+        output_tif: Path to output compressed GeoTIFF (if None, overwrites input)
+    """
+    if output_tif is None:
+        output_tif = input_tif
+        temp_file = str(input_tif).replace('.tif', '_temp.tif')
+    else:
+        temp_file = None
+
+    with rasterio.open(input_tif) as src:
+        meta = src.meta.copy()
+        meta.update(compress='lzw')
+
+        # Write to temporary file or final output
+        write_path = temp_file if temp_file else output_tif
+        with rasterio.open(write_path, 'w', **meta) as dst:
+            dst.write(src.read())
+
+    # If we used a temp file, replace the original
+    if temp_file:
+        Path(input_tif).unlink()
+        Path(temp_file).rename(input_tif)
+
+
+def create_downscaled_mosaic(input_tif, output_tif, target_resolution):
+    """
+    Create a downscaled version of the mosaic at a coarser resolution.
+
+    Args:
+        input_tif: Path to input high-resolution GeoTIFF
+        output_tif: Path to output downscaled GeoTIFF
+        target_resolution: Target pixel size in the same units as the input (e.g., 0.25 for 25cm)
+    """
+    print(f"\nCreating downscaled mosaic at {target_resolution}m/pixel resolution")
+
+    with rasterio.open(input_tif) as src:
+        # Calculate scale factor
+        src_resolution = abs(src.transform.a)  # Assume square pixels
+        scale_factor = target_resolution / src_resolution
+
+        if scale_factor <= 1.0:
+            print(f"  Warning: Target resolution ({target_resolution}m) is finer than source ({src_resolution}m)")
+            print(f"  Skipping downscaling")
+            return
+
+        # Calculate new dimensions
+        new_width = int(src.width / scale_factor)
+        new_height = int(src.height / scale_factor)
+
+        print(f"  Source: {src.width}x{src.height} @ {src_resolution:.4f}m/pixel")
+        print(f"  Target: {new_width}x{new_height} @ {target_resolution:.4f}m/pixel")
+        print(f"  Scale factor: {scale_factor:.2f}x")
+
+        # Calculate new transform
+        new_transform = src.transform * src.transform.scale(
+            (src.width / new_width),
+            (src.height / new_height)
+        )
+
+        # Read and resample data
+        data = src.read(
+            out_shape=(src.count, new_height, new_width),
+            resampling=Resampling.average
+        )
+
+        # Update metadata
+        out_meta = src.meta.copy()
+        out_meta.update({
+            'width': new_width,
+            'height': new_height,
+            'transform': new_transform
+        })
+
+        # Write downscaled raster
+        with rasterio.open(output_tif, 'w', **out_meta) as dst:
+            dst.write(data)
+
+    print(f"  Downscaled mosaic saved to: {output_tif}")
+
+
+def crop_nodata_padding(input_tif, output_tif):
+    """
+    Crop black/nodata padding from a raster by finding the minimum bounding box
+    of valid (non-zero) data.
+
+    Args:
+        input_tif: Path to input GeoTIFF with padding
+        output_tif: Path to output cropped GeoTIFF
+    """
+    print(f"\nCropping nodata padding from {input_tif}")
+
+    with rasterio.open(input_tif) as src:
+        # Read the data
+        data = src.read()
+
+        # Find pixels where any band has non-zero values
+        valid_mask = np.any(data > 0, axis=0)
+
+        if not np.any(valid_mask):
+            print("  Warning: No valid data found, keeping original")
+            return
+
+        # Find bounding box of valid data
+        rows, cols = np.where(valid_mask)
+        row_min, row_max = rows.min(), rows.max() + 1
+        col_min, col_max = cols.min(), cols.max() + 1
+
+        print(f"  Original dimensions: {src.width} x {src.height}")
+        print(f"  Valid data region: rows {row_min}-{row_max}, cols {col_min}-{col_max}")
+        print(f"  Cropped dimensions: {col_max - col_min} x {row_max - row_min}")
+
+        # Crop the data
+        cropped_data = data[:, row_min:row_max, col_min:col_max]
+
+        # Calculate new transform
+        new_transform = src.transform * rasterio.Affine.translation(col_min, row_min)
+
+        # Update metadata
+        out_meta = src.meta.copy()
+        out_meta.update({
+            "height": row_max - row_min,
+            "width": col_max - col_min,
+            "transform": new_transform
+        })
+
+        # Write cropped data
+        with rasterio.open(output_tif, "w", **out_meta) as dest:
+            dest.write(cropped_data)
+
+    print(f"  Cropped raster saved to: {output_tif}")
+
+
 def apply_coordinate_transform(input_tif, output_tif, world_file_path,
                                resampling_method='bilinear',
                                num_threads=None,
                                warp_mem_limit_mb=512,
-                               output_crs='EPSG:26917'):
+                               output_crs='EPSG:26917',
+                               crop_padding=True):
     """
     Apply coordinate transformation from world file to reproject the mosaic.
 
@@ -612,10 +829,21 @@ def apply_coordinate_transform(input_tif, output_tif, world_file_path,
             'blockysize': 256,
         })
 
-        with rasterio.open(output_tif, 'w', **out_profile) as dst:
+        # Write to temporary file if cropping is requested
+        temp_output = output_tif if not crop_padding else str(output_tif).replace('.tif', '_temp.tif')
+
+        with rasterio.open(temp_output, 'w', **out_profile) as dst:
             dst.write(dst_data)
 
-    print(f"Transformed mosaic saved to: {output_tif}")
+    print(f"Transformed mosaic saved to: {temp_output}")
+
+    # Crop padding if requested
+    if crop_padding:
+        crop_nodata_padding(temp_output, output_tif)
+        # Delete the temporary uncropped file
+        Path(temp_output).unlink()
+        print(f"  Deleted temporary uncropped file: {temp_output}")
+
     print(f"  Successfully transformed to world coordinates")
 
 
@@ -625,7 +853,12 @@ def create_mosaic_simple_priority(ortho_dir, output_path, resolution=None,
                                   world_transform_threads=None,
                                   world_transform_memory_mb=512,
                                   crs='EPSG:26919',
-                                  output_crs='EPSG:26917'):
+                                  output_crs='EPSG:26917',
+                                  clip_shapefile=None,
+                                  keep_intermediate=False,
+                                  save_downscaled=False,
+                                  downscaled_resolution=0.25,
+                                  compress_output=True):
     """
     Simple approach: Assign priority to each image, last one wins
 
@@ -635,6 +868,8 @@ def create_mosaic_simple_priority(ortho_dir, output_path, resolution=None,
 
     Args:
         world_file_transform: Optional path to world file for coordinate transformation
+        clip_shapefile: Optional path to shapefile for clipping the mosaic in model coordinates
+        keep_intermediate: If True, keep model-space clipped mosaic; if False, delete after transformation (default: False)
     """
 
     # Compute overall bounds
@@ -838,13 +1073,22 @@ def create_mosaic_simple_priority(ortho_dir, output_path, resolution=None,
         width=mosaic_width,
         count=3,
         dtype=mosaic_data.dtype,
-        crs=crs,  # Use parameter instead of hardcoded
+        crs=crs,
         transform=transform,
-        compress='lzw'
     ) as dst:
         dst.write(mosaic_data)
 
     print(f"Saved mosaic GeoTIFF: {temp_path}")
+
+    # Clip to shapefile if requested (in model coordinates)
+    if clip_shapefile:
+        clipped_path = Path(str(temp_path).rsplit('.', 1)[0] + '_clipped.tif')
+        clip_raster_to_shapefile(temp_path, clipped_path, clip_shapefile)
+        # Always delete the unclipped version (we don't need it)
+        Path(temp_path).unlink()
+        print(f"  Deleted unclipped mosaic: {temp_path}")
+        # Replace temp_path with clipped version for subsequent operations
+        temp_path = clipped_path
 
     # Apply coordinate transformation if requested
     if world_file_transform:
@@ -855,8 +1099,27 @@ def create_mosaic_simple_priority(ortho_dir, output_path, resolution=None,
             warp_mem_limit_mb=world_transform_memory_mb,
             output_crs=output_crs
         )
-        # Optionally remove temp file
-        # Path(temp_path).unlink()
+        # Delete the model coordinate clipped version after transformation unless keeping intermediates
+        if not keep_intermediate:
+            Path(temp_path).unlink()
+            print(f"  Deleted model space clipped mosaic: {temp_path}")
+
+        # Create downscaled version if requested (only for world-transformed outputs)
+        if save_downscaled and downscaled_resolution:
+            downscaled_path = Path(str(final_path).rsplit('.', 1)[0] + f'_downscaled_{int(downscaled_resolution*100)}cm.tif')
+            create_downscaled_mosaic(final_path, downscaled_path, downscaled_resolution)
+
+    # Apply LZW compression to final output if requested
+    if compress_output:
+        print(f"\nApplying LZW compression to final mosaic...")
+        compress_geotiff(final_path)
+        print(f"  Compressed: {final_path}")
+
+        # Also compress the model-space clipped version if it was kept
+        if world_file_transform and keep_intermediate and Path(temp_path).exists():
+            print(f"  Compressing intermediate mosaic...")
+            compress_geotiff(temp_path)
+            print(f"  Compressed: {temp_path}")
 
     return mosaic
 
@@ -933,6 +1196,38 @@ if __name__ == "__main__":
         help='Warp memory limit in MB for world coordinate transformation (default: 512)'
     )
 
+    parser.add_argument(
+        '--clip-shapefile',
+        type=str,
+        default=None,
+        help='Path to shapefile for clipping the mosaic in model coordinates (optional)'
+    )
+
+    parser.add_argument(
+        '--keep-intermediate',
+        action='store_true',
+        help='Keep model-space clipped mosaic after transformation (useful for debugging)'
+    )
+
+    parser.add_argument(
+        '--save-downscaled',
+        action='store_true',
+        help='Save a downscaled version of the world-coordinate mosaic'
+    )
+
+    parser.add_argument(
+        '--downscaled-resolution',
+        type=float,
+        default=0.25,
+        help='Resolution for downscaled mosaic in meters/pixel (default: 0.25 = 25cm/pixel)'
+    )
+
+    parser.add_argument(
+        '--no-compress',
+        action='store_true',
+        help='Disable LZW compression (results in larger files but faster processing)'
+    )
+
     args = parser.parse_args()
 
     if args.method == 'seam':
@@ -945,7 +1240,12 @@ if __name__ == "__main__":
             world_file_transform=args.world_file,
             world_transform_resampling=args.world_resampling,
             world_transform_threads=args.world_threads,
-            world_transform_memory_mb=args.world_memory
+            world_transform_memory_mb=args.world_memory,
+            clip_shapefile=args.clip_shapefile,
+            keep_intermediate=args.keep_intermediate,
+            save_downscaled=args.save_downscaled,
+            downscaled_resolution=args.downscaled_resolution,
+            compress_output=not args.no_compress
         )
     else:
         create_mosaic_simple_priority(
@@ -956,7 +1256,12 @@ if __name__ == "__main__":
             world_file_transform=args.world_file,
             world_transform_resampling=args.world_resampling,
             world_transform_threads=args.world_threads,
-            world_transform_memory_mb=args.world_memory
+            world_transform_memory_mb=args.world_memory,
+            clip_shapefile=args.clip_shapefile,
+            keep_intermediate=args.keep_intermediate,
+            save_downscaled=args.save_downscaled,
+            downscaled_resolution=args.downscaled_resolution,
+            compress_output=not args.no_compress
         )
 
 #python ortho_mosaic.py output/orthorectified -o cse_all16IR_mosaic.tif -m center

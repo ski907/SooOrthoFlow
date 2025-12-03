@@ -9,6 +9,6 @@ dependencies:
   - scipy
   - pandas
   - rasterio
+  - fiona
+  - tk
   - pip
-  - pip:
-    - tk

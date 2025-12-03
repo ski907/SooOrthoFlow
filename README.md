@@ -114,7 +114,15 @@ Before running the pipeline, ensure you have:
 
 The easiest way to run the pipeline is using the graphical interface:
 
+**Windows (No manual activation required):**
 ```bash
+launch_pipeline.bat
+```
+*This batch file automatically activates the conda environment for you*
+
+**Or manually activate and run:**
+```bash
+conda activate sooorthoflow
 python pipeline/pipeline_gui.py
 ```
 
@@ -122,7 +130,15 @@ python pipeline/pipeline_gui.py
 
 ### 1. Launch the GUI
 
+**Windows (No manual activation required):**
 ```bash
+launch_pipeline.bat
+```
+*This batch file automatically activates the conda environment for you*
+
+**Or manually activate and run:**
+```bash
+conda activate sooorthoflow
 python pipeline/pipeline_gui.py
 ```
 

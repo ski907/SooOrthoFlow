@@ -248,7 +248,7 @@ def run_orthorectification(master_config, log_file, n_jobs=None):
 
 def _process_single_mosaic(args):
     """Worker function for parallel mosaicking"""
-    ts_folder, mosaic_dir, method, mosaic_script, world_file, transform_params = args
+    ts_folder, mosaic_dir, method, mosaic_script, world_file, transform_params, clip_shapefile, keep_intermediate, save_downscaled, downscaled_resolution, compress_mosaics = args
 
     # Find orthorectified subfolder
     ortho_folder = ts_folder / 'orthorectified'
@@ -278,6 +278,23 @@ def _process_single_mosaic(args):
             cmd.extend(['--world-threads', str(transform_params['threads'])])
         if transform_params.get('memory_mb'):
             cmd.extend(['--world-memory', str(transform_params['memory_mb'])])
+
+    # Add shapefile clipping if specified
+    if clip_shapefile:
+        cmd.extend(['--clip-shapefile', str(clip_shapefile)])
+
+    # Add keep-intermediate flag if specified
+    if keep_intermediate:
+        cmd.append('--keep-intermediate')
+
+    # Add downscaled mosaic options if specified
+    if save_downscaled:
+        cmd.append('--save-downscaled')
+        cmd.extend(['--downscaled-resolution', str(downscaled_resolution)])
+
+    # Add compression flag if disabled
+    if not compress_mosaics:
+        cmd.append('--no-compress')
 
     result = subprocess.run(cmd, capture_output=True, text=True)
 
@@ -327,6 +344,38 @@ def run_mosaicking(master_config, log_file, n_jobs=None):
                          f"threads={transform_params['threads'] or 'auto'}, "
                          f"memory={transform_params['memory_mb']}MB")
 
+    # Check if shapefile clipping is requested
+    clip_shapefile = None
+    clip_shapefile_path = master_config['processing'].get('clip_shapefile', None)
+    if clip_shapefile_path:
+        clip_shapefile = ROOT_DIR / clip_shapefile_path
+        if not clip_shapefile.exists():
+            log(log_file, f"  Warning: Clip shapefile not found: {clip_shapefile}")
+            log(log_file, f"  Proceeding without clipping")
+            clip_shapefile = None
+        else:
+            log(log_file, f"  Using shapefile for clipping: {clip_shapefile}")
+
+    # Check if intermediate mosaics should be kept
+    keep_intermediate = master_config['processing'].get('keep_intermediate_mosaics', False)
+    if keep_intermediate:
+        log(log_file, f"  Keeping model-space clipped mosaics (for debugging/inspection)")
+    else:
+        log(log_file, f"  Deleting model-space clipped mosaics after transformation")
+
+    # Check if downscaled mosaics should be saved
+    save_downscaled = master_config['processing'].get('save_downscaled_mosaic', False)
+    downscaled_resolution = master_config['processing'].get('downscaled_resolution', 0.25)
+    if save_downscaled:
+        log(log_file, f"  Saving downscaled mosaics at {downscaled_resolution}m/pixel ({int(downscaled_resolution*100)}cm/pixel)")
+
+    # Check if compression should be applied
+    compress_mosaics = master_config['processing'].get('compress_mosaics', True)
+    if compress_mosaics:
+        log(log_file, f"  Using LZW compression for mosaics")
+    else:
+        log(log_file, f"  Saving mosaics without compression (larger files)")
+
     # Get all timestamp folders
     timestamp_folders = sorted([d for d in ortho_base.iterdir() if d.is_dir()])
 
@@ -334,7 +383,7 @@ def run_mosaicking(master_config, log_file, n_jobs=None):
 
     # Prepare arguments for parallel processing
     mosaic_args = [
-        (ts_folder, mosaic_dir, method, MOSAIC, world_file, transform_params)
+        (ts_folder, mosaic_dir, method, MOSAIC, world_file, transform_params, clip_shapefile, keep_intermediate, save_downscaled, downscaled_resolution, compress_mosaics)
         for ts_folder in timestamp_folders
     ]
 

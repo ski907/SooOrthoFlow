@@ -55,6 +55,17 @@ class PipelineGUI:
         self.apply_world_transform = tk.BooleanVar(value=False)
         self.world_file_path = tk.StringVar(value="orthorectification/model_to_world.wld")
 
+        # Clipping settings
+        self.clip_shapefile = tk.StringVar(value="inputs/shape_files/model_space_clip.shp")
+        self.keep_intermediate_mosaics = tk.BooleanVar(value=False)
+
+        # Downscaled mosaic settings
+        self.save_downscaled_mosaic = tk.BooleanVar(value=True)
+        self.downscaled_resolution = tk.StringVar(value="0.25")
+
+        # Compression settings
+        self.compress_mosaics = tk.BooleanVar(value=True)
+
         # Pipeline process reference
         self.pipeline_process = None
 
@@ -269,6 +280,34 @@ class PipelineGUI:
         ttk.Button(postproc_frame, text="Browse...",
                   command=lambda: self.browse_file(self.world_file_path,
                                                    [("World Files", "*.wld"), ("All Files", "*.*")])).grid(row=row, column=2)
+
+        row += 1
+        ttk.Label(postproc_frame, text="Clip Shapefile:").grid(row=row, column=0, sticky=tk.W)
+        ttk.Entry(postproc_frame, textvariable=self.clip_shapefile, width=70).grid(row=row, column=1,
+                                                                                    sticky=(tk.W, tk.E), padx=5)
+        ttk.Button(postproc_frame, text="Browse...",
+                  command=lambda: self.browse_file(self.clip_shapefile,
+                                                   [("Shapefiles", "*.shp"), ("All Files", "*.*")])).grid(row=row, column=2)
+
+        row += 1
+        ttk.Checkbutton(postproc_frame, text="Keep model-space clipped mosaic (for debugging/inspection)",
+                       variable=self.keep_intermediate_mosaics).grid(row=row, column=0, columnspan=2,
+                                                                     sticky=tk.W, pady=(5, 0))
+
+        row += 1
+        ttk.Checkbutton(postproc_frame, text="Save downscaled mosaic (lower resolution for quick viewing)",
+                       variable=self.save_downscaled_mosaic).grid(row=row, column=0, columnspan=2,
+                                                                  sticky=tk.W, pady=(5, 0))
+
+        row += 1
+        ttk.Label(postproc_frame, text="Downscaled Resolution (m/pixel):").grid(row=row, column=0, sticky=tk.W)
+        ttk.Entry(postproc_frame, textvariable=self.downscaled_resolution, width=10).grid(row=row, column=1,
+                                                                                           sticky=tk.W, padx=5)
+
+        row += 1
+        ttk.Checkbutton(postproc_frame, text="Compress mosaics with LZW (reduce file size)",
+                       variable=self.compress_mosaics).grid(row=row, column=0, columnspan=2,
+                                                            sticky=tk.W, pady=(5, 0))
 
         # # Calibration Settings Section
         # calib_frame = ttk.LabelFrame(main_frame, text="Calibration Settings", padding="5")
@@ -608,6 +647,11 @@ class PipelineGUI:
             self.light_detection_mask.set(processing.get('light_detection_mask', ''))
             self.apply_world_transform.set(processing.get('apply_world_transform', False))
             self.world_file_path.set(processing.get('world_file_path', 'orthorectification/model_to_world.wld'))
+            self.clip_shapefile.set(processing.get('clip_shapefile', 'inputs/shape_files/model_space_clip.shp'))
+            self.keep_intermediate_mosaics.set(processing.get('keep_intermediate_mosaics', False))
+            self.save_downscaled_mosaic.set(processing.get('save_downscaled_mosaic', True))
+            self.downscaled_resolution.set(str(processing.get('downscaled_resolution', 0.25)))
+            self.compress_mosaics.set(processing.get('compress_mosaics', True))
 
             self.log_console(f"Loaded configuration from {self.config_path}")
 
@@ -660,7 +704,12 @@ class PipelineGUI:
                     "run_light_detection": self.run_light_detection.get(),
                     "light_detection_mask": self.light_detection_mask.get(),
                     "apply_world_transform": self.apply_world_transform.get(),
-                    "world_file_path": self.world_file_path.get()
+                    "world_file_path": self.world_file_path.get(),
+                    "clip_shapefile": self.clip_shapefile.get(),
+                    "keep_intermediate_mosaics": self.keep_intermediate_mosaics.get(),
+                    "save_downscaled_mosaic": self.save_downscaled_mosaic.get(),
+                    "downscaled_resolution": float(self.downscaled_resolution.get()),
+                    "compress_mosaics": self.compress_mosaics.get()
                 }
             }
 
