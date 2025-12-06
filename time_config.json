@@ -1,7 +1,7 @@
 {
     "video_directory": "E:/SooTestData/12-3-25/Soo DB #3",
     "mode": "time_range",
-    "output_directory": "output_data\\Soo DB #3\\frames",
+    "output_directory": "output_data\\20251203\\Soo DB #3\\frames",
     "output_format": "tiff",
     "recursive": true,
     "filename_pattern": "CAMERA_DATETIME_DATETIME",

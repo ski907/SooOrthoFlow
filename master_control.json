@@ -5,7 +5,7 @@
     "interval": "30s",
     "time_mode": "endpoints",
     "paths": {
-        "output_base": "output_data",
+        "output_base": "output_data/20251203",
         "calibration_file": "calibration//camera_calibrations_20251203.csv",
         "gcp_file": "inputs//GCP_24cameras_utm.csv",
         "dsm_file": "inputs//TLS_DTM_cropped_filled_utmNAD8319N.tif"
