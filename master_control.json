@@ -1,12 +1,12 @@
 {
-    "video_folder": "test_videos\\12-1 to 12-2 Ice Pack Comparison\\12-2",
-    "start_time": "2025-12-02 08:01:30",
-    "end_time": "2025-12-02 08:01:30",
+    "video_folder": "E:/SooTestData/12-3-25/Soo DB #3",
+    "start_time": "2025-12-03 14:15:30",
+    "end_time": "2025-12-03 14:32:30",
     "interval": "30s",
     "time_mode": "endpoints",
     "paths": {
         "output_base": "output_data",
-        "calibration_file": "calibration//camera_calibrations_20251120.csv",
+        "calibration_file": "calibration//camera_calibrations_20251203.csv",
         "gcp_file": "inputs//GCP_24cameras_utm.csv",
         "dsm_file": "inputs//TLS_DTM_cropped_filled_utmNAD8319N.tif"
     },
@@ -22,7 +22,7 @@
         "apply_world_transform": true,
         "world_file_path": "orthorectification//model_to_world_20251120.wld",
         "clip_shapefile": "inputs//shape_files//model_space_clip.shp",
-        "keep_intermediate_mosaics": false,
+        "keep_intermediate_mosaics": true,
         "save_downscaled_mosaic": true,
         "downscaled_resolution": 0.25,
         "compress_mosaics": true

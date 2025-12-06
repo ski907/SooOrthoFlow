@@ -1012,9 +1012,8 @@ class PipelineGUI:
             # Save config first to ensure latest paths are available
             self.save_config()
 
-            mode = self.calib_mode.get()
-            self.log_console(f"Launching recalibration interface (preferred mode: {mode})...")
-            self.log_console("Note: You will be prompted to confirm the mode in the terminal")
+            self.log_console(f"Launching recalibration interface...")
+            self.log_console("Note: You will be prompted to select the calibration mode in the terminal")
 
             # Launch recalibration script in a new terminal window
             recalibrate_script = self.script_dir / 'recalibrate.py'

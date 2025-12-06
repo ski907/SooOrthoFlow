@@ -1,13 +1,13 @@
 {
-    "video_directory": "test_videos/12-1 to 12-2 Ice Pack Comparison/12-2",
+    "video_directory": "E:/SooTestData/12-3-25/Soo DB #3",
     "mode": "time_range",
-    "output_directory": "output_data\\12-2\\frames",
+    "output_directory": "output_data\\Soo DB #3\\frames",
     "output_format": "tiff",
     "recursive": true,
     "filename_pattern": "CAMERA_DATETIME_DATETIME",
     "time_range": {
-        "start": "2025-12-02 08:01:30",
-        "end": "2025-12-02 08:01:30",
+        "start": "2025-12-03 14:15:30",
+        "end": "2025-12-03 14:32:30",
         "interval": null
     },
     "endpoints_only": true,
