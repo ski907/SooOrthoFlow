@@ -6,7 +6,11 @@ import argparse
 import rasterio
 from rasterio.warp import calculate_default_transform, reproject, Resampling
 from rasterio.mask import mask as rasterio_mask
+from rasterio.features import rasterize as rasterio_rasterize
+from rasterio.transform import from_bounds
 import fiona
+import json
+import os
 
 def read_world_file(world_file_path):
     """
@@ -109,6 +113,157 @@ def compute_mosaic_bounds(ortho_dir):
         y_maxs.append(y_max)
 
     return min(x_mins), max(x_maxs), min(y_mins), max(y_maxs)
+
+
+def generate_zone_map_raster(shapefile_path, mosaic_bounds, resolution, crs='EPSG:26919'):
+    """
+    Generate a rasterized zone map from shapefile and save to disk for caching.
+
+    Args:
+        shapefile_path: Path to the zone map shapefile
+        mosaic_bounds: Tuple of (x_min, x_max, y_min, y_max) in model coordinates
+        resolution: Pixel resolution in model coordinate units
+        crs: CRS for the output raster (default: 'EPSG:26919')
+
+    Returns:
+        Tuple of (zone_array, camera_id_to_name, transform)
+    """
+    shapefile_path = Path(shapefile_path)
+    output_tif = shapefile_path.parent / (shapefile_path.stem + '.tif')
+    output_json = shapefile_path.parent / (shapefile_path.stem + '_lookup.json')
+
+    print(f"\nGenerating zone map raster from {shapefile_path.name}")
+    print(f"  Output: {output_tif}")
+
+    # Read shapefile
+    with fiona.open(shapefile_path, 'r') as shp:
+        shapes_list = list(shp)
+        print(f"  Found {len(shapes_list)} camera zones")
+
+    # Extract unique cameras and create ID mapping
+    # Sort by priority (lower = higher priority, will overwrite in rasterization)
+    shapes_sorted = sorted(shapes_list, key=lambda f: f['properties']['priority'])
+
+    camera_id_to_name = {}
+    camera_name_to_id = {}
+
+    for i, feat in enumerate(shapes_sorted):
+        camera_name = feat['properties']['camera_nam']
+        camera_id = i + 1  # Start from 1, 0 = no zone
+        camera_id_to_name[camera_id] = camera_name
+        camera_name_to_id[camera_name] = camera_id
+        print(f"    Zone {camera_id}: {camera_name} (priority={feat['properties']['priority']})")
+
+    # Calculate raster dimensions
+    x_min, x_max, y_min, y_max = mosaic_bounds
+    width = int((x_max - x_min) / resolution)
+    height = int((y_max - y_min) / abs(resolution))
+
+    print(f"  Raster dimensions: {width} x {height} pixels")
+    print(f"  Resolution: {resolution*1000:.2f} mm/pixel")
+
+    # Create transform
+    transform = from_bounds(x_min, y_min, x_max, y_max, width, height)
+
+    # Initialize zone array
+    zone_array = np.zeros((height, width), dtype=np.uint8)
+
+    # Rasterize each zone in priority order (low priority first, high priority overwrites)
+    for feat in shapes_sorted:
+        camera_id = camera_name_to_id[feat['properties']['camera_nam']]
+        shapes_to_burn = [(feat['geometry'], camera_id)]
+
+        rasterio_rasterize(
+            shapes_to_burn,
+            out=zone_array,
+            transform=transform,
+            fill=0,
+            all_touched=False,
+            dtype=np.uint8
+        )
+
+    # Count pixels per zone
+    unique, counts = np.unique(zone_array[zone_array > 0], return_counts=True)
+    print(f"  Zone pixel counts:")
+    for zone_id, count in zip(unique, counts):
+        print(f"    Zone {zone_id} ({camera_id_to_name[zone_id]}): {count} pixels")
+
+    # Save as GeoTIFF
+    with rasterio.open(
+        output_tif,
+        'w',
+        driver='GTiff',
+        height=height,
+        width=width,
+        count=1,
+        dtype=np.uint8,
+        crs=crs,
+        transform=transform,
+        compress='lzw'
+    ) as dst:
+        dst.write(zone_array, 1)
+        dst.set_band_description(1, 'Camera zone ID (0=no zone)')
+
+    # Save lookup JSON
+    with open(output_json, 'w') as f:
+        json.dump(camera_id_to_name, f, indent=2)
+
+    print(f"  Saved zone map: {output_tif}")
+    print(f"  Saved lookup: {output_json}")
+
+    return zone_array, camera_id_to_name, transform
+
+
+def load_zone_map_raster(shapefile_path, mosaic_bounds, resolution, crs='EPSG:26919'):
+    """
+    Load cached zone map raster, or generate if missing or stale.
+
+    Args:
+        shapefile_path: Path to the zone map shapefile
+        mosaic_bounds: Tuple of (x_min, x_max, y_min, y_max) in model coordinates
+        resolution: Pixel resolution in model coordinate units
+        crs: CRS for the raster (default: 'EPSG:26919')
+
+    Returns:
+        Tuple of (zone_array, camera_id_to_name, transform)
+    """
+    shapefile_path = Path(shapefile_path)
+    output_tif = shapefile_path.parent / (shapefile_path.stem + '.tif')
+    output_json = shapefile_path.parent / (shapefile_path.stem + '_lookup.json')
+
+    # Check if cache exists and is up-to-date
+    regenerate = False
+
+    if not output_tif.exists() or not output_json.exists():
+        print(f"Zone map cache not found, generating...")
+        regenerate = True
+    else:
+        # Check if shapefile is newer than cached TIF
+        shp_mtime = os.path.getmtime(shapefile_path)
+        tif_mtime = os.path.getmtime(output_tif)
+
+        if shp_mtime > tif_mtime:
+            print(f"Zone map cache is stale (shapefile modified), regenerating...")
+            regenerate = True
+        else:
+            print(f"Loading cached zone map from {output_tif.name}")
+
+    if regenerate:
+        return generate_zone_map_raster(shapefile_path, mosaic_bounds, resolution, crs)
+
+    # Load cached files
+    with rasterio.open(output_tif) as src:
+        zone_array = src.read(1)
+        transform = src.transform
+
+    with open(output_json, 'r') as f:
+        camera_id_to_name = json.load(f)
+        # Convert string keys back to integers
+        camera_id_to_name = {int(k): v for k, v in camera_id_to_name.items()}
+
+    print(f"  Loaded {len(camera_id_to_name)} camera zones")
+
+    return zone_array, camera_id_to_name, transform
 
 
 def compute_image_quality_map(img, method='gradient'):
@@ -1124,6 +1279,253 @@ def create_mosaic_simple_priority(ortho_dir, output_path, resolution=None,
     return mosaic
 
 
+def create_mosaic_zone_map(ortho_dir, output_path, zone_map_shapefile, resolution=None,
+                           world_file_transform=None,
+                           world_transform_resampling='bilinear',
+                           world_transform_threads=None,
+                           world_transform_memory_mb=512,
+                           crs='EPSG:26919',
+                           output_crs='EPSG:26917',
+                           clip_shapefile=None,
+                           keep_intermediate=False,
+                           save_downscaled=False,
+                           downscaled_resolution=0.25,
+                           compress_output=True):
+    """
+    Create mosaic using spatial zone map from shapefile.
+    Each zone exclusively uses its assigned camera (strict mode).
+
+    Args:
+        zone_map_shapefile: Path to shapefile defining camera zones
+        world_file_transform: Optional path to world file for coordinate transformation
+        clip_shapefile: Optional path to shapefile for clipping the mosaic in model coordinates
+        keep_intermediate: If True, keep model-space clipped mosaic; if False, delete after transformation
+    """
+
+    # Compute overall bounds
+    x_min, x_max, y_min, y_max = compute_mosaic_bounds(ortho_dir)
+
+    tif_files = sorted(Path(ortho_dir).glob('*_ortho.tif'))
+    first_geotransform = read_geotiff_transform(tif_files[0])
+
+    if resolution is None:
+        resolution = first_geotransform['pixel_width']
+
+    mosaic_width = int((x_max - x_min) / resolution)
+    mosaic_height = int((y_max - y_min) / abs(resolution))
+
+    print(f"\nMosaic size: {mosaic_width} x {mosaic_height} pixels")
+    print(f"Mosaic resolution: {resolution*1000:.2f} mm/pixel")
+
+    # Load or generate zone map
+    zone_array, camera_id_to_name, zone_transform = load_zone_map_raster(
+        zone_map_shapefile,
+        (x_min, x_max, y_min, y_max),
+        resolution,
+        crs
+    )
+
+    # Create inverse lookup: camera_name -> camera_id
+    camera_name_to_id = {v: k for k, v in camera_id_to_name.items()}
+
+    # Initialize mosaic
+    mosaic = np.zeros((mosaic_height, mosaic_width, 3), dtype=np.uint8)
+    coverage_map = np.zeros((mosaic_height, mosaic_width), dtype=np.uint8)  # Track which pixels were filled
+
+    print(f"\nCreating mosaic using zone map (strict mode)")
+
+    # Process each ortho file
+    cameras_found = set()
+    cameras_not_in_map = set()
+
+    for i, tif_path in enumerate(tif_files, 1):
+        print(f"[{i}/{len(tif_files)}] Processing {tif_path.name}")
+
+        # Extract camera name from filename
+        # Expected format: "NVR1_N910A6_ch1_main_ortho.tif"
+        ortho_stem = tif_path.stem  # "NVR1_N910A6_ch1_main_ortho"
+        camera_name = ortho_stem.replace('_ortho', '')  # "NVR1_N910A6_ch1_main"
+
+        # Look up camera ID in zone map
+        camera_id = camera_name_to_id.get(camera_name, 0)
+
+        if camera_id == 0:
+            if camera_name not in cameras_not_in_map:
+                print(f"  Warning: Camera '{camera_name}' not found in zone map, skipping")
+                cameras_not_in_map.add(camera_name)
+            continue
+
+        cameras_found.add(camera_name)
+
+        # Load image and geotransform
+        img = cv2.imread(str(tif_path))
+        geotransform = read_geotiff_transform(tif_path)
+
+        # Get image bounds
+        img_x_min, img_x_max, img_y_min, img_y_max = get_image_bounds(img.shape, geotransform)
+
+        # Convert to mosaic pixel coordinates
+        mosaic_col_start = max(0, int((img_x_min - x_min) / resolution))
+        mosaic_row_start = max(0, int((y_max - img_y_max) / abs(resolution)))
+        mosaic_col_end = min(mosaic_width, mosaic_col_start + img.shape[1])
+        mosaic_row_end = min(mosaic_height, mosaic_row_start + img.shape[0])
+
+        # Calculate corresponding image region
+        img_col_start = max(0, -int((img_x_min - x_min) / resolution))
+        img_row_start = max(0, -int((y_max - img_y_max) / abs(resolution)))
+        img_col_end = img_col_start + (mosaic_col_end - mosaic_col_start)
+        img_row_end = img_row_start + (mosaic_row_end - mosaic_row_start)
+
+        # Extract the region
+        img_region = img[img_row_start:img_row_end, img_col_start:img_col_end]
+
+        # Find valid (non-black) pixels
+        valid_mask = np.any(img_region > 0, axis=2)
+
+        # Get zone map region
+        zone_region = zone_array[mosaic_row_start:mosaic_row_end,
+                                mosaic_col_start:mosaic_col_end]
+
+        # STRICT MODE: Only update where zone matches this camera AND pixel is valid
+        zone_match = (zone_region == camera_id)
+        update_mask = valid_mask & zone_match
+
+        pixels_updated = np.sum(update_mask)
+
+        if pixels_updated > 0:
+            # Update mosaic
+            mosaic_region = mosaic[mosaic_row_start:mosaic_row_end,
+                                  mosaic_col_start:mosaic_col_end]
+            coverage_region = coverage_map[mosaic_row_start:mosaic_row_end,
+                                          mosaic_col_start:mosaic_col_end]
+
+            for c in range(3):
+                mosaic_region[:, :, c][update_mask] = img_region[:, :, c][update_mask]
+
+            coverage_region[update_mask] = 1
+
+            mosaic[mosaic_row_start:mosaic_row_end,
+                  mosaic_col_start:mosaic_col_end] = mosaic_region
+            coverage_map[mosaic_row_start:mosaic_row_end,
+                        mosaic_col_start:mosaic_col_end] = coverage_region
+
+            print(f"  ✓ Added {pixels_updated} pixels from zone {camera_id} ({camera_name})")
+        else:
+            print(f"  No pixels in this camera's zone")
+
+    # Report on missing cameras
+    all_cameras_in_map = set(camera_id_to_name.values())
+    missing_cameras = all_cameras_in_map - cameras_found
+
+    if missing_cameras:
+        print(f"\n  Warning: {len(missing_cameras)} camera(s) in zone map had no ortho files:")
+        for cam in sorted(missing_cameras):
+            print(f"    - {cam}")
+
+    if cameras_not_in_map:
+        print(f"\n  Info: {len(cameras_not_in_map)} ortho file(s) not in zone map (ignored):")
+        for cam in sorted(cameras_not_in_map):
+            print(f"    - {cam}")
+
+    # Report coverage
+    total_pixels = mosaic_height * mosaic_width
+    covered_pixels = np.sum(coverage_map)
+    coverage_pct = 100 * covered_pixels / total_pixels
+    print(f"\n  Mosaic coverage: {covered_pixels}/{total_pixels} pixels ({coverage_pct:.1f}%)")
+
+    # Save as GeoTIFF
+    print(f"\nSaving mosaic as GeoTIFF to {output_path}")
+
+    from rasterio.transform import from_bounds
+
+    # Convert BGR to RGB
+    mosaic_rgb = cv2.cvtColor(mosaic, cv2.COLOR_BGR2RGB)
+    mosaic_data = np.transpose(mosaic_rgb, (2, 0, 1))  # (H, W, C) -> (C, H, W)
+
+    # Create geotransform (in model coordinates)
+    transform = from_bounds(
+        west=x_min,
+        south=y_min,
+        east=x_max,
+        north=y_max,
+        width=mosaic_width,
+        height=mosaic_height
+    )
+
+    # Determine final output path
+    if world_file_transform:
+        # Save model coords to original location
+        temp_path = output_path
+        # Save world coords to 'world_coords' subdirectory
+        output_dir = Path(output_path).parent
+        world_coords_dir = output_dir / 'world_coords'
+        world_coords_dir.mkdir(exist_ok=True)
+        final_path = world_coords_dir / Path(output_path).name
+    else:
+        temp_path = output_path
+        final_path = output_path
+
+    # Write GeoTIFF in model coordinates
+    with rasterio.open(
+        temp_path,
+        'w',
+        driver='GTiff',
+        height=mosaic_height,
+        width=mosaic_width,
+        count=3,
+        dtype=mosaic_data.dtype,
+        crs=crs,
+        transform=transform,
+    ) as dst:
+        dst.write(mosaic_data)
+
+    print(f"Saved mosaic GeoTIFF: {temp_path}")
+
+    # Clip to shapefile if requested (in model coordinates)
+    if clip_shapefile:
+        clipped_path = Path(str(temp_path).rsplit('.', 1)[0] + '_clipped.tif')
+        clip_raster_to_shapefile(temp_path, clipped_path, clip_shapefile)
+        # Always delete the unclipped version (we don't need it)
+        Path(temp_path).unlink()
+        print(f"  Deleted unclipped mosaic: {temp_path}")
+        # Replace temp_path with clipped version for subsequent operations
+        temp_path = clipped_path
+
+    # Apply coordinate transformation if requested
+    if world_file_transform:
+        apply_coordinate_transform(
+            temp_path, final_path, world_file_transform,
+            resampling_method=world_transform_resampling,
+            num_threads=world_transform_threads,
+            warp_mem_limit_mb=world_transform_memory_mb,
+            output_crs=output_crs
+        )
+        # Delete the model coordinate clipped version after transformation unless keeping intermediates
+        if not keep_intermediate:
+            Path(temp_path).unlink()
+            print(f"  Deleted model space clipped mosaic: {temp_path}")
+
+        # Create downscaled version if requested (only for world-transformed outputs)
+        if save_downscaled and downscaled_resolution:
+            downscaled_path = Path(str(final_path).rsplit('.', 1)[0] + f'_downscaled_{int(downscaled_resolution*100)}cm.tif')
+            create_downscaled_mosaic(final_path, downscaled_path, downscaled_resolution)
+
+    # Apply LZW compression to final output if requested
+    if compress_output:
+        print(f"\nApplying LZW compression to final mosaic...")
+        compress_geotiff(final_path)
+        print(f"  Compressed: {final_path}")
+
+        # Also compress the model-space clipped version if it was kept
+        if world_file_transform and keep_intermediate and Path(temp_path).exists():
+            print(f"  Compressing intermediate mosaic...")
+            compress_geotiff(temp_path)
+            print(f"  Compressed: {temp_path}")
+
+    print("\nDone!")
+    return mosaic
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description='Create mosaic from orthorectified images using seam carving (no blending)'
@@ -1142,9 +1544,9 @@ if __name__ == "__main__":
     
     parser.add_argument(
         '-m', '--method',
-        choices=['seam', 'center', 'order'],
-        default='seam',
-        help='Mosaic method: seam=seam carving, center=prefer image centers, order=left-to-right (default: seam)'
+        choices=['seam', 'center', 'order', 'zone_map'],
+        default='center',
+        help='Mosaic method: seam=seam carving, center=prefer image centers, order=left-to-right, zone_map=use spatial zone assignments (default: center)'
     )
     
     parser.add_argument(
@@ -1228,7 +1630,18 @@ if __name__ == "__main__":
         help='Disable LZW compression (results in larger files but faster processing)'
     )
 
+    parser.add_argument(
+        '--zone-map-shapefile',
+        type=str,
+        default=None,
+        help='Path to shapefile for zone_map method (required if method=zone_map)'
+    )
+
     args = parser.parse_args()
+
+    # Validate zone_map requirements
+    if args.method == 'zone_map' and not args.zone_map_shapefile:
+        parser.error("--zone-map-shapefile is required when using zone_map method")
 
     if args.method == 'seam':
         create_seam_carved_mosaic(
@@ -1237,6 +1650,22 @@ if __name__ == "__main__":
             resolution=args.resolution,
             seam_method=args.seam_quality,
             save_seam_map=args.save_seams,
+            world_file_transform=args.world_file,
+            world_transform_resampling=args.world_resampling,
+            world_transform_threads=args.world_threads,
+            world_transform_memory_mb=args.world_memory,
+            clip_shapefile=args.clip_shapefile,
+            keep_intermediate=args.keep_intermediate,
+            save_downscaled=args.save_downscaled,
+            downscaled_resolution=args.downscaled_resolution,
+            compress_output=not args.no_compress
+        )
+    elif args.method == 'zone_map':
+        create_mosaic_zone_map(
+            args.ortho_dir,
+            args.output,
+            zone_map_shapefile=args.zone_map_shapefile,
+            resolution=args.resolution,
             world_file_transform=args.world_file,
             world_transform_resampling=args.world_resampling,
             world_transform_threads=args.world_threads,

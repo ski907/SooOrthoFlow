@@ -46,6 +46,7 @@ class PipelineGUI:
         self.mosaic_method = tk.StringVar(value="center")
         self.ortho_resolution = tk.StringVar(value="0.005")
         self.ortho_padding = tk.StringVar(value="0.5")
+        self.zone_map_shapefile = tk.StringVar(value="orthorectification/camera_zone_map/camera_zone_map.shp")
 
         # Light detection settings
         self.run_light_detection = tk.BooleanVar(value=True)
@@ -213,42 +214,34 @@ class PipelineGUI:
                   command=lambda: self.browse_file(self.dsm_file,
                                                    [("GeoTIFF Files", "*.tif;*.tiff"), ("All Files", "*.*")])).grid(row=row, column=2, pady=(5, 0))
 
-        # # Processing Options Section
-        # proc_frame = ttk.LabelFrame(main_frame, text="Processing Options", padding="5")
-        # proc_frame.grid(row=4, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=(0, 5))
-        # proc_frame.columnconfigure(1, weight=1)
+        # Processing Options Section
+        proc_frame = ttk.LabelFrame(main_frame, text="Processing Options", padding="5")
+        proc_frame.grid(row=4, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=(0, 5))
+        proc_frame.columnconfigure(1, weight=1)
 
-        # row = 0
-        # ttk.Label(proc_frame, text="Output Format:").grid(row=row, column=0, sticky=tk.W)
-        # format_combo = ttk.Combobox(proc_frame, textvariable=self.output_format,
-        #                             values=["tiff", "png", "jpg"], state="readonly", width=15)
-        # format_combo.grid(row=row, column=1, sticky=tk.W, padx=5)
+        row = 0
+        ttk.Label(proc_frame, text="Mosaic Method:").grid(row=row, column=0, sticky=tk.W)
+        mosaic_combo = ttk.Combobox(proc_frame, textvariable=self.mosaic_method,
+                                    values=["center", "zone_map"], state="readonly", width=15)
+        mosaic_combo.grid(row=row, column=1, sticky=tk.W, padx=5)
 
-        # ttk.Label(proc_frame, text="Mosaic Method:").grid(row=row, column=2, sticky=tk.W, padx=(20, 0))
-        # mosaic_combo = ttk.Combobox(proc_frame, textvariable=self.mosaic_method,
-        #                             values=["center", "average", "max", "min"], state="readonly", width=15)
-        # mosaic_combo.grid(row=row, column=3, sticky=tk.W, padx=5)
+        row += 1
+        ttk.Label(proc_frame, text="Zone Map Shapefile:").grid(row=row, column=0, sticky=tk.W, pady=(5, 0))
+        self.zone_map_entry = ttk.Entry(proc_frame, textvariable=self.zone_map_shapefile, width=70)
+        self.zone_map_entry.grid(row=row, column=1, columnspan=2, sticky=(tk.W, tk.E), padx=5, pady=(5, 0))
+        ttk.Button(proc_frame, text="Browse...",
+                  command=lambda: self.browse_file(self.zone_map_shapefile,
+                                                   [("Shapefiles", "*.shp"), ("All Files", "*.*")])).grid(row=row, column=3, pady=(5, 0))
 
-        # row += 1
-        # ttk.Checkbutton(proc_frame, text="Recursive video search",
-        #                variable=self.recursive).grid(row=row, column=0, columnspan=2,
-        #                                              sticky=tk.W, pady=(5, 0))
+        # Disable zone map field unless zone_map method selected
+        def on_method_change(*args):
+            if self.mosaic_method.get() == 'zone_map':
+                self.zone_map_entry.config(state='normal')
+            else:
+                self.zone_map_entry.config(state='disabled')
 
-        # row += 1
-        # ttk.Label(proc_frame, text="Filename Pattern:").grid(row=row, column=0, sticky=tk.W, pady=(5, 0))
-        # ttk.Entry(proc_frame, textvariable=self.filename_pattern, width=40).grid(row=row, column=1,
-        #                                                                           columnspan=3, sticky=(tk.W, tk.E),
-        #                                                                           padx=5, pady=(5, 0))
-
-        # row += 1
-        # ttk.Label(proc_frame, text="Ortho Resolution (m/px):").grid(row=row, column=0, sticky=tk.W, pady=(5, 0))
-        # ttk.Entry(proc_frame, textvariable=self.ortho_resolution, width=15).grid(row=row, column=1,
-        #                                                                           sticky=tk.W, padx=5, pady=(5, 0))
-
-        # ttk.Label(proc_frame, text="Ortho Padding (m):").grid(row=row, column=2, sticky=tk.W,
-        #                                                        padx=(20, 0), pady=(5, 0))
-        # ttk.Entry(proc_frame, textvariable=self.ortho_padding, width=15).grid(row=row, column=3,
-        #                                                                        sticky=tk.W, padx=5, pady=(5, 0))
+        self.mosaic_method.trace('w', on_method_change)
+        on_method_change()  # Initial state
 
         # Post-Processing Options Section
         postproc_frame = ttk.LabelFrame(main_frame, text="Post-Processing Options", padding="5")
@@ -643,6 +636,8 @@ class PipelineGUI:
             self.mosaic_method.set(processing.get('mosaic_method', 'center'))
             self.ortho_resolution.set(str(processing.get('ortho_resolution', 0.005)))
             self.ortho_padding.set(str(processing.get('ortho_padding', 0.5)))
+            self.zone_map_shapefile.set(processing.get('zone_map_shapefile',
+                                                       'orthorectification/camera_zone_map/camera_zone_map.shp'))
             self.run_light_detection.set(processing.get('run_light_detection', False))
             self.light_detection_mask.set(processing.get('light_detection_mask', ''))
             self.apply_world_transform.set(processing.get('apply_world_transform', False))
@@ -701,6 +696,7 @@ class PipelineGUI:
                     "mosaic_method": self.mosaic_method.get(),
                     "ortho_resolution": float(self.ortho_resolution.get()),
                     "ortho_padding": float(self.ortho_padding.get()),
+                    "zone_map_shapefile": self.zone_map_shapefile.get(),
                     "run_light_detection": self.run_light_detection.get(),
                     "light_detection_mask": self.light_detection_mask.get(),
                     "apply_world_transform": self.apply_world_transform.get(),

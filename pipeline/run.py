@@ -248,7 +248,7 @@ def run_orthorectification(master_config, log_file, n_jobs=None):
 
 def _process_single_mosaic(args):
     """Worker function for parallel mosaicking"""
-    ts_folder, mosaic_dir, method, mosaic_script, world_file, transform_params, clip_shapefile, keep_intermediate, save_downscaled, downscaled_resolution, compress_mosaics = args
+    ts_folder, mosaic_dir, method, mosaic_script, world_file, transform_params, clip_shapefile, keep_intermediate, save_downscaled, downscaled_resolution, compress_mosaics, zone_map_shapefile = args
 
     # Find orthorectified subfolder
     ortho_folder = ts_folder / 'orthorectified'
@@ -295,6 +295,10 @@ def _process_single_mosaic(args):
     # Add compression flag if disabled
     if not compress_mosaics:
         cmd.append('--no-compress')
+
+    # Add zone map shapefile if using zone_map method
+    if zone_map_shapefile:
+        cmd.extend(['--zone-map-shapefile', str(zone_map_shapefile)])
 
     result = subprocess.run(cmd, capture_output=True, text=True)
 
@@ -376,6 +380,17 @@ def run_mosaicking(master_config, log_file, n_jobs=None):
     else:
         log(log_file, f"  Saving mosaics without compression (larger files)")
 
+    # Check if zone map is being used
+    zone_map_shapefile = None
+    if method == 'zone_map':
+        zone_map_path = master_config['processing'].get('zone_map_shapefile',
+                                                          'orthorectification/camera_zone_map/camera_zone_map.shp')
+        zone_map_shapefile = ROOT_DIR / zone_map_path
+        if not zone_map_shapefile.exists():
+            log(log_file, f"  ERROR: Zone map shapefile not found: {zone_map_shapefile}")
+            return False
+        log(log_file, f"  Using zone map for spatial ordering: {zone_map_shapefile}")
+
     # Get all timestamp folders
     timestamp_folders = sorted([d for d in ortho_base.iterdir() if d.is_dir()])
 
@@ -383,13 +398,26 @@ def run_mosaicking(master_config, log_file, n_jobs=None):
 
     # Prepare arguments for parallel processing
     mosaic_args = [
-        (ts_folder, mosaic_dir, method, MOSAIC, world_file, transform_params, clip_shapefile, keep_intermediate, save_downscaled, downscaled_resolution, compress_mosaics)
+        (ts_folder, mosaic_dir, method, MOSAIC, world_file, transform_params, clip_shapefile, keep_intermediate, save_downscaled, downscaled_resolution, compress_mosaics, zone_map_shapefile)
         for ts_folder in timestamp_folders
     ]
 
-    # Process in parallel
-    with Pool(n_jobs) as pool:
-        results = pool.map(_process_single_mosaic, mosaic_args)
+    # Process in parallel (with special handling for zone_map to avoid race condition)
+    if method == 'zone_map' and len(mosaic_args) > 1:
+        # Generate zone map cache with first mosaic to avoid parallel race condition
+        log(log_file, f"  Processing first mosaic to generate zone map cache...")
+        first_result = _process_single_mosaic(mosaic_args[0])
+        results = [first_result]
+
+        # Now process remaining mosaics in parallel
+        log(log_file, f"  Processing remaining {len(mosaic_args)-1} mosaics in parallel...")
+        with Pool(n_jobs) as pool:
+            remaining_results = pool.map(_process_single_mosaic, mosaic_args[1:])
+        results.extend(remaining_results)
+    else:
+        # Normal parallel processing for other methods or single mosaic
+        with Pool(n_jobs) as pool:
+            results = pool.map(_process_single_mosaic, mosaic_args)
 
     # Log results
     success_count = 0
