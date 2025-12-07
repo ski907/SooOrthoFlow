@@ -76,11 +76,6 @@ cd SooOrthoFlow
 git pull origin main
 ```
 
-**If using the stable version (v0.1-stable):**
-The stable version is tagged and does not receive updates. To switch to the latest version, clone the repository without the `--branch` flag.
-
----
-
 ## Initial Setup
 
 ### 1. Required Input Files
