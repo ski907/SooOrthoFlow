@@ -211,10 +211,12 @@ def run_orthorectification(master_config, log_file, n_jobs=None):
     dem_file = master_config['paths'].get('dsm_file')  # Optional, for cache regeneration
 
     # Get multi-resolution settings
-    resolutions = master_config.get('resolutions', {'hires': 0.0025, 'lowres': 0.025})
+    resolutions = master_config.get('resolutions', {'hires': 0.0025, 'lowres': 0.01})
     multi_res_config = master_config.get('multi_resolution', {})
-    use_lowres_for_intervals = multi_res_config.get('use_lowres_for_intervals', False)
-    output_hires_for_first_last = multi_res_config.get('output_hires_for_first_last', False)
+    use_interval = multi_res_config.get('use_interval', True)
+    interval_resolution = multi_res_config.get('interval_resolution', 'lowres')
+    use_first_last = multi_res_config.get('use_first_last', False)
+    first_last_resolution = multi_res_config.get('first_last_resolution', 'hires')
 
     # Get all timestamp folders
     timestamp_folders = sorted([d for d in frames_dir.iterdir() if d.is_dir()])
@@ -228,16 +230,19 @@ def run_orthorectification(master_config, log_file, n_jobs=None):
         # Determine resolution(s) for this timestamp
         resolutions_to_process = []
 
-        if use_lowres_for_intervals:
-            # Low-res for all intervals
-            resolutions_to_process.append(('lowres', resolutions['lowres']))
+        # Add interval resolution if enabled and not first/last, OR if first/last are disabled
+        if use_interval and not (is_first or is_last):
+            resolutions_to_process.append((interval_resolution, resolutions[interval_resolution]))
 
-            # Also hi-res for first/last if requested
-            if output_hires_for_first_last and (is_first or is_last):
-                resolutions_to_process.append(('hires', resolutions['hires']))
-        else:
-            # Use hi-res for all (default behavior)
-            resolutions_to_process.append(('hires', resolutions['hires']))
+        # Add first/last resolution if enabled and this is first or last frame
+        if use_first_last and (is_first or is_last):
+            resolutions_to_process.append((first_last_resolution, resolutions[first_last_resolution]))
+
+        # If both are disabled for a timestamp, skip it
+        # If first/last is disabled but interval is enabled, process first/last with interval settings
+        if not resolutions_to_process:
+            if use_interval:
+                resolutions_to_process.append((interval_resolution, resolutions[interval_resolution]))
 
         # Create process args for each resolution
         for res_name, res_value in resolutions_to_process:
@@ -247,12 +252,10 @@ def run_orthorectification(master_config, log_file, n_jobs=None):
             ))
 
     log(log_file, f"Processing {len(timestamp_folders)} timestamps ({len(process_args)} total jobs)...")
-    if use_lowres_for_intervals:
-        log(log_file, f"  Using low-res ({resolutions['lowres']}m) for intervals")
-        if output_hires_for_first_last:
-            log(log_file, f"  Also outputting first and last at hi-res ({resolutions['hires']}m)")
-    else:
-        log(log_file, f"  Using hi-res ({resolutions['hires']}m) for all timestamps")
+    if use_interval:
+        log(log_file, f"  Using {interval_resolution} ({resolutions[interval_resolution]}m) for intervals")
+    if use_first_last:
+        log(log_file, f"  Using {first_last_resolution} ({resolutions[first_last_resolution]}m) for first and last frames")
 
     # Process in parallel
     with Pool(n_jobs) as pool:

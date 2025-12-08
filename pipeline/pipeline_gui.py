@@ -68,8 +68,12 @@ class PipelineGUI:
         self.compress_mosaics = tk.BooleanVar(value=True)
 
         # Multi-resolution settings
-        self.use_lowres_for_intervals = tk.BooleanVar(value=True)
-        self.output_hires_for_first_last = tk.BooleanVar(value=False)
+        self.use_interval = tk.BooleanVar(value=True)  # Extract interval frames
+        self.interval_resolution = tk.StringVar(value="lowres")  # "hires" or "lowres"
+        self.use_first_last = tk.BooleanVar(value=False)  # Extract first/last frames
+        self.first_last_resolution = tk.StringVar(value="hires")  # "hires" or "lowres"
+        self.hires_resolution = tk.StringVar(value="0.0025")  # 2.5mm
+        self.lowres_resolution = tk.StringVar(value="0.01")   # 10mm
 
         # Pipeline process reference
         self.pipeline_process = None
@@ -164,9 +168,13 @@ class PipelineGUI:
                  foreground="gray").grid(row=row, column=2, sticky=tk.W)
 
         row += 1
-        ttk.Checkbutton(input_frame, text="Use Interval (extract frames at regular intervals)",
-                       variable=self.time_mode, onvalue="interval", offvalue="endpoints",
-                       command=self.on_time_mode_change).grid(row=row, column=0, columnspan=3, sticky=tk.W, pady=(5, 0))
+        ttk.Separator(input_frame, orient='horizontal').grid(row=row, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=(10, 10))
+
+        # Interval extraction settings
+        row += 1
+        self.interval_check = ttk.Checkbutton(input_frame, text="Extract interval frames",
+                       variable=self.use_interval, command=self.on_extraction_settings_change)
+        self.interval_check.grid(row=row, column=0, columnspan=3, sticky=tk.W, pady=(5, 0))
 
         row += 1
         ttk.Label(input_frame, text="Interval:").grid(row=row, column=0, sticky=tk.W, padx=(20, 0))
@@ -177,6 +185,37 @@ class PipelineGUI:
         self.interval_label = ttk.Label(self.interval_frame, text="Examples: 30s, 1min, 5min",
                  foreground="gray")
         self.interval_label.pack(side=tk.LEFT, padx=(10, 0))
+
+        row += 1
+        ttk.Label(input_frame, text="Resolution:").grid(row=row, column=0, sticky=tk.W, padx=(20, 0))
+        interval_res_frame = ttk.Frame(input_frame)
+        interval_res_frame.grid(row=row, column=1, sticky=tk.W, padx=5)
+        self.interval_hires_radio = ttk.Radiobutton(interval_res_frame, text="High-res",
+                       variable=self.interval_resolution, value="hires")
+        self.interval_hires_radio.pack(side=tk.LEFT, padx=(0, 10))
+        self.interval_lowres_radio = ttk.Radiobutton(interval_res_frame, text="Low-res",
+                       variable=self.interval_resolution, value="lowres")
+        self.interval_lowres_radio.pack(side=tk.LEFT)
+
+        # First/Last extraction settings
+        row += 1
+        ttk.Separator(input_frame, orient='horizontal').grid(row=row, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=(10, 5))
+
+        row += 1
+        self.firstlast_check = ttk.Checkbutton(input_frame, text="Extract first and last frames",
+                       variable=self.use_first_last, command=self.on_extraction_settings_change)
+        self.firstlast_check.grid(row=row, column=0, columnspan=3, sticky=tk.W, pady=(5, 0))
+
+        row += 1
+        ttk.Label(input_frame, text="Resolution:").grid(row=row, column=0, sticky=tk.W, padx=(20, 0))
+        firstlast_res_frame = ttk.Frame(input_frame)
+        firstlast_res_frame.grid(row=row, column=1, sticky=tk.W, padx=5)
+        self.firstlast_hires_radio = ttk.Radiobutton(firstlast_res_frame, text="High-res",
+                       variable=self.first_last_resolution, value="hires")
+        self.firstlast_hires_radio.pack(side=tk.LEFT, padx=(0, 10))
+        self.firstlast_lowres_radio = ttk.Radiobutton(firstlast_res_frame, text="Low-res",
+                       variable=self.first_last_resolution, value="lowres")
+        self.firstlast_lowres_radio.pack(side=tk.LEFT)
 
         # Paths Section
         paths_frame = ttk.LabelFrame(main_frame, text="File Paths", padding="5")
@@ -243,7 +282,7 @@ class PipelineGUI:
         self.mosaic_method.trace('w', on_method_change)
         on_method_change()  # Initial state
 
-        # Multi-resolution settings
+        # Resolution value settings
         row += 1
         ttk.Separator(proc_frame, orient='horizontal').grid(row=row, column=0, columnspan=4, sticky=(tk.W, tk.E), pady=(10, 10))
 
@@ -251,17 +290,14 @@ class PipelineGUI:
         ttk.Label(proc_frame, text="Resolution Settings:", font=('Arial', 9, 'bold')).grid(row=row, column=0, columnspan=2, sticky=tk.W)
 
         row += 1
-        self.lowres_intervals_check = ttk.Checkbutton(proc_frame, text="Output interval images at low-res (10mm) - faster processing, smaller files",
-                       variable=self.use_lowres_for_intervals, command=self.on_lowres_intervals_change)
-        self.lowres_intervals_check.grid(row=row, column=0, columnspan=3, sticky=tk.W, pady=(5, 0))
+        ttk.Label(proc_frame, text="High-res (m/pixel):").grid(row=row, column=0, sticky=tk.W, pady=(5, 0))
+        ttk.Entry(proc_frame, textvariable=self.hires_resolution, width=15).grid(row=row, column=1, sticky=tk.W, padx=5, pady=(5, 0))
+        ttk.Label(proc_frame, text="(e.g., 0.0025 = 2.5mm/pixel)", foreground="gray").grid(row=row, column=2, sticky=tk.W, pady=(5, 0))
 
         row += 1
-        self.hires_firstlast_check = ttk.Checkbutton(proc_frame, text="Also output first and last images at high-res (2.5mm)",
-                       variable=self.output_hires_for_first_last)
-        self.hires_firstlast_check.grid(row=row, column=0, columnspan=3, sticky=tk.W, padx=(20, 0))
-
-        # Initial state
-        self.on_lowres_intervals_change()
+        ttk.Label(proc_frame, text="Low-res (m/pixel):").grid(row=row, column=0, sticky=tk.W)
+        ttk.Entry(proc_frame, textvariable=self.lowres_resolution, width=15).grid(row=row, column=1, sticky=tk.W, padx=5)
+        ttk.Label(proc_frame, text="(e.g., 0.01 = 10mm/pixel)", foreground="gray").grid(row=row, column=2, sticky=tk.W)
 
         # Post-Processing Options Section
         postproc_frame = ttk.LabelFrame(main_frame, text="Post-Processing Options", padding="5")
@@ -421,6 +457,9 @@ class PipelineGUI:
         self.recalibrate_button.pack(side=tk.LEFT, padx=5)
 
         ttk.Button(button_frame, text="Close", command=self.root.quit).pack(side=tk.LEFT, padx=5)
+
+        # Initialize UI state
+        self.on_extraction_settings_change()
 
     def browse_directory(self, var):
         """Open directory browser"""
@@ -602,32 +641,27 @@ class PipelineGUI:
             self.log_console(f"ERROR: {e}")
             self.log_console(f"TRACEBACK:\n{error_details}")
 
-    def on_time_mode_change(self):
-        """Handle time mode checkbox changes"""
-        mode = self.time_mode.get()
-        if mode == "endpoints":
-            # Disable interval entry and resolution options
-            self.interval_entry.config(state='disabled')
-            self.interval_label.config(foreground='lightgray')
-            self.lowres_intervals_check.config(state='disabled')
-            self.hires_firstlast_check.config(state='disabled')
-            self.log_console("Time mode: Start/End only (will extract 2 frames)")
-        else:
-            # Enable interval entry and resolution options
+    def on_extraction_settings_change(self):
+        """Handle extraction settings checkbox changes"""
+        # Enable/disable interval controls based on checkbox
+        if self.use_interval.get():
             self.interval_entry.config(state='normal')
             self.interval_label.config(foreground='gray')
-            self.lowres_intervals_check.config(state='normal')
-            self.on_lowres_intervals_change()
-            self.log_console(f"Time mode: Interval ({self.interval.get()})")
-
-    def on_lowres_intervals_change(self):
-        """Handle low-res intervals checkbox changes"""
-        mode = self.time_mode.get()
-        if self.use_lowres_for_intervals.get() and mode == "interval":
-            self.hires_firstlast_check.config(state='normal')
+            self.interval_hires_radio.config(state='normal')
+            self.interval_lowres_radio.config(state='normal')
         else:
-            self.hires_firstlast_check.config(state='disabled')
-            self.output_hires_for_first_last.set(False)
+            self.interval_entry.config(state='disabled')
+            self.interval_label.config(foreground='lightgray')
+            self.interval_hires_radio.config(state='disabled')
+            self.interval_lowres_radio.config(state='disabled')
+
+        # Enable/disable first/last resolution controls based on checkbox
+        if self.use_first_last.get():
+            self.firstlast_hires_radio.config(state='normal')
+            self.firstlast_lowres_radio.config(state='normal')
+        else:
+            self.firstlast_hires_radio.config(state='disabled')
+            self.firstlast_lowres_radio.config(state='disabled')
 
     def load_config(self):
         """Load configuration from master_control.json"""
@@ -652,7 +686,6 @@ class PipelineGUI:
             self.end_time.set(config.get('end_time', ''))
             self.interval.set(config.get('interval', '1min'))
             self.time_mode.set(config.get('time_mode', 'interval'))
-            self.on_time_mode_change()  # Update UI based on loaded mode
 
             # Load paths
             paths = config.get('paths', {})
@@ -683,8 +716,18 @@ class PipelineGUI:
 
             # Load multi-resolution settings
             multi_res = config.get('multi_resolution', {})
-            self.use_lowres_for_intervals.set(multi_res.get('use_lowres_for_intervals', True))
-            self.output_hires_for_first_last.set(multi_res.get('output_hires_for_first_last', False))
+            self.use_interval.set(multi_res.get('use_interval', True))
+            self.interval_resolution.set(multi_res.get('interval_resolution', 'lowres'))
+            self.use_first_last.set(multi_res.get('use_first_last', False))
+            self.first_last_resolution.set(multi_res.get('first_last_resolution', 'hires'))
+
+            # Load resolution values
+            resolutions = config.get('resolutions', {})
+            self.hires_resolution.set(str(resolutions.get('hires', 0.0025)))
+            self.lowres_resolution.set(str(resolutions.get('lowres', 0.01)))
+
+            # Update UI state based on loaded settings
+            self.on_extraction_settings_change()
 
             self.log_console(f"Loaded configuration from {self.config_path}")
 
@@ -749,21 +792,22 @@ class PipelineGUI:
 
             # Add multi-resolution settings
             config["multi_resolution"] = {
-                "use_lowres_for_intervals": self.use_lowres_for_intervals.get(),
-                "output_hires_for_first_last": self.output_hires_for_first_last.get()
+                "use_interval": self.use_interval.get(),
+                "interval_resolution": self.interval_resolution.get(),
+                "use_first_last": self.use_first_last.get(),
+                "first_last_resolution": self.first_last_resolution.get()
             }
 
-            # Preserve extra fields from existing config (like camera_time_offsets, resolutions)
+            # Add resolution settings
+            config["resolutions"] = {
+                "hires": float(self.hires_resolution.get()),
+                "lowres": float(self.lowres_resolution.get())
+            }
+
+            # Preserve extra fields from existing config (like camera_time_offsets, coordinate_system, calibration)
             for key in existing_config:
                 if key not in config:
                     config[key] = existing_config[key]
-
-            # Ensure resolutions are present (add defaults if missing)
-            if "resolutions" not in config:
-                config["resolutions"] = {
-                    "hires": 0.0025,
-                    "lowres": 0.010
-                }
 
             # Save to file
             with open(self.config_path, 'w') as f:

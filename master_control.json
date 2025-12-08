@@ -24,13 +24,15 @@
         "world_file_path": "orthorectification//model_to_world_20251120.wld",
         "clip_shapefile": "inputs//shape_files//model_space_clip.shp",
         "keep_intermediate_mosaics": true,
-        "save_downscaled_mosaic": true,
+        "save_downscaled_mosaic": false,
         "downscaled_resolution": 0.25,
         "compress_mosaics": true
     },
     "multi_resolution": {
-        "use_lowres_for_intervals": true,
-        "output_hires_for_first_last": true
+        "use_interval": false,
+        "interval_resolution": "lowres",
+        "use_first_last": true,
+        "first_last_resolution": "lowres"
     },
     "resolutions": {
         "hires": 0.0025,
