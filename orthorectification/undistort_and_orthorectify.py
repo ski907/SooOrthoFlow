@@ -1226,7 +1226,7 @@ def calibrate_all_cameras(gcp_file, image_dir, dem_path, resolution=0.005,
             calib['output_width'] = width
             calib['output_height'] = height
 
-            # Save ortho cache separately
+            # Save ortho cache separately (default to hires for calibration)
             cache_dir = output_path.parent / 'orthorectification' / 'ortho_cache'
             cache_data = {
                 'map_x': map_x,
@@ -1234,8 +1234,13 @@ def calibrate_all_cameras(gcp_file, image_dir, dem_path, resolution=0.005,
                 'output_width': width,
                 'output_height': height
             }
-            save_ortho_cache(camera_id, calibration_date, cache_data, cache_dir=str(cache_dir))
-            logger.info(f"  Saved ortho cache: {camera_id}_ortho_cache_{calibration_date}.pkl")
+            save_ortho_cache(
+                camera_id,
+                calib['K'], calib['D'], calib['rvec'], calib['tvec'],
+                geotransform, resolution, 'hires',
+                cache_data, cache_dir=str(cache_dir)
+            )
+            logger.info(f"  Saved ortho cache (hires, {resolution}m/pixel)")
 
         except Exception as e:
             logger.error(f"Error generating outputs for {camera_id}: {e}")
@@ -1289,7 +1294,8 @@ def calibrate_all_cameras(gcp_file, image_dir, dem_path, resolution=0.005,
 
 # Fast processing of new images using saved calibration
 def process_new_images_fast(new_image_dir, calibration_file, output_dir='new_ortho',
-                            save_undistorted=True, dem_path=None, cache_dir='orthorectification/ortho_cache'):
+                            save_undistorted=True, dem_path=None, cache_dir='orthorectification/ortho_cache',
+                            resolution=None, resolution_name='hires'):
     """
     Quickly process new images using pre-computed calibration and cached ortho lookup tables.
 
@@ -1306,6 +1312,8 @@ def process_new_images_fast(new_image_dir, calibration_file, output_dir='new_ort
     - save_undistorted: whether to save undistorted images for QC
     - dem_path: path to DEM file (required if cache needs regeneration)
     - cache_dir: directory containing ortho cache files
+    - resolution: output resolution in meters/pixel (if None, uses geotransform from calibration)
+    - resolution_name: resolution name for cache file suffix ('hires' or 'lowres')
     """
     print("Loading calibration from CSV...")
     calibrations = load_camera_calibrations(calibration_file)
@@ -1313,32 +1321,55 @@ def process_new_images_fast(new_image_dir, calibration_file, output_dir='new_ort
     # PRE-GENERATE any missing cache files before parallel processing
     # This prevents multiple processes from regenerating the same cache
     if dem_path:
-        print("\nChecking ortho cache files...")
+        print(f"\nChecking ortho cache files ({resolution_name}: {resolution}m/pixel)...")
         missing_caches = []
         for camera_id, calib in calibrations.items():
-            cal_date = calib['calibration_date']
-            cache_data = load_ortho_cache(camera_id, cal_date, cache_dir=cache_dir)
+            # Use specified resolution or fall back to calibration geotransform
+            res = resolution if resolution is not None else abs(calib['geotransform']['pixel_width'])
+
+            # Create geotransform for this resolution
+            calib_res = abs(calib['geotransform']['pixel_width'])
+            if abs(res - calib_res) > 1e-6:
+                # Resolution differs - update geotransform
+                geotransform = calib['geotransform'].copy()
+                geotransform['pixel_width'] = res
+                geotransform['pixel_height'] = -res
+            else:
+                # Use calibration geotransform as-is
+                geotransform = calib['geotransform']
+
+            cache_data = load_ortho_cache(
+                camera_id,
+                calib['K'], calib['D'], calib['rvec'], calib['tvec'],
+                geotransform, res, resolution_name,
+                cache_dir=cache_dir
+            )
             if cache_data is None:
-                missing_caches.append((camera_id, calib))
+                missing_caches.append((camera_id, calib, res, geotransform))
 
         if missing_caches:
             print(f"Found {len(missing_caches)} cameras with missing cache files")
             print("Generating cache files (this may take a few minutes)...\n")
 
-            for camera_id, calib in missing_caches:
-                cal_date = calib['calibration_date']
+            for camera_id, calib, res, geotransform in missing_caches:
+                print(f"  Generating cache for {camera_id} at {res}m/pixel...")
 
-                # Verify we have output dimensions
-                if calib.get('output_width') is None or calib.get('output_height') is None:
-                    print(f"  WARNING: Skipping {camera_id} - no output dimensions in calibration")
-                    continue
-
-                print(f"  Generating cache for {camera_id}...")
-                width = calib['output_width']
-                height = calib['output_height']
+                # If resolution differs from calibration, need to recalculate output dimensions
+                calib_res = abs(calib['geotransform']['pixel_width'])
+                if abs(res - calib_res) > 1e-6:
+                    # Resolution changed - recalculate output dimensions
+                    # Scale factor: how much smaller/larger is new resolution
+                    scale_factor = calib_res / res
+                    width = int(calib['output_width'] * scale_factor)
+                    height = int(calib['output_height'] * scale_factor)
+                    print(f"    Adjusted dimensions: {width}x{height} (from {calib['output_width']}x{calib['output_height']})")
+                else:
+                    # Using calibration resolution
+                    width = calib['output_width']
+                    height = calib['output_height']
 
                 # Load DEM
-                dem_array = load_dem_from_tiff(dem_path, width, height, calib['geotransform'])
+                dem_array = load_dem_from_tiff(dem_path, width, height, geotransform)
 
                 # Extract local origin from calibration
                 local_origin = np.array([
@@ -1350,7 +1381,7 @@ def process_new_images_fast(new_image_dir, calibration_file, output_dir='new_ort
                 # Create lookup tables
                 map_x, map_y = create_ortho_lookup_tables_with_dem(
                     calib['K'], calib['D'], calib['rvec'], calib['tvec'],
-                    width, height, calib['geotransform'], dem_array, local_origin=local_origin
+                    width, height, geotransform, dem_array, local_origin=local_origin
                 )
 
                 # Save cache
@@ -1360,7 +1391,12 @@ def process_new_images_fast(new_image_dir, calibration_file, output_dir='new_ort
                     'output_width': width,
                     'output_height': height
                 }
-                save_ortho_cache(camera_id, cal_date, cache_data, cache_dir=cache_dir)
+                save_ortho_cache(
+                    camera_id,
+                    calib['K'], calib['D'], calib['rvec'], calib['tvec'],
+                    geotransform, res, resolution_name,
+                    cache_data, cache_dir=cache_dir
+                )
                 print(f"    OK: Cache saved for {camera_id}")
 
             print(f"\nCache generation complete! All {len(missing_caches)} cache files created.\n")
@@ -1402,10 +1438,28 @@ def process_new_images_fast(new_image_dir, calibration_file, output_dir='new_ort
 
         # Get calibration for this camera
         calib = calibrations[camera_id]
-        cal_date = calib['calibration_date']
+
+        # Use specified resolution or fall back to calibration geotransform
+        res = resolution if resolution is not None else abs(calib['geotransform']['pixel_width'])
+
+        # Create geotransform for this resolution
+        calib_res = abs(calib['geotransform']['pixel_width'])
+        if abs(res - calib_res) > 1e-6:
+            # Resolution differs - update geotransform
+            geotransform = calib['geotransform'].copy()
+            geotransform['pixel_width'] = res
+            geotransform['pixel_height'] = -res
+        else:
+            # Use calibration geotransform as-is
+            geotransform = calib['geotransform']
 
         # Load ortho cache (should exist after pre-generation)
-        cache_data = load_ortho_cache(camera_id, cal_date, cache_dir=cache_dir)
+        cache_data = load_ortho_cache(
+            camera_id,
+            calib['K'], calib['D'], calib['rvec'], calib['tvec'],
+            geotransform, res, resolution_name,
+            cache_dir=cache_dir
+        )
 
         if cache_data is None:
             print(f"  ERROR: Cache missing for {camera_id} despite pre-generation. Skipping.")
@@ -1425,9 +1479,18 @@ def process_new_images_fast(new_image_dir, calibration_file, output_dir='new_ort
         # Orthorectify (FAST! Uses pre-computed lookup tables from cache)
         ortho_img = orthorectify_with_lookup(img, cache_data['map_x'], cache_data['map_y'])
 
-        # Save as GeoTIFF
-        ortho_path = ortho_dir / f"{img_path.stem}_ortho.tif"
-        save_geotiff(ortho_img, calib['geotransform'], ortho_path)
+        # Save as GeoTIFF with correct geotransform for this resolution
+        # Include resolution in filename for clarity
+        # Format: 2.5mm -> 2_5mm, 10mm -> 10mm (preserves decimal precision)
+        res_mm_value = res * 1000
+        if res_mm_value % 1 == 0:
+            # Integer value (e.g., 10.0 -> "10mm")
+            res_str = f"{int(res_mm_value)}mm"
+        else:
+            # Decimal value (e.g., 2.5 -> "2_5mm")
+            res_str = f"{res_mm_value:.10g}".replace('.', '_') + "mm"
+        ortho_path = ortho_dir / f"{img_path.stem}_ortho_{res_str}.tif"
+        save_geotiff(ortho_img, geotransform, ortho_path)
         print(f"  Orthorectified: {ortho_path.name}\n")
         processed_count += 1
 
@@ -1492,6 +1555,10 @@ Examples:
                            help='Ortho cache directory (default: orthorectification/ortho_cache)')
     proc_parser.add_argument('--no-undistorted', action='store_true',
                            help='Skip saving undistorted images (faster)')
+    proc_parser.add_argument('-r', '--resolution', type=float, default=None,
+                           help='Output resolution in m/pixel (default: use calibration resolution)')
+    proc_parser.add_argument('--resolution-name', choices=['hires', 'lowres'], default='hires',
+                           help='Resolution name for cache files (default: hires)')
     
     args = parser.parse_args()
     
@@ -1514,7 +1581,9 @@ Examples:
             output_dir=args.output,
             save_undistorted=not args.no_undistorted,
             dem_path=args.dem,
-            cache_dir=args.cache_dir
+            cache_dir=args.cache_dir,
+            resolution=args.resolution,
+            resolution_name=args.resolution_name
         )
     
     else:

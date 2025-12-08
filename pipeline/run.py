@@ -162,7 +162,7 @@ def run_extraction(master_config, log_file, show_output=True):
 
 def _process_single_ortho(args):
     """Worker function for parallel orthorectification"""
-    ts_folder, ortho_base, calib_file, dem_file, orthorectify_script = args
+    ts_folder, ortho_base, calib_file, dem_file, orthorectify_script, resolution, resolution_name = args
 
     output_dir = ortho_base / ts_folder.name
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -179,23 +179,30 @@ def _process_single_ortho(args):
     if dem_file:
         cmd.extend(['-d', dem_file])
 
+    # Add resolution parameters if specified
+    if resolution is not None:
+        cmd.extend(['-r', str(resolution)])
+    if resolution_name is not None:
+        cmd.extend(['--resolution-name', resolution_name])
+
     result = subprocess.run(cmd, capture_output=True, text=True, encoding='utf-8', errors='replace')
 
     return {
         'folder': ts_folder.name,
         'success': result.returncode == 0,
         'stdout': result.stdout,
-        'stderr': result.stderr
+        'stderr': result.stderr,
+        'resolution_name': resolution_name
     }
 
 
 def run_orthorectification(master_config, log_file, n_jobs=None):
-    """Run orthorectification on all timestamp folders in PARALLEL"""
+    """Run orthorectification on all timestamp folders in PARALLEL with multi-resolution support"""
     if n_jobs is None:
         n_jobs = cpu_count()
-    
+
     log(log_file, f"Starting orthorectification (using {n_jobs} cores)...")
-    
+
     test_dir = Path(master_config['paths']['output_base']) / master_config['test_id']
     frames_dir = test_dir / 'frames'
     ortho_base = test_dir / 'orthos'
@@ -203,17 +210,50 @@ def run_orthorectification(master_config, log_file, n_jobs=None):
     calib_file = master_config['paths']['calibration_file']
     dem_file = master_config['paths'].get('dsm_file')  # Optional, for cache regeneration
 
+    # Get multi-resolution settings
+    resolutions = master_config.get('resolutions', {'hires': 0.0025, 'lowres': 0.025})
+    multi_res_config = master_config.get('multi_resolution', {})
+    use_lowres_for_intervals = multi_res_config.get('use_lowres_for_intervals', False)
+    output_hires_for_first_last = multi_res_config.get('output_hires_for_first_last', False)
+
     # Get all timestamp folders
     timestamp_folders = sorted([d for d in frames_dir.iterdir() if d.is_dir()])
 
-    log(log_file, f"Processing {len(timestamp_folders)} timestamps in parallel...")
+    # Determine which timestamps get which resolutions
+    process_args = []
+    for idx, ts_folder in enumerate(timestamp_folders):
+        is_first = (idx == 0)
+        is_last = (idx == len(timestamp_folders) - 1)
 
-    # Prepare arguments for parallel processing
-    process_args = [
-        (ts_folder, ortho_base, calib_file, dem_file, ORTHORECTIFY)
-        for ts_folder in timestamp_folders
-    ]
-    
+        # Determine resolution(s) for this timestamp
+        resolutions_to_process = []
+
+        if use_lowres_for_intervals:
+            # Low-res for all intervals
+            resolutions_to_process.append(('lowres', resolutions['lowres']))
+
+            # Also hi-res for first/last if requested
+            if output_hires_for_first_last and (is_first or is_last):
+                resolutions_to_process.append(('hires', resolutions['hires']))
+        else:
+            # Use hi-res for all (default behavior)
+            resolutions_to_process.append(('hires', resolutions['hires']))
+
+        # Create process args for each resolution
+        for res_name, res_value in resolutions_to_process:
+            process_args.append((
+                ts_folder, ortho_base, calib_file, dem_file, ORTHORECTIFY,
+                res_value, res_name
+            ))
+
+    log(log_file, f"Processing {len(timestamp_folders)} timestamps ({len(process_args)} total jobs)...")
+    if use_lowres_for_intervals:
+        log(log_file, f"  Using low-res ({resolutions['lowres']}m) for intervals")
+        if output_hires_for_first_last:
+            log(log_file, f"  Also outputting first and last at hi-res ({resolutions['hires']}m)")
+    else:
+        log(log_file, f"  Using hi-res ({resolutions['hires']}m) for all timestamps")
+
     # Process in parallel
     with Pool(n_jobs) as pool:
         results = pool.map(_process_single_ortho, process_args)
@@ -221,22 +261,23 @@ def run_orthorectification(master_config, log_file, n_jobs=None):
     # Log results and verify files were created
     success_count = 0
     for result in results:
+        res_label = f" [{result['resolution_name']}]" if 'resolution_name' in result else ""
         if result['success']:
             # Verify output files actually exist
             ts_output_dir = ortho_base / result['folder'] / 'orthorectified'
-            ortho_files = list(ts_output_dir.glob('*_ortho.tif')) if ts_output_dir.exists() else []
+            ortho_files = list(ts_output_dir.glob('*_ortho*.tif')) if ts_output_dir.exists() else []
 
             if ortho_files:
-                log(log_file, f"  ✓ {result['folder']} ({len(ortho_files)} files)")
+                log(log_file, f"  ✓ {result['folder']}{res_label} ({len(ortho_files)} files)")
                 success_count += 1
             else:
-                log(log_file, f"  ✗ {result['folder']}: No output files created!")
+                log(log_file, f"  ✗ {result['folder']}{res_label}: No output files created!")
                 log(log_file, f"     STDOUT: {result['stdout'][:200]}")
                 log(log_file, f"     STDERR: {result['stderr'][:200]}")
         else:
-            log(log_file, f"  ✗ {result['folder']}: {result['stderr']}")
+            log(log_file, f"  ✗ {result['folder']}{res_label}: {result['stderr']}")
 
-    log(log_file, f"Orthorectification complete ({success_count}/{len(timestamp_folders)} succeeded)")
+    log(log_file, f"Orthorectification complete ({success_count}/{len(process_args)} jobs succeeded)")
 
     if success_count == 0:
         log(log_file, "\n✗ ERROR: No orthorectified images were created!")
@@ -259,53 +300,82 @@ def _process_single_mosaic(args):
             'error': 'No orthorectified folder found'
         }
 
-    output_file = mosaic_dir / f"mosaic_{ts_folder.name}.tif"
+    # Detect ALL unique resolutions in the folder
+    ortho_files = list(ortho_folder.glob('*_ortho*.tif'))
+    if not ortho_files:
+        return {
+            'folder': ts_folder.name,
+            'success': False,
+            'error': 'No ortho files found'
+        }
 
-    cmd = [
-        'python', str(mosaic_script),
-        str(ortho_folder),
-        '-o', str(output_file),
-        '-m', method
-    ]
+    # Extract all unique resolution suffixes
+    resolutions = set()
+    for f in ortho_files:
+        if '_ortho_' in f.stem:
+            res_part = f.stem.split('_ortho_')[-1]  # e.g., "25mm" or "2mm"
+            resolutions.add(res_part)
+        else:
+            resolutions.add("2.5mm")  # legacy files without suffix
 
-    # Add world file transformation if specified
-    if world_file:
-        cmd.extend(['--world-file', str(world_file)])
-        # Add optional transformation parameters
-        if transform_params.get('resampling'):
-            cmd.extend(['--world-resampling', transform_params['resampling']])
-        if transform_params.get('threads'):
-            cmd.extend(['--world-threads', str(transform_params['threads'])])
-        if transform_params.get('memory_mb'):
-            cmd.extend(['--world-memory', str(transform_params['memory_mb'])])
+    # Process each resolution separately
+    all_results = []
+    for res_str in sorted(resolutions):
+        output_file = mosaic_dir / f"mosaic_{ts_folder.name}_{res_str}.tif"
 
-    # Add shapefile clipping if specified
-    if clip_shapefile:
-        cmd.extend(['--clip-shapefile', str(clip_shapefile)])
+        cmd = [
+            'python', str(mosaic_script),
+            str(ortho_folder),
+            '-o', str(output_file),
+            '-m', method
+        ]
 
-    # Add keep-intermediate flag if specified
-    if keep_intermediate:
-        cmd.append('--keep-intermediate')
+        # Add world file transformation if specified
+        if world_file:
+            cmd.extend(['--world-file', str(world_file)])
+            # Add optional transformation parameters
+            if transform_params.get('resampling'):
+                cmd.extend(['--world-resampling', transform_params['resampling']])
+            if transform_params.get('threads'):
+                cmd.extend(['--world-threads', str(transform_params['threads'])])
+            if transform_params.get('memory_mb'):
+                cmd.extend(['--world-memory', str(transform_params['memory_mb'])])
 
-    # Add downscaled mosaic options if specified
-    if save_downscaled:
-        cmd.append('--save-downscaled')
-        cmd.extend(['--downscaled-resolution', str(downscaled_resolution)])
+        # Add shapefile clipping if specified
+        if clip_shapefile:
+            cmd.extend(['--clip-shapefile', str(clip_shapefile)])
 
-    # Add compression flag if disabled
-    if not compress_mosaics:
-        cmd.append('--no-compress')
+        # Add keep-intermediate flag if specified
+        if keep_intermediate:
+            cmd.append('--keep-intermediate')
 
-    # Add zone map shapefile if using zone_map method
-    if zone_map_shapefile:
-        cmd.extend(['--zone-map-shapefile', str(zone_map_shapefile)])
+        # Add downscaled mosaic options if specified
+        if save_downscaled:
+            cmd.append('--save-downscaled')
+            cmd.extend(['--downscaled-resolution', str(downscaled_resolution)])
 
-    result = subprocess.run(cmd, capture_output=True, text=True)
+        # Add compression flag if disabled
+        if not compress_mosaics:
+            cmd.append('--no-compress')
 
+        # Add zone map shapefile if using zone_map method
+        if zone_map_shapefile:
+            cmd.extend(['--zone-map-shapefile', str(zone_map_shapefile)])
+
+        result = subprocess.run(cmd, capture_output=True, text=True)
+
+        all_results.append({
+            'folder': f"{ts_folder.name}_{res_str}",
+            'success': result.returncode == 0,
+            'stderr': result.stderr if result.returncode != 0 else None
+        })
+
+    # Return combined result - success if all resolutions succeeded
     return {
         'folder': ts_folder.name,
-        'success': result.returncode == 0,
-        'stderr': result.stderr if result.returncode != 0 else None
+        'success': all(r['success'] for r in all_results),
+        'stderr': '\n'.join(r['stderr'] for r in all_results if r['stderr']) if not all(r['success'] for r in all_results) else None,
+        'resolutions': list(resolutions)
     }
 
 

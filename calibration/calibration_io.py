@@ -9,6 +9,7 @@ import pandas as pd
 import numpy as np
 import pickle
 import json
+import hashlib
 from pathlib import Path
 from typing import Dict, Any, Optional
 
@@ -295,27 +296,85 @@ def find_most_recent_calibration_csv(calibration_dir: str = 'calibration') -> Op
     return csv_files[0]
 
 
-def load_ortho_cache(camera_id: str, calibration_date: str,
+def compute_cache_hash(K: np.ndarray, D: np.ndarray, rvec: np.ndarray, tvec: np.ndarray,
+                       geotransform: Dict[str, float], resolution: float) -> str:
+    """
+    Compute a hash of calibration parameters and resolution for cache naming.
+
+    This ensures cache is invalidated when any calibration parameter or resolution changes.
+
+    Parameters:
+    -----------
+    K : np.ndarray
+        Camera intrinsic matrix (3x3)
+    D : np.ndarray
+        Distortion coefficients (4x1)
+    rvec : np.ndarray
+        Rotation vector (3x1)
+    tvec : np.ndarray
+        Translation vector (3x1)
+    geotransform : dict
+        Geotransform parameters (x_min, y_max, pixel_width, pixel_height)
+    resolution : float
+        Output resolution in meters/pixel
+
+    Returns:
+    --------
+    str : 12-character hash string
+    """
+    # Combine all parameters into a single bytes object
+    params = []
+    params.extend(K.flatten().tolist())
+    params.extend(D.flatten().tolist())
+    params.extend(rvec.flatten().tolist())
+    params.extend(tvec.flatten().tolist())
+    params.extend([
+        geotransform['x_min'],
+        geotransform['y_max'],
+        geotransform['pixel_width'],
+        geotransform['pixel_height']
+    ])
+    params.append(resolution)
+
+    # Convert to bytes and hash
+    param_str = ','.join(f'{p:.12f}' for p in params)
+    hash_obj = hashlib.sha256(param_str.encode('utf-8'))
+
+    # Return first 12 characters of hex digest (sufficient for uniqueness)
+    return hash_obj.hexdigest()[:12]
+
+
+def load_ortho_cache(camera_id: str, K: np.ndarray, D: np.ndarray, rvec: np.ndarray, tvec: np.ndarray,
+                     geotransform: Dict[str, float], resolution: float, resolution_name: str = 'hires',
                      cache_dir: str = 'orthorectification/ortho_cache') -> Optional[Dict[str, Any]]:
     """
-    Load orthorectification cache for a specific camera and date.
+    Load orthorectification cache for a specific camera with hash-based validation.
 
     Parameters:
     -----------
     camera_id : str
         Camera identifier
-    calibration_date : str
-        Calibration date (YYYYMMDD)
+    K, D, rvec, tvec : np.ndarray
+        Calibration parameters for computing hash
+    geotransform : dict
+        Geotransform parameters for computing hash
+    resolution : float
+        Output resolution in meters/pixel
+    resolution_name : str
+        Resolution name for cache file suffix ('hires' or 'lowres')
     cache_dir : str or Path
         Directory containing cache files
 
     Returns:
     --------
-    dict or None : Cache data with map_x, map_y, output_width, output_height
+    dict or None : Cache data with map_x, map_y, output_width, output_height, resolution, cache_hash
                    Returns None if cache file doesn't exist or is corrupted
     """
     cache_dir = Path(cache_dir)
-    cache_file = cache_dir / f"{camera_id}_ortho_cache_{calibration_date}.pkl"
+
+    # Compute hash from current parameters
+    cache_hash = compute_cache_hash(K, D, rvec, tvec, geotransform, resolution)
+    cache_file = cache_dir / f"{camera_id}_ortho_cache_{cache_hash}_{resolution_name}.pkl"
 
     if not cache_file.exists():
         return None
@@ -329,6 +388,19 @@ def load_ortho_cache(camera_id: str, calibration_date: str,
     try:
         with open(cache_file, 'rb') as f:
             cache_data = pickle.load(f)
+
+        # Validate cached hash matches (extra paranoia check)
+        if 'cache_hash' in cache_data and cache_data['cache_hash'] != cache_hash:
+            print(f"  WARNING: Cache hash mismatch, regenerating...")
+            cache_file.unlink()
+            return None
+
+        # Validate resolution matches (extra paranoia check)
+        if 'resolution' in cache_data and abs(cache_data['resolution'] - resolution) > 1e-6:
+            print(f"  WARNING: Cache resolution mismatch, regenerating...")
+            cache_file.unlink()
+            return None
+
         return cache_data
     except (EOFError, pickle.UnpicklingError) as e:
         print(f"  WARNING: Cache file {cache_file.name} is corrupted ({e}), deleting...")
@@ -336,10 +408,11 @@ def load_ortho_cache(camera_id: str, calibration_date: str,
         return None
 
 
-def save_ortho_cache(camera_id: str, calibration_date: str, cache_data: Dict[str, Any],
-                     cache_dir: str = 'orthorectification/ortho_cache'):
+def save_ortho_cache(camera_id: str, K: np.ndarray, D: np.ndarray, rvec: np.ndarray, tvec: np.ndarray,
+                     geotransform: Dict[str, float], resolution: float, resolution_name: str,
+                     cache_data: Dict[str, Any], cache_dir: str = 'orthorectification/ortho_cache'):
     """
-    Save orthorectification cache for a specific camera and date.
+    Save orthorectification cache for a specific camera with hash-based naming.
 
     Thread-safe: Uses unique temp file names to avoid conflicts when
     multiple processes try to save the same cache simultaneously.
@@ -348,8 +421,14 @@ def save_ortho_cache(camera_id: str, calibration_date: str, cache_data: Dict[str
     -----------
     camera_id : str
         Camera identifier
-    calibration_date : str
-        Calibration date (YYYYMMDD)
+    K, D, rvec, tvec : np.ndarray
+        Calibration parameters for computing hash
+    geotransform : dict
+        Geotransform parameters for computing hash
+    resolution : float
+        Output resolution in meters/pixel
+    resolution_name : str
+        Resolution name for cache file suffix ('hires' or 'lowres')
     cache_data : dict
         Cache data with keys: map_x, map_y, output_width, output_height
     cache_dir : str or Path
@@ -361,12 +440,19 @@ def save_ortho_cache(camera_id: str, calibration_date: str, cache_data: Dict[str
     cache_dir = Path(cache_dir)
     cache_dir.mkdir(parents=True, exist_ok=True)
 
-    cache_file = cache_dir / f"{camera_id}_ortho_cache_{calibration_date}.pkl"
+    # Compute hash and build cache filename
+    cache_hash = compute_cache_hash(K, D, rvec, tvec, geotransform, resolution)
+    cache_file = cache_dir / f"{camera_id}_ortho_cache_{cache_hash}_{resolution_name}.pkl"
+
+    # Add metadata to cache_data for validation
+    cache_data['cache_hash'] = cache_hash
+    cache_data['resolution'] = resolution
+    cache_data['resolution_name'] = resolution_name
 
     # Use process ID and timestamp to create unique temp file name
     pid = os.getpid()
     timestamp = int(time.time() * 1000)
-    temp_file = cache_dir / f"{camera_id}_ortho_cache_{calibration_date}.pkl.tmp.{pid}.{timestamp}"
+    temp_file = cache_dir / f"{camera_id}_ortho_cache_{cache_hash}_{resolution_name}.pkl.tmp.{pid}.{timestamp}"
 
     # Write to temporary file first to avoid corruption
     try:

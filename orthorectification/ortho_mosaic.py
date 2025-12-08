@@ -88,16 +88,29 @@ def get_image_bounds(img_shape, geotransform):
     return x_min, x_max, y_min, y_max
 
 
-def compute_mosaic_bounds(ortho_dir):
-    """Compute the overall bounds needed for the mosaic"""
+def compute_mosaic_bounds(ortho_dir, resolution_filter=None):
+    """
+    Compute the overall bounds needed for the mosaic
+
+    Args:
+        ortho_dir: Directory containing orthorectified images
+        resolution_filter: Optional resolution suffix to filter files (e.g., "2mm", "10mm")
+    """
     print("Computing mosaic bounds...")
 
     x_mins, x_maxs, y_mins, y_maxs = [], [], [], []
 
-    tif_files = list(Path(ortho_dir).glob('*_ortho.tif'))
+    # Look for ortho files (with or without resolution suffix)
+    tif_files = list(Path(ortho_dir).glob('*_ortho*.tif'))
+
+    # Filter by resolution if specified
+    if resolution_filter:
+        tif_files = [f for f in tif_files if f.stem.endswith(f"_{resolution_filter}")]
+        print(f"Filtering for resolution: {resolution_filter}")
 
     if not tif_files:
-        raise ValueError(f"No *_ortho.tif files found in {ortho_dir}")
+        raise ValueError(f"No *_ortho*.tif files found in {ortho_dir}" +
+                        (f" with resolution {resolution_filter}" if resolution_filter else ""))
 
     print(f"Found {len(tif_files)} orthorectified GeoTIFF images")
 
@@ -129,10 +142,20 @@ def generate_zone_map_raster(shapefile_path, mosaic_bounds, resolution, crs='EPS
         Tuple of (zone_array, camera_id_to_name, transform)
     """
     shapefile_path = Path(shapefile_path)
-    output_tif = shapefile_path.parent / (shapefile_path.stem + '.tif')
-    output_json = shapefile_path.parent / (shapefile_path.stem + '_lookup.json')
 
-    print(f"\nGenerating zone map raster from {shapefile_path.name}")
+    # Include resolution in filename to avoid conflicts
+    # Format: 2.5mm -> 2_5mm, 10mm -> 10mm (preserves decimal precision)
+    res_mm_value = resolution * 1000
+    if res_mm_value % 1 == 0:
+        # Integer value (e.g., 10.0 -> "10mm")
+        res_str = f"{int(res_mm_value)}mm"
+    else:
+        # Decimal value (e.g., 2.5 -> "2_5mm")
+        res_str = f"{res_mm_value:.10g}".replace('.', '_') + "mm"
+    output_tif = shapefile_path.parent / f"{shapefile_path.stem}_{res_str}.tif"
+    output_json = shapefile_path.parent / f"{shapefile_path.stem}_{res_str}_lookup.json"
+
+    print(f"\nGenerating zone map raster from {shapefile_path.name} at {res_str}/pixel")
     print(f"  Output: {output_tif}")
 
     # Read shapefile
@@ -228,14 +251,24 @@ def load_zone_map_raster(shapefile_path, mosaic_bounds, resolution, crs='EPSG:26
         Tuple of (zone_array, camera_id_to_name, transform)
     """
     shapefile_path = Path(shapefile_path)
-    output_tif = shapefile_path.parent / (shapefile_path.stem + '.tif')
-    output_json = shapefile_path.parent / (shapefile_path.stem + '_lookup.json')
+
+    # Include resolution in filename to avoid conflicts
+    # Format: 2.5mm -> 2_5mm, 10mm -> 10mm (preserves decimal precision)
+    res_mm_value = resolution * 1000
+    if res_mm_value % 1 == 0:
+        # Integer value (e.g., 10.0 -> "10mm")
+        res_str = f"{int(res_mm_value)}mm"
+    else:
+        # Decimal value (e.g., 2.5 -> "2_5mm")
+        res_str = f"{res_mm_value:.10g}".replace('.', '_') + "mm"
+    output_tif = shapefile_path.parent / f"{shapefile_path.stem}_{res_str}.tif"
+    output_json = shapefile_path.parent / f"{shapefile_path.stem}_{res_str}_lookup.json"
 
     # Check if cache exists and is up-to-date
     regenerate = False
 
     if not output_tif.exists() or not output_json.exists():
-        print(f"Zone map cache not found, generating...")
+        print(f"Zone map cache not found for {res_str} resolution, generating...")
         regenerate = True
     else:
         # Check if shapefile is newer than cached TIF
@@ -246,7 +279,29 @@ def load_zone_map_raster(shapefile_path, mosaic_bounds, resolution, crs='EPSG:26
             print(f"Zone map cache is stale (shapefile modified), regenerating...")
             regenerate = True
         else:
-            print(f"Loading cached zone map from {output_tif.name}")
+            # Check if bounds match - zone map must cover the mosaic bounds
+            with rasterio.open(output_tif) as src:
+                cached_transform = src.transform
+                cached_height, cached_width = src.height, src.width
+
+                # Calculate cached bounds
+                cached_x_min = cached_transform.c
+                cached_y_max = cached_transform.f
+                cached_x_max = cached_x_min + cached_width * cached_transform.a
+                cached_y_min = cached_y_max + cached_height * cached_transform.e
+
+                # Check if current mosaic bounds fit within cached bounds (with tolerance)
+                x_min, x_max, y_min, y_max = mosaic_bounds
+                tolerance = resolution * 0.5  # Half pixel tolerance
+
+                if (x_min < cached_x_min - tolerance or x_max > cached_x_max + tolerance or
+                    y_min < cached_y_min - tolerance or y_max > cached_y_max + tolerance):
+                    print(f"Zone map cache bounds don't match mosaic bounds, regenerating...")
+                    print(f"  Cached bounds: ({cached_x_min:.2f}, {cached_x_max:.2f}, {cached_y_min:.2f}, {cached_y_max:.2f})")
+                    print(f"  Mosaic bounds:  ({x_min:.2f}, {x_max:.2f}, {y_min:.2f}, {y_max:.2f})")
+                    regenerate = True
+                else:
+                    print(f"Loading cached zone map from {output_tif.name}")
 
     if regenerate:
         return generate_zone_map_raster(shapefile_path, mosaic_bounds, resolution, crs)
@@ -355,7 +410,7 @@ def create_seam_carved_mosaic(ortho_dir, output_path, resolution=None,
     x_min, x_max, y_min, y_max = compute_mosaic_bounds(ortho_dir)
     
     # Get resolution
-    tif_files = sorted(Path(ortho_dir).glob('*_ortho.tif'))
+    tif_files = sorted(Path(ortho_dir).glob('*_ortho*.tif'))
     first_geotransform = read_geotiff_transform(tif_files[0])
 
     if resolution is None:
@@ -532,6 +587,9 @@ def create_seam_carved_mosaic(ortho_dir, output_path, resolution=None,
         print(f"  Deleted unclipped mosaic: {temp_path}")
         # Replace temp_path with clipped version for subsequent operations
         temp_path = clipped_path
+        # Also update final_path if no world transform (they're the same)
+        if not world_file_transform:
+            final_path = clipped_path
 
     # Apply coordinate transformation if requested
     if world_file_transform:
@@ -1013,7 +1071,8 @@ def create_mosaic_simple_priority(ortho_dir, output_path, resolution=None,
                                   keep_intermediate=False,
                                   save_downscaled=False,
                                   downscaled_resolution=0.25,
-                                  compress_output=True):
+                                  compress_output=True,
+                                  resolution_filter=None):
     """
     Simple approach: Assign priority to each image, last one wins
 
@@ -1025,12 +1084,16 @@ def create_mosaic_simple_priority(ortho_dir, output_path, resolution=None,
         world_file_transform: Optional path to world file for coordinate transformation
         clip_shapefile: Optional path to shapefile for clipping the mosaic in model coordinates
         keep_intermediate: If True, keep model-space clipped mosaic; if False, delete after transformation (default: False)
+        resolution_filter: Optional resolution suffix to filter files (e.g., "2mm", "10mm")
     """
 
-    # Compute overall bounds
-    x_min, x_max, y_min, y_max = compute_mosaic_bounds(ortho_dir)
+    # Compute overall bounds (filtering by resolution if specified)
+    x_min, x_max, y_min, y_max = compute_mosaic_bounds(ortho_dir, resolution_filter)
 
-    tif_files = sorted(Path(ortho_dir).glob('*_ortho.tif'))
+    tif_files = sorted(Path(ortho_dir).glob('*_ortho*.tif'))
+    # Filter by resolution if specified
+    if resolution_filter:
+        tif_files = [f for f in tif_files if f.stem.endswith(f"_{resolution_filter}")]
     first_geotransform = read_geotiff_transform(tif_files[0])
 
     if resolution is None:
@@ -1244,6 +1307,9 @@ def create_mosaic_simple_priority(ortho_dir, output_path, resolution=None,
         print(f"  Deleted unclipped mosaic: {temp_path}")
         # Replace temp_path with clipped version for subsequent operations
         temp_path = clipped_path
+        # Also update final_path if no world transform (they're the same)
+        if not world_file_transform:
+            final_path = clipped_path
 
     # Apply coordinate transformation if requested
     if world_file_transform:
@@ -1290,7 +1356,8 @@ def create_mosaic_zone_map(ortho_dir, output_path, zone_map_shapefile, resolutio
                            keep_intermediate=False,
                            save_downscaled=False,
                            downscaled_resolution=0.25,
-                           compress_output=True):
+                           compress_output=True,
+                           resolution_filter=None):
     """
     Create mosaic using spatial zone map from shapefile.
     Each zone exclusively uses its assigned camera (strict mode).
@@ -1300,12 +1367,16 @@ def create_mosaic_zone_map(ortho_dir, output_path, zone_map_shapefile, resolutio
         world_file_transform: Optional path to world file for coordinate transformation
         clip_shapefile: Optional path to shapefile for clipping the mosaic in model coordinates
         keep_intermediate: If True, keep model-space clipped mosaic; if False, delete after transformation
+        resolution_filter: Optional resolution suffix to filter files (e.g., "2mm", "10mm")
     """
 
-    # Compute overall bounds
-    x_min, x_max, y_min, y_max = compute_mosaic_bounds(ortho_dir)
+    # Compute overall bounds (filtering by resolution if specified)
+    x_min, x_max, y_min, y_max = compute_mosaic_bounds(ortho_dir, resolution_filter)
 
-    tif_files = sorted(Path(ortho_dir).glob('*_ortho.tif'))
+    tif_files = sorted(Path(ortho_dir).glob('*_ortho*.tif'))
+    # Filter by resolution if specified
+    if resolution_filter:
+        tif_files = [f for f in tif_files if f.stem.endswith(f"_{resolution_filter}")]
     first_geotransform = read_geotiff_transform(tif_files[0])
 
     if resolution is None:
@@ -1342,9 +1413,15 @@ def create_mosaic_zone_map(ortho_dir, output_path, zone_map_shapefile, resolutio
         print(f"[{i}/{len(tif_files)}] Processing {tif_path.name}")
 
         # Extract camera name from filename
-        # Expected format: "NVR1_N910A6_ch1_main_ortho.tif"
-        ortho_stem = tif_path.stem  # "NVR1_N910A6_ch1_main_ortho"
-        camera_name = ortho_stem.replace('_ortho', '')  # "NVR1_N910A6_ch1_main"
+        # Expected formats:
+        #   "NVR1_N910A6_ch1_main_ortho.tif" (legacy)
+        #   "NVR1_N910A6_ch1_main_ortho_25mm.tif" (with resolution)
+        ortho_stem = tif_path.stem  # "NVR1_N910A6_ch1_main_ortho_25mm"
+        # Remove "_ortho" and everything after it (including resolution suffix)
+        if '_ortho' in ortho_stem:
+            camera_name = ortho_stem.split('_ortho')[0]  # "NVR1_N910A6_ch1_main"
+        else:
+            camera_name = ortho_stem  # fallback if no _ortho found
 
         # Look up camera ID in zone map
         camera_id = camera_name_to_id.get(camera_name, 0)
@@ -1409,7 +1486,7 @@ def create_mosaic_zone_map(ortho_dir, output_path, zone_map_shapefile, resolutio
             coverage_map[mosaic_row_start:mosaic_row_end,
                         mosaic_col_start:mosaic_col_end] = coverage_region
 
-            print(f"  ✓ Added {pixels_updated} pixels from zone {camera_id} ({camera_name})")
+            print(f"  + Added {pixels_updated} pixels from zone {camera_id} ({camera_name})")
         else:
             print(f"  No pixels in this camera's zone")
 
@@ -1490,6 +1567,9 @@ def create_mosaic_zone_map(ortho_dir, output_path, zone_map_shapefile, resolutio
         print(f"  Deleted unclipped mosaic: {temp_path}")
         # Replace temp_path with clipped version for subsequent operations
         temp_path = clipped_path
+        # Also update final_path if no world transform (they're the same)
+        if not world_file_transform:
+            final_path = clipped_path
 
     # Apply coordinate transformation if requested
     if world_file_transform:
@@ -1643,6 +1723,33 @@ if __name__ == "__main__":
     if args.method == 'zone_map' and not args.zone_map_shapefile:
         parser.error("--zone-map-shapefile is required when using zone_map method")
 
+    # Extract resolution filter from output filename if present
+    # e.g., "mosaic_20251203_141530_2_5mm.tif" -> resolution_filter = "2_5mm"
+    # e.g., "mosaic_20251203_141530_10mm.tif" -> resolution_filter = "10mm"
+    resolution_filter = None
+    output_stem = Path(args.output).stem
+    if '_' in output_stem:
+        # Check if last part matches pattern like "2mm", "10mm", "2_5mm"
+        last_part = output_stem.split('_')[-1]
+        if last_part.endswith('mm'):
+            # Check if it's a simple number (e.g., "10mm")
+            if last_part[:-2].isdigit():
+                resolution_filter = last_part
+                print(f"Detected resolution filter from output filename: {resolution_filter}")
+            else:
+                # Check if it's a decimal format (e.g., "5mm" from "2_5mm")
+                # Need to look at last two parts
+                parts = output_stem.split('_')
+                if len(parts) >= 2:
+                    last_two = '_'.join(parts[-2:])
+                    # Match pattern like "2_5mm"
+                    if last_two.endswith('mm') and '_' in last_two:
+                        before_mm = last_two[:-2]
+                        parts_check = before_mm.split('_')
+                        if len(parts_check) == 2 and all(p.isdigit() for p in parts_check):
+                            resolution_filter = last_two
+                            print(f"Detected resolution filter from output filename: {resolution_filter}")
+
     if args.method == 'seam':
         create_seam_carved_mosaic(
             args.ortho_dir,
@@ -1674,7 +1781,8 @@ if __name__ == "__main__":
             keep_intermediate=args.keep_intermediate,
             save_downscaled=args.save_downscaled,
             downscaled_resolution=args.downscaled_resolution,
-            compress_output=not args.no_compress
+            compress_output=not args.no_compress,
+            resolution_filter=resolution_filter
         )
     else:
         create_mosaic_simple_priority(
@@ -1690,7 +1798,8 @@ if __name__ == "__main__":
             keep_intermediate=args.keep_intermediate,
             save_downscaled=args.save_downscaled,
             downscaled_resolution=args.downscaled_resolution,
-            compress_output=not args.no_compress
+            compress_output=not args.no_compress,
+            resolution_filter=resolution_filter
         )
 
 #python ortho_mosaic.py output/orthorectified -o cse_all16IR_mosaic.tif -m center

@@ -8,9 +8,8 @@
     "time_range": {
         "start": "2025-12-03 14:15:30",
         "end": "2025-12-03 14:32:30",
-        "interval": null
+        "interval": "5min"
     },
-    "endpoints_only": true,
     "camera_time_offsets": {
         "NVR2": 0.0
     }
