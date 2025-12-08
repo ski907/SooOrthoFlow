@@ -32,7 +32,7 @@
         "use_interval": false,
         "interval_resolution": "lowres",
         "use_first_last": true,
-        "first_last_resolution": "lowres"
+        "first_last_resolution": "hires"
     },
     "resolutions": {
         "hires": 0.0025,

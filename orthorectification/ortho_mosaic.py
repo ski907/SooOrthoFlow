@@ -944,18 +944,55 @@ def apply_coordinate_transform(input_tif, output_tif, world_file_path,
 
     # Read world file transform (pixel coords -> world coords)
     # This was created in QGIS by georeferencing the original image
-    pixel_to_world = read_world_file(world_file_path)
+    world_file_transform = read_world_file(world_file_path)
 
     with rasterio.open(input_tif) as src:
         src_crs = src.crs
         src_height, src_width = src.height, src.width
         num_bands = src.count
+        src_transform = src.transform
+
+        # Detect the model-space resolution from the source mosaic
+        # The source transform tells us the model-space pixel size
+        model_pixel_size = abs(src_transform.a)  # Assume square pixels
+
+        # The world file was created by georeferencing a 2.5mm model-space mosaic
+        # It maps: pixel coordinates -> world coordinates (UTM)
+        # For a different resolution mosaic, we need to compose transforms:
+        # 1. Source transform: pixel coords -> model coords (at current resolution)
+        # 2. World file transform: pixel coords -> world coords (at reference resolution)
+
+        # The key insight: the world file gives us a direct pixel->world mapping
+        # We just need to use the SOURCE transform to tell reproject() where each
+        # pixel maps in model space, then it will use that with the world file
+
+        # Actually, we should use the source's model-space transform directly
+        # and let the world file handle the pixel->world mapping
+        # But the world file expects pixels at 2.5mm resolution
+
+        # Solution: Compose the transforms properly
+        # src pixel -> model coords (via src_transform)
+        # model coords -> reference pixels (inverse of reference model transform)
+        # reference pixels -> world coords (via world file)
+
+        from rasterio.transform import Affine
+
+        reference_resolution = 0.0025  # 2.5mm
+        reference_model_transform = Affine(reference_resolution, 0, src_transform.c,
+                                           0, -reference_resolution, src_transform.f)
+
+        # Compose: src_transform -> model coords -> reference pixel coords -> world coords
+        # src_transform takes us to model coords
+        # ~reference_model_transform takes us from model coords to reference pixels
+        # world_file_transform takes us from reference pixels to world coords
+        pixel_to_world = world_file_transform * ~reference_model_transform * src_transform
 
         print(f"  Source image dimensions: {src_width} x {src_height}, {num_bands} bands")
+        print(f"  Model-space resolution: {model_pixel_size*1000:.2f}mm/pixel")
         print(f"  Using {num_threads} threads, {warp_mem_limit_mb}MB warp memory")
         print(f"  Resampling method: {resampling_method}")
-        print(f"  Pixel-to-world transform from world file:")
-        print(f"    {pixel_to_world}")
+        print(f"  Source transform (model coords): {src_transform}")
+        print(f"  Composed pixel-to-world transform: {pixel_to_world}")
 
         # Calculate the corners in pixel coordinates
         pixel_corners = [
