@@ -62,6 +62,7 @@ class VideoMosaicProcessor:
         self.ortho_resolution = config['processing']['ortho_resolution']
         self.mosaic_method = config['processing']['mosaic_method']
         self.zone_map_shapefile = config['processing'].get('zone_map_shapefile')
+        self.rotation_angle_deg = config['processing'].get('rotation_angle_deg', 0.0)
 
         self.output_dir = Path(config['output']['output_dir'])
         self.video_filename = config['output']['video_filename']
@@ -224,6 +225,8 @@ class VideoMosaicProcessor:
         print(f"  Initial dimensions: {self.output_width}x{self.output_height}")
         if self.mosaic_method == 'zone_map':
             print(f"  Note: Will auto-crop to content after first frame")
+        if self.rotation_angle_deg != 0.0:
+            print(f"  Note: Will rotate frames by {self.rotation_angle_deg}° counterclockwise")
 
         print(f"\nSetup complete!\n")
         return True
@@ -254,6 +257,40 @@ class VideoMosaicProcessor:
 
         # Return overall bounds
         return (min(x_mins), max(x_maxs), min(y_mins), max(y_maxs))
+
+    def _rotate_frame(self, frame: np.ndarray, angle_deg: float) -> np.ndarray:
+        """
+        Rotate frame counterclockwise by specified angle.
+
+        Parameters:
+            frame: Input frame (H, W, 3)
+            angle_deg: Rotation angle in degrees (counterclockwise)
+
+        Returns:
+            Rotated frame
+        """
+        height, width = frame.shape[:2]
+        center = (width / 2, height / 2)
+
+        # Get rotation matrix (counterclockwise rotation)
+        rotation_matrix = cv2.getRotationMatrix2D(center, angle_deg, 1.0)
+
+        # Calculate new bounding box size
+        cos = np.abs(rotation_matrix[0, 0])
+        sin = np.abs(rotation_matrix[0, 1])
+        new_width = int((height * sin) + (width * cos))
+        new_height = int((height * cos) + (width * sin))
+
+        # Adjust rotation matrix to account for translation
+        rotation_matrix[0, 2] += (new_width / 2) - center[0]
+        rotation_matrix[1, 2] += (new_height / 2) - center[1]
+
+        # Perform rotation
+        rotated = cv2.warpAffine(frame, rotation_matrix, (new_width, new_height),
+                                 flags=cv2.INTER_LINEAR, borderMode=cv2.BORDER_CONSTANT,
+                                 borderValue=(0, 0, 0))
+
+        return rotated
 
     def process(self):
         """
@@ -306,6 +343,10 @@ class VideoMosaicProcessor:
 
                 # 3. Mosaic in memory
                 mosaicked_frame = self.mosaic_engine.mosaic_frame(ortho_images)
+
+                # 3.5. Apply rotation if specified
+                if self.rotation_angle_deg != 0.0:
+                    mosaicked_frame = self._rotate_frame(mosaicked_frame, self.rotation_angle_deg)
 
                 # 4. Create video writer after first frame (now we know the output dimensions)
                 if self.video_writer is None:

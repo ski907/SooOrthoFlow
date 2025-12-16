@@ -47,7 +47,11 @@
     "_mosaic_method_description": "zone_map = use shapefile zones (recommended), center = blend by distance from center",
 
     "zone_map_shapefile": "orthorectification/camera_zone_map/camera_zone_map.shp",
-    "_zone_map_shapefile_description": "Path to zone map shapefile (required if mosaic_method=zone_map)"
+    "_zone_map_shapefile_description": "Path to zone map shapefile (required if mosaic_method=zone_map)",
+
+    "rotation_angle_deg": 78.1,
+    "_rotation_angle_deg_description": "Rotation angle in degrees (counterclockwise). Use 78.1 for model_to_world alignment",
+    "_rotation_angle_deg_note": "Rotates video frames without scaling. 0.0 = no rotation, 78.1 = match model_to_world_20251120.wld"
   },
 
   "output": {
