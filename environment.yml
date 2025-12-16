@@ -8,6 +8,7 @@ dependencies:
   - opencv
   - scipy
   - pandas
+  - matplotlib
   - rasterio
   - fiona
   - tk

@@ -66,6 +66,19 @@ class InMemoryMosaicEngine:
                 resolution
             )
 
+            # CRITICAL: Use zone map bounds instead of provided mosaic_bounds
+            # The zone map was created for ALL cameras, so we need to use its full extent
+            # to ensure correct alignment even when processing a subset of cameras
+            import rasterio
+            zone_raster_path = Path(zone_map_shapefile).parent / f"{Path(zone_map_shapefile).stem}_{int(resolution*1000)}mm.tif"
+            with rasterio.open(zone_raster_path) as src:
+                zone_bounds = src.bounds
+                self.mosaic_bounds = (zone_bounds.left, zone_bounds.right, zone_bounds.bottom, zone_bounds.top)
+                self.mosaic_width = src.width
+                self.mosaic_height = src.height
+                print(f"Using zone map bounds: ({self.mosaic_bounds[0]:.2f}, {self.mosaic_bounds[1]:.2f}, {self.mosaic_bounds[2]:.2f}, {self.mosaic_bounds[3]:.2f})")
+                print(f"Zone map dimensions: {self.mosaic_width} x {self.mosaic_height} pixels")
+
             # Create reverse lookup: camera_name -> zone_id
             self.camera_name_to_id = {name: zone_id for zone_id, name in self.camera_id_to_name.items()}
 
@@ -80,6 +93,9 @@ class InMemoryMosaicEngine:
         # Create reusable mosaic template
         self.mosaic_template = np.zeros((self.mosaic_height, self.mosaic_width, 3), dtype=np.uint8)
 
+        # Track content bounds for auto-cropping (when using subset of cameras)
+        self.content_bounds = None  # Will be set to (row_min, row_max, col_min, col_max) after first frame
+
     def mosaic_frame(self, ortho_images: Dict[str, Tuple[np.ndarray, Dict]]) -> np.ndarray:
         """
         Mosaic multiple orthorectified images into single frame.
@@ -90,13 +106,24 @@ class InMemoryMosaicEngine:
                          and geotransform is dict with x_min, y_max, pixel_width, pixel_height
 
         Returns:
-            mosaic_array: (H, W, 3) numpy array
+            mosaic_array: (H, W, 3) numpy array (auto-cropped to content if using zone_map)
         """
         # Clear previous frame
         self.mosaic_template.fill(0)
 
         if self.mosaic_method == 'zone_map':
-            return self._mosaic_with_zone_map(ortho_images)
+            full_mosaic = self._mosaic_with_zone_map(ortho_images)
+
+            # Auto-crop to content region (compute bounds from first frame)
+            if self.content_bounds is None:
+                self.content_bounds = self._compute_content_bounds(full_mosaic)
+                print(f"Auto-crop enabled: content region is [{self.content_bounds[0]}:{self.content_bounds[1]}, {self.content_bounds[2]}:{self.content_bounds[3]}]")
+                print(f"Cropped dimensions: {self.content_bounds[3]-self.content_bounds[2]} x {self.content_bounds[1]-self.content_bounds[0]} pixels")
+
+            # Crop to content
+            return full_mosaic[self.content_bounds[0]:self.content_bounds[1],
+                              self.content_bounds[2]:self.content_bounds[3]]
+
         elif self.mosaic_method == 'center':
             return self._mosaic_with_center_weighting(ortho_images)
         else:
@@ -164,6 +191,36 @@ class InMemoryMosaicEngine:
                                     mosaic_col_start:mosaic_col_end] = mosaic_region
 
         return self.mosaic_template.copy()
+
+    def _compute_content_bounds(self, mosaic_array: np.ndarray) -> Tuple[int, int, int, int]:
+        """
+        Compute the bounding box of non-zero content in the mosaic.
+
+        Parameters:
+            mosaic_array: (H, W, 3) mosaic array
+
+        Returns:
+            Tuple of (row_min, row_max, col_min, col_max)
+        """
+        # Find pixels where any channel has non-zero values
+        content_mask = np.any(mosaic_array > 0, axis=2)
+
+        # Find the bounding box
+        rows = np.any(content_mask, axis=1)
+        cols = np.any(content_mask, axis=0)
+
+        if not np.any(rows) or not np.any(cols):
+            # No content, return full frame
+            return (0, mosaic_array.shape[0], 0, mosaic_array.shape[1])
+
+        row_min, row_max = np.where(rows)[0][[0, -1]]
+        col_min, col_max = np.where(cols)[0][[0, -1]]
+
+        # Add 1 to max indices for slicing (Python slice is exclusive)
+        row_max += 1
+        col_max += 1
+
+        return (row_min, row_max, col_min, col_max)
 
     def _mosaic_with_center_weighting(self, ortho_images: Dict[str, Tuple[np.ndarray, Dict]]) -> np.ndarray:
         """
@@ -242,12 +299,19 @@ class InMemoryMosaicEngine:
 
     def get_geotransform(self) -> Dict[str, float]:
         """
-        Get geotransform for the mosaic.
+        Get geotransform for the mosaic (adjusted for cropping if applicable).
 
         Returns:
             Dict with x_min, y_max, pixel_width, pixel_height
         """
         x_min, x_max, y_min, y_max = self.mosaic_bounds
+
+        # Adjust geotransform if cropping was applied
+        if self.content_bounds is not None:
+            row_min, row_max, col_min, col_max = self.content_bounds
+            # Adjust x_min and y_max based on crop offset
+            x_min += col_min * self.resolution
+            y_max -= row_min * self.resolution  # Subtract because y increases downward in image
 
         return {
             'x_min': x_min,

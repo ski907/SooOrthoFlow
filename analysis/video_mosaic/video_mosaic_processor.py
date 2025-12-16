@@ -212,25 +212,18 @@ class VideoMosaicProcessor:
         self.output_dir.mkdir(parents=True, exist_ok=True)
         print(f"  OK Output: {self.output_dir}")
 
-        # 7. Create video writer
-        print(f"\n7. Initializing video writer...")
-        video_path = self.output_dir / self.video_filename
-        fourcc = cv2.VideoWriter_fourcc(*self.video_codec)
+        # 7. Determine output dimensions (may be cropped for zone_map method)
+        print(f"\n7. Determining output dimensions...")
+        self.output_width = self.mosaic_engine.mosaic_width
+        self.output_height = self.mosaic_engine.mosaic_height
 
-        self.video_writer = cv2.VideoWriter(
-            str(video_path),
-            fourcc,
-            self.video_fps,
-            (self.mosaic_engine.mosaic_width, self.mosaic_engine.mosaic_height)
-        )
+        # Note: For zone_map with auto-crop, dimensions will be updated after first frame
+        self.video_writer = None
+        self.video_path = self.output_dir / self.video_filename
 
-        if not self.video_writer.isOpened():
-            print(f"  ERROR: Could not create video writer")
-            return False
-
-        print(f"  OK Video: {video_path}")
-        print(f"  Resolution: {self.mosaic_engine.mosaic_width}x{self.mosaic_engine.mosaic_height}")
-        print(f"  FPS: {self.video_fps}, Codec: {self.video_codec}")
+        print(f"  Initial dimensions: {self.output_width}x{self.output_height}")
+        if self.mosaic_method == 'zone_map':
+            print(f"  Note: Will auto-crop to content after first frame")
 
         print(f"\nSetup complete!\n")
         return True
@@ -314,7 +307,21 @@ class VideoMosaicProcessor:
                 # 3. Mosaic in memory
                 mosaicked_frame = self.mosaic_engine.mosaic_frame(ortho_images)
 
-                # 4. Write to output video
+                # 4. Create video writer after first frame (now we know the output dimensions)
+                if self.video_writer is None:
+                    actual_height, actual_width = mosaicked_frame.shape[:2]
+                    fourcc = cv2.VideoWriter_fourcc(*self.video_codec)
+                    self.video_writer = cv2.VideoWriter(
+                        str(self.video_path),
+                        fourcc,
+                        self.video_fps,
+                        (actual_width, actual_height)
+                    )
+                    if not self.video_writer.isOpened():
+                        raise RuntimeError("Could not create video writer")
+                    print(f"Video writer created: {actual_width}x{actual_height} @ {self.video_fps} fps\n")
+
+                # 5. Write to output video
                 self.video_writer.write(mosaicked_frame)
 
                 frames_processed += 1

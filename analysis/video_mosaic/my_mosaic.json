@@ -7,7 +7,7 @@
     "video_dir": "test_videos/12-12-25/Test 13",
     "_video_dir_description": "Directory containing video files or NVR subdirectories",
 
-    "camera_ids": ["NVR1_N910A6_ch4_main", "NVR1_N910A6_ch5_main"],
+    "camera_ids": ["NVR1_N910A6_ch4_main", "NVR1_N910A6_ch5_main", "NVR3_N910A6_ch1_main"],
     "_camera_ids_description": "List of camera IDs to include (must match calibration file exactly)",
     "_camera_ids_note": "Use exact camera_id from calibration CSV. Check: head -1 calibration/camera_calibrations_YYYYMMDD.csv",
 
@@ -42,7 +42,7 @@
       "low_res": 0.01
     },
 
-    "mosaic_method": "center",
+    "mosaic_method": "zone_map",
     "_mosaic_method_options": ["zone_map", "center"],
     "_mosaic_method_description": "zone_map = use shapefile zones (recommended), center = blend by distance from center",
 
@@ -55,7 +55,7 @@
     "output_dir": "output_data/video_mosaic",
     "_output_dir_description": "Directory for output video and metadata",
 
-    "video_filename": "mosaic_video.mp4",
+    "video_filename": "Test 13_mosaic_video.mp4",
     "_video_filename_description": "Output video filename",
 
     "video_fps": 5,
