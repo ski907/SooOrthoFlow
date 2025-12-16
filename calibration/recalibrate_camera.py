@@ -972,6 +972,11 @@ def recalibrate_single_camera(image_path, gcp_file, camera_id, dem_path,
         'model_crs': model_crs
     }
 
+    # Determine resolution name based on resolution value
+    # hires = 0.0025 (2.5mm), lowres = 0.01 (10mm)
+    # Use hires for anything <= 0.005
+    resolution_name = 'hires' if resolution <= 0.005 else 'lowres'
+
     # Save ortho cache separately
     cache_data = {
         'map_x': map_x,
@@ -979,8 +984,12 @@ def recalibrate_single_camera(image_path, gcp_file, camera_id, dem_path,
         'output_width': width,
         'output_height': height
     }
-    save_ortho_cache(camera_id, date, cache_data, cache_dir=str(cache_dir))
-    print(f"  ✓ Saved ortho cache: {camera_id}_ortho_cache_{date}.pkl")
+    save_ortho_cache(
+        camera_id, K, D, rvec, tvec, geotransform, resolution, resolution_name,
+        cache_data, cache_dir=str(cache_dir)
+    )
+    # Note: Actual filename includes hash for validation: {camera_id}_ortho_cache_{hash}_{resolution_name}.pkl
+    print(f"  ✓ Saved ortho cache ({resolution_name}, {resolution}m/pixel)")
 
     # Save ALL calibrations to dated CSV file
     cal_path = Path(calibration_file)

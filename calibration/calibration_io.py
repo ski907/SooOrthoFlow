@@ -375,6 +375,7 @@ def load_ortho_cache(camera_id: str, K: np.ndarray, D: np.ndarray, rvec: np.ndar
     # Compute hash from current parameters
     cache_hash = compute_cache_hash(K, D, rvec, tvec, geotransform, resolution)
     cache_file = cache_dir / f"{camera_id}_ortho_cache_{cache_hash}_{resolution_name}.pkl"
+    print(cache_file)
 
     if not cache_file.exists():
         return None

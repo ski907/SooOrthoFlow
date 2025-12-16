@@ -56,7 +56,11 @@ def recalibrate_single_camera(camera_name, image_path, master_config, mode='pose
         date = datetime.now().strftime('%Y%m%d')
 
     cal_path = Path(cal_file)
-    dated_cal_file = cal_path.parent / f"{cal_path.stem}_{date}.pkl"
+    # Use the source file's extension (should be .csv)
+    extension = cal_path.suffix
+    # Extract the base name without date (e.g., camera_calibrations_20251203.csv -> camera_calibrations)
+    base_name = cal_path.stem.rsplit('_', 1)[0] if '_' in cal_path.stem else cal_path.stem
+    dated_cal_file = cal_path.parent / f"{base_name}_{date}{extension}"
 
     print(f"Calibration file to update: {dated_cal_file}")
     if not dated_cal_file.exists():
