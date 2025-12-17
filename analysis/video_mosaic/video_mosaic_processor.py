@@ -63,6 +63,7 @@ class VideoMosaicProcessor:
         self.mosaic_method = config['processing']['mosaic_method']
         self.zone_map_shapefile = config['processing'].get('zone_map_shapefile')
         self.rotation_angle_deg = config['processing'].get('rotation_angle_deg', 0.0)
+        self.clip_shapefile = config['processing'].get('clip_shapefile')
 
         self.output_dir = Path(config['output']['output_dir'])
         self.video_filename = config['output']['video_filename']
@@ -77,6 +78,9 @@ class VideoMosaicProcessor:
         self.video_reader = None
         self.mosaic_engine = None
         self.video_writer = None
+        self.clip_mask = None  # Pre-computed clip mask if using shapefile (full size)
+        self.cropped_clip_mask = None  # Clip mask cropped to content bounds (set after first frame)
+        self.final_crop_bounds = None  # Crop bounds after clipping (set after first frame)
 
     def _parse_time(self, time_str: str) -> datetime:
         """Parse time string to datetime."""
@@ -222,9 +226,30 @@ class VideoMosaicProcessor:
         self.video_writer = None
         self.video_path = self.output_dir / self.video_filename
 
+        # 8. Create clip mask if shapefile provided
+        if self.clip_shapefile:
+            print(f"\n8. Loading clip shapefile...")
+            try:
+                self.clip_mask = self._create_clip_mask(
+                    self.clip_shapefile,
+                    self.mosaic_engine.mosaic_bounds,
+                    self.mosaic_engine.mosaic_width,
+                    self.mosaic_engine.mosaic_height,
+                    self.ortho_resolution
+                )
+                clip_pixels = np.sum(self.clip_mask)
+                total_pixels = self.clip_mask.size
+                print(f"  OK Clip mask created: {clip_pixels}/{total_pixels} pixels ({100*clip_pixels/total_pixels:.1f}%) in analysis area")
+            except Exception as e:
+                print(f"  ERROR: Could not create clip mask - {e}")
+                return False
+
+        print(f"\n{'8. ' if not self.clip_shapefile else '9. '}Determining output dimensions...")
         print(f"  Initial dimensions: {self.output_width}x{self.output_height}")
         if self.mosaic_method == 'zone_map':
             print(f"  Note: Will auto-crop to content after first frame")
+        if self.clip_shapefile:
+            print(f"  Note: Will clip to shapefile analysis area")
         if self.rotation_angle_deg != 0.0:
             print(f"  Note: Will rotate frames by {self.rotation_angle_deg}° counterclockwise")
 
@@ -257,6 +282,36 @@ class VideoMosaicProcessor:
 
         # Return overall bounds
         return (min(x_mins), max(x_maxs), min(y_mins), max(y_maxs))
+
+    def _compute_content_bounds(self, frame: np.ndarray):
+        """
+        Compute the bounding box of non-zero content in a frame.
+
+        Parameters:
+            frame: (H, W, 3) numpy array
+
+        Returns:
+            Tuple of (row_min, row_max, col_min, col_max)
+        """
+        # Find pixels where any channel has non-zero values
+        content_mask = np.any(frame > 0, axis=2)
+
+        # Find the bounding box
+        rows = np.any(content_mask, axis=1)
+        cols = np.any(content_mask, axis=0)
+
+        if not np.any(rows) or not np.any(cols):
+            # No content, return full frame
+            return (0, frame.shape[0], 0, frame.shape[1])
+
+        row_min, row_max = np.where(rows)[0][[0, -1]]
+        col_min, col_max = np.where(cols)[0][[0, -1]]
+
+        # Add 1 to max indices for slicing (Python slice is exclusive)
+        row_max += 1
+        col_max += 1
+
+        return (row_min, row_max, col_min, col_max)
 
     def _rotate_frame(self, frame: np.ndarray, angle_deg: float) -> np.ndarray:
         """
@@ -291,6 +346,43 @@ class VideoMosaicProcessor:
                                  borderValue=(0, 0, 0))
 
         return rotated
+
+    def _create_clip_mask(self, shapefile_path: str, mosaic_bounds: tuple,
+                         mosaic_width: int, mosaic_height: int, resolution: float) -> np.ndarray:
+        """
+        Create a binary mask from shapefile for clipping.
+
+        Parameters:
+            shapefile_path: Path to shapefile
+            mosaic_bounds: (x_min, x_max, y_min, y_max) in model coordinates
+            mosaic_width, mosaic_height: Dimensions of mosaic
+            resolution: Pixel resolution
+
+        Returns:
+            Boolean mask array (H, W) where True = keep, False = clip
+        """
+        import geopandas as gpd
+        from rasterio.features import rasterize
+        from rasterio.transform import Affine
+
+        # Load shapefile
+        gdf = gpd.read_file(shapefile_path)
+
+        # Create affine transform for rasterization
+        x_min, x_max, y_min, y_max = mosaic_bounds
+        transform = Affine(resolution, 0, x_min,
+                          0, -resolution, y_max)
+
+        # Rasterize the shapefile polygons
+        mask = rasterize(
+            [(geom, 1) for geom in gdf.geometry],
+            out_shape=(mosaic_height, mosaic_width),
+            transform=transform,
+            fill=0,
+            dtype=np.uint8
+        )
+
+        return mask.astype(bool)
 
     def process(self):
         """
@@ -344,7 +436,32 @@ class VideoMosaicProcessor:
                 # 3. Mosaic in memory
                 mosaicked_frame = self.mosaic_engine.mosaic_frame(ortho_images)
 
-                # 3.5. Apply rotation if specified
+                # 3.5. Apply shapefile clipping if specified (before rotation)
+                if self.clip_mask is not None:
+                    # After first frame, crop the clip mask to match content bounds
+                    if self.cropped_clip_mask is None and self.mosaic_engine.content_bounds is not None:
+                        row_min, row_max, col_min, col_max = self.mosaic_engine.content_bounds
+                        self.cropped_clip_mask = self.clip_mask[row_min:row_max, col_min:col_max]
+                        print(f"Cropped clip mask to content bounds: {self.cropped_clip_mask.shape}")
+
+                    # Apply the appropriate mask (cropped if available, otherwise full)
+                    mask_to_use = self.cropped_clip_mask if self.cropped_clip_mask is not None else self.clip_mask
+                    clipped_frame = mosaicked_frame.copy()
+                    clipped_frame[~mask_to_use] = 0  # Black out pixels outside analysis area
+                    mosaicked_frame = clipped_frame
+
+                    # After first frame with clipping, compute final crop bounds
+                    if self.final_crop_bounds is None:
+                        self.final_crop_bounds = self._compute_content_bounds(mosaicked_frame)
+                        row_min, row_max, col_min, col_max = self.final_crop_bounds
+                        print(f"Final crop bounds after clipping: [{row_min}:{row_max}, {col_min}:{col_max}]")
+                        print(f"Final cropped dimensions: {col_max-col_min} x {row_max-row_min} pixels")
+
+                    # Crop to final content area (removes black padding from clipped regions)
+                    row_min, row_max, col_min, col_max = self.final_crop_bounds
+                    mosaicked_frame = mosaicked_frame[row_min:row_max, col_min:col_max]
+
+                # 3.6. Apply rotation if specified
                 if self.rotation_angle_deg != 0.0:
                     mosaicked_frame = self._rotate_frame(mosaicked_frame, self.rotation_angle_deg)
 

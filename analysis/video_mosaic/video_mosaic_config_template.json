@@ -51,7 +51,11 @@
 
     "rotation_angle_deg": 0.0,
     "_rotation_angle_deg_description": "Rotation angle in degrees (counterclockwise). Use 78.1 for model_to_world alignment",
-    "_rotation_angle_deg_note": "Rotates video frames without scaling. 0.0 = no rotation, 78.1 = match model_to_world_20251120.wld"
+    "_rotation_angle_deg_note": "Rotates video frames without scaling. 0.0 = no rotation, 78.1 = match model_to_world_20251120.wld",
+
+    "clip_shapefile": null,
+    "_clip_shapefile_description": "Optional shapefile to clip mosaic to analysis area (e.g., analysis/analysis_shapefiles/general_analysis_limits.shp)",
+    "_clip_shapefile_note": "Clipping happens after mosaicking but before rotation. Set to null to disable"
   },
 
   "output": {
