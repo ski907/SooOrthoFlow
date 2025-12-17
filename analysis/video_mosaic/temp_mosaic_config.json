@@ -1,0 +1,43 @@
+{
+  "input": {
+    "video_dir": "test_videos/12-12-25/Test 13",
+    "camera_selection": {
+      "mode": "list",
+      "cameras": [
+        "NVR1_N910A6_ch3_main",
+        "NVR1_N910A6_ch4_main",
+        "NVR1_N910A6_ch5_main",
+        "NVR3_N910A6_ch1_main"
+      ]
+    },
+    "error_handling": {
+      "skip_missing_calibration": false,
+      "skip_missing_cache": false,
+      "skip_missing_videos": true,
+      "min_cameras_required": 1
+    },
+    "start_time": "2025-12-12 12:44:00",
+    "end_time": "2025-12-12 12:48:00",
+    "interval_seconds": 5.0
+  },
+  "paths": {
+    "calibration_file": "calibration\\camera_calibrations_20251203.csv",
+    "dsm_file": "inputs/TLS_DTM_cropped_filled_utmNAD8319N.tif"
+  },
+  "processing": {
+    "ortho_resolution": 0.01,
+    "mosaic_method": "zone_map",
+    "zone_map_shapefile": "orthorectification/camera_zone_map/camera_zone_map.shp",
+    "rotation_angle_deg": 78.1,
+    "clip_shapefile": "analysis/analysis_shapefiles/general_analysis_limits.shp"
+  },
+  "output": {
+    "output_dir": "output_data/video_mosaic",
+    "video_filename": "test_mosaic_video.mp4",
+    "video_fps": 5,
+    "video_codec": "mp4v"
+  },
+  "camera_time_offsets": {
+    "NVR2": 0.0
+  }
+}
