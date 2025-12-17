@@ -165,66 +165,74 @@ class CameraVideoReader:
 
     def get_frames_at_timestamp(self, timestamp: datetime) -> Optional[Dict[str, 'numpy.ndarray']]:
         """
-        Extract synchronized frames from all cameras at specified timestamp.
+        Extract synchronized frames from available cameras at specified timestamp.
+
+        Skips cameras that are missing videos or frames (graceful degradation).
 
         Parameters:
             timestamp: Target timestamp
 
         Returns:
-            Dict mapping camera_id to frame (numpy array) or None if any camera fails
+            Dict mapping camera_id to frame (numpy array), or None if NO cameras succeeded
         """
         frames = {}
 
         for camera_id in self.camera_ids:
-            # Find video containing this timestamp
-            video_info = self._find_video_for_timestamp(camera_id, timestamp)
-            if not video_info:
-                print(f"  WARNING: No video found for {camera_id} at {timestamp}")
-                return None
+            try:
+                # Find video containing this timestamp
+                video_info = self._find_video_for_timestamp(camera_id, timestamp)
+                if not video_info:
+                    # Skip this camera, continue with others
+                    continue
 
-            # Open video if not already open or if different video
-            if (camera_id not in self.current_captures or
-                self.current_video_info.get(camera_id) != video_info):
+                # Open video if not already open or if different video
+                if (camera_id not in self.current_captures or
+                    self.current_video_info.get(camera_id) != video_info):
 
-                # Close old capture if exists
-                if camera_id in self.current_captures:
-                    self.current_captures[camera_id].release()
+                    # Close old capture if exists
+                    if camera_id in self.current_captures:
+                        self.current_captures[camera_id].release()
 
-                # Open new video
-                cap = cv2.VideoCapture(video_info['filename'])
-                if not cap.isOpened():
-                    print(f"  ERROR: Could not open video {video_info['filename']}")
-                    return None
+                    # Open new video
+                    cap = cv2.VideoCapture(video_info['filename'])
+                    if not cap.isOpened():
+                        # Skip this camera, continue with others
+                        continue
 
-                self.current_captures[camera_id] = cap
-                self.current_video_info[camera_id] = video_info
-            else:
-                cap = self.current_captures[camera_id]
+                    self.current_captures[camera_id] = cap
+                    self.current_video_info[camera_id] = video_info
+                else:
+                    cap = self.current_captures[camera_id]
 
-            # Calculate time offset from video start
-            time_offset = (timestamp - video_info['start_time']).total_seconds()
+                # Calculate time offset from video start
+                time_offset = (timestamp - video_info['start_time']).total_seconds()
 
-            # Apply camera-specific time offset
-            camera_offset = self._get_camera_time_offset(camera_id)
-            time_offset -= camera_offset
+                # Apply camera-specific time offset
+                camera_offset = self._get_camera_time_offset(camera_id)
+                time_offset -= camera_offset
 
-            if time_offset < 0:
-                print(f"  WARNING: Timestamp {timestamp} before video start for {camera_id}")
-                return None
+                if time_offset < 0:
+                    # Skip this camera, continue with others
+                    continue
 
-            # Seek to timestamp (use time-based seeking for accuracy)
-            offset_ms = time_offset * 1000.0
-            cap.set(cv2.CAP_PROP_POS_MSEC, offset_ms)
+                # Seek to timestamp (use time-based seeking for accuracy)
+                offset_ms = time_offset * 1000.0
+                cap.set(cv2.CAP_PROP_POS_MSEC, offset_ms)
 
-            # Read frame
-            ret, frame = cap.read()
-            if not ret:
-                print(f"  ERROR: Could not read frame from {camera_id} at {timestamp}")
-                return None
+                # Read frame
+                ret, frame = cap.read()
+                if not ret:
+                    # Skip this camera, continue with others
+                    continue
 
-            frames[camera_id] = frame
+                frames[camera_id] = frame
 
-        return frames
+            except Exception as e:
+                # Skip this camera on any error, continue processing others
+                continue
+
+        # Return frames dict (even if partial), or None if NO cameras succeeded
+        return frames if frames else None
 
     def close(self):
         """Release all open video captures."""

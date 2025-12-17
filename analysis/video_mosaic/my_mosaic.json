@@ -7,9 +7,23 @@
     "video_dir": "test_videos/12-12-25/Test 13",
     "_video_dir_description": "Directory containing video files or NVR subdirectories",
 
-    "camera_ids": ["NVR1_N910A6_ch4_main", "NVR1_N910A6_ch5_main", "NVR3_N910A6_ch1_main"],
-    "_camera_ids_description": "List of camera IDs to include (must match calibration file exactly)",
-    "_camera_ids_note": "Use exact camera_id from calibration CSV. Check: head -1 calibration/camera_calibrations_YYYYMMDD.csv",
+    "camera_selection": {
+      "mode": "all",
+      "_mode_description": "Selection mode: 'all' | 'list' | 'exclude' | 'spatial' (future)",
+      "_mode_options": {
+        "all": "Select all cameras from calibration file (24 cameras total)",
+        "list": "Explicit list of camera IDs (compatible with GUI checkboxes)",
+        "exclude": "All cameras except those in exclude list",
+        "spatial": "Select cameras by spatial bounds (future feature for GUI)"
+
+    },
+
+    "error_handling": {
+      "skip_missing_calibration": false,
+      "skip_missing_cache": false,
+      "skip_missing_videos": true,
+      "min_cameras_required": 1
+    },
 
     "start_time": "2025-12-12 12:44:00",
     "_start_time_format": "YYYY-MM-DD HH:MM:SS",

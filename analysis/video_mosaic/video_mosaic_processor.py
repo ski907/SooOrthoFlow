@@ -25,6 +25,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from calibration.calibration_io import load_camera_calibrations, load_ortho_cache
 from analysis.video_mosaic.camera_video_reader import CameraVideoReader
 from analysis.video_mosaic.in_memory_mosaic import InMemoryMosaicEngine
+from analysis.video_mosaic.camera_selector import CameraSelector
 
 
 class VideoMosaicProcessor:
@@ -41,7 +42,8 @@ class VideoMosaicProcessor:
 
         Parameters:
             config: Configuration dictionary with keys:
-                    - input: video_dir, camera_ids, start_time, end_time, interval_seconds
+                    - input: video_dir, camera_selection (or camera_ids for backward compat),
+                            start_time, end_time, interval_seconds, error_handling
                     - paths: calibration_file, dsm_file
                     - processing: ortho_resolution, mosaic_method, zone_map_shapefile
                     - output: output_dir, video_filename, video_fps, video_codec
@@ -51,7 +53,27 @@ class VideoMosaicProcessor:
 
         # Parse configuration sections
         self.video_dir = Path(config['input']['video_dir'])
-        self.camera_ids = config['input']['camera_ids']
+
+        # Handle backward compatibility: camera_ids → camera_selection
+        if 'camera_ids' in config['input'] and 'camera_selection' not in config['input']:
+            # Old format: migrate to new format
+            config['input']['camera_selection'] = {
+                'mode': 'list',
+                'cameras': config['input']['camera_ids']
+            }
+
+        # Parse camera selection config (will be resolved in setup())
+        self.camera_selection_config = config['input'].get('camera_selection', {'mode': 'list', 'cameras': []})
+        self.error_handling_config = config['input'].get('error_handling', {
+            'skip_missing_calibration': False,
+            'skip_missing_cache': False,
+            'skip_missing_videos': True,
+            'min_cameras_required': 1
+        })
+
+        # camera_ids will be set during setup() after camera selection
+        self.camera_ids = []
+
         self.start_time = self._parse_time(config['input']['start_time'])
         self.end_time = self._parse_time(config['input']['end_time'])
         self.interval_seconds = config['input']['interval_seconds']
@@ -102,7 +124,7 @@ class VideoMosaicProcessor:
 
     def setup(self):
         """
-        Initialize all components (calibrations, caches, readers, engines).
+        Initialize all components with flexible camera selection.
 
         Returns:
             bool: True if successful
@@ -111,72 +133,53 @@ class VideoMosaicProcessor:
         print("VIDEO MOSAIC PROCESSOR - SETUP")
         print("="*70)
 
-        # 1. Load calibrations
-        print(f"\n1. Loading calibrations from {self.calibration_file}...")
-        try:
-            self.calibrations = load_camera_calibrations(self.calibration_file)
-            print(f"  Loaded calibrations for {len(self.calibrations)} cameras")
-        except Exception as e:
-            print(f"  ERROR: Could not load calibrations - {e}")
+        # 1. Resolve camera selection and validate dependencies
+        print(f"\n1. Resolving camera selection...")
+        mode = self.camera_selection_config.get('mode', 'list')
+        print(f"  Mode: {mode}")
+
+        selector = CameraSelector(
+            self.camera_selection_config,
+            self.calibration_file,
+            self.ortho_resolution,
+            self.error_handling_config,
+            dsm_file=self.dsm_file  # Pass DSM for automatic cache generation
+        )
+
+        selection_result = selector.select_cameras()
+
+        # 2. Display selection results
+        print(f"\n2. Camera selection results:")
+        print(f"  Selected: {len(selection_result.selected_cameras)} cameras")
+
+        if selection_result.selected_cameras:
+            for camera_id in selection_result.selected_cameras:
+                status = selection_result.validation_status.get(camera_id, {})
+                cache_status = "OK" if status.get('has_cache') else "X"
+                video_status = "OK" if status.get('has_videos') else "?"
+                print(f"    {camera_id} (cache: {cache_status}, videos: {video_status})")
+
+        # 3. Show warnings
+        if selection_result.warnings:
+            print(f"\n  Warnings:")
+            for warning in selection_result.warnings:
+                print(f"    WARNING: {warning}")
+
+        # 4. Check for errors
+        if selection_result.errors:
+            print(f"\n  Errors:")
+            for error in selection_result.errors:
+                print(f"    ERROR: {error}")
             return False
 
-        # 2. Load ortho caches for each camera
-        print(f"\n2. Loading ortho caches...")
-        cache_dir = Path('orthorectification/ortho_cache')
+        if not selection_result.selected_cameras:
+            print(f"  ERROR: No cameras selected")
+            return False
 
-        # Determine resolution name for cache
-        if self.ortho_resolution <= 0.003:
-            resolution_name = 'hires'
-        else:
-            resolution_name = 'lowres'
-
-        for camera_id in self.camera_ids:
-            if camera_id not in self.calibrations:
-                print(f"  ERROR: No calibration found for {camera_id}")
-                return False
-
-            cal = self.calibrations[camera_id]
-
-            # Create a temporary geotransform with correct pixel sizes for cache lookup
-            # This fixes the hash mismatch issue when loading caches at different resolutions
-            geotransform_for_cache = cal['geotransform'].copy()
-            geotransform_for_cache['pixel_width'] = self.ortho_resolution
-            geotransform_for_cache['pixel_height'] = -self.ortho_resolution
-
-            # Try to load cache with corrected geotransform
-            cache = load_ortho_cache(
-                camera_id,
-                cal['K'],
-                cal['D'],
-                cal['rvec'],
-                cal['tvec'],
-                geotransform_for_cache,  # Use corrected geotransform for hash computation
-                self.ortho_resolution,
-                resolution_name,
-                cache_dir
-            )
-
-            if cache is None:
-                print(f"  ERROR: No ortho cache found for {camera_id}")
-                print(f"    Resolution: {self.ortho_resolution} ({resolution_name})")
-                print(f"    Run orthorectification first to generate caches")
-                return False
-
-            # Store cache with corrected geotransform (keep original x_min/y_max bounds)
-            self.ortho_caches[camera_id] = {
-                'map_x': cache['map_x'],
-                'map_y': cache['map_y'],
-                'output_width': cache['output_width'],
-                'output_height': cache['output_height'],
-                'geotransform': {
-                    'x_min': cal['geotransform']['x_min'],     # Keep original bounds
-                    'y_max': cal['geotransform']['y_max'],     # Keep original bounds
-                    'pixel_width': self.ortho_resolution,      # Use requested resolution
-                    'pixel_height': -self.ortho_resolution     # Use requested resolution
-                }
-            }
-
-            print(f"  OK {camera_id}: {cache['output_width']}x{cache['output_height']} px")
+        # 5. Update processor state with selected cameras
+        self.camera_ids = selection_result.selected_cameras
+        self.calibrations = selector.calibrations  # Already loaded by selector
+        self.ortho_caches = selector.ortho_caches  # Already loaded by selector
 
         # 3. Compute mosaic bounds from ortho caches
         print(f"\n3. Computing mosaic bounds...")
@@ -405,6 +408,9 @@ class VideoMosaicProcessor:
         frames_processed = 0
         frames_skipped = 0
 
+        # Initialize per-camera frame counters
+        camera_frame_counts = {cam_id: 0 for cam_id in self.camera_ids}
+
         for i, timestamp in enumerate(timestamps):
             ts_str = timestamp.strftime('%Y-%m-%d %H:%M:%S')
 
@@ -417,6 +423,10 @@ class VideoMosaicProcessor:
                 if raw_frames is None:
                     frames_skipped += 1
                     continue
+
+                # Track which cameras provided frames
+                for camera_id in raw_frames:
+                    camera_frame_counts[camera_id] += 1
 
                 # 2. Orthorectify each frame
                 ortho_images = {}
@@ -495,6 +505,15 @@ class VideoMosaicProcessor:
         print(f"{'='*70}")
         print(f"Frames processed: {frames_processed}")
         print(f"Frames skipped:   {frames_skipped}")
+
+        # Per-camera statistics
+        print(f"\nCamera frame statistics:")
+        for camera_id in self.camera_ids:
+            count = camera_frame_counts.get(camera_id, 0)
+            total = frames_processed
+            pct = 100.0 * count / total if total > 0 else 0
+            status = "OK" if pct > 95 else "!"
+            print(f"  {camera_id}: {count}/{total} ({pct:.1f}%) {status}")
 
         return True
 
