@@ -70,7 +70,16 @@ class InMemoryMosaicEngine:
             # The zone map was created for ALL cameras, so we need to use its full extent
             # to ensure correct alignment even when processing a subset of cameras
             import rasterio
-            zone_raster_path = Path(zone_map_shapefile).parent / f"{Path(zone_map_shapefile).stem}_{int(resolution*1000)}mm.tif"
+
+            res_mm_value = resolution * 1000
+            if res_mm_value % 1 == 0:
+                # Integer value (e.g., 10.0 -> "10mm")
+                res_str = f"{int(res_mm_value)}mm"
+            else:
+                # Decimal value (e.g., 2.5 -> "2_5mm")
+                res_str = f"{res_mm_value:.10g}".replace('.', '_') + "mm"
+
+            zone_raster_path = Path(zone_map_shapefile).parent / f"{Path(zone_map_shapefile).stem}_{res_str}.tif"
             with rasterio.open(zone_raster_path) as src:
                 zone_bounds = src.bounds
                 self.mosaic_bounds = (zone_bounds.left, zone_bounds.right, zone_bounds.bottom, zone_bounds.top)
