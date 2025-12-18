@@ -75,6 +75,9 @@ class VideoMosaicGUI:
         self.video_fps = tk.IntVar(value=5)
         self.video_codec = tk.StringVar(value="mp4v")
 
+        # Debug options
+        self.verbose_frames = tk.BooleanVar(value=False)
+
         # Processing state
         self.processing = False
         self.process = None
@@ -195,6 +198,9 @@ class VideoMosaicGUI:
         ttk.Combobox(output_frame, textvariable=self.video_codec, width=47,
                      values=["mp4v", "avc1", "XVID"]).grid(row=3, column=1, pady=2)
 
+        ttk.Checkbutton(output_frame, text="Verbose frame logging (debug dropped frames)",
+                       variable=self.verbose_frames).grid(row=4, column=1, sticky=tk.W, pady=2)
+
         # === CONTROL BUTTONS ===
         control_frame = ttk.Frame(scrollable_frame)
         control_frame.pack(fill=tk.X, padx=5, pady=10)
@@ -279,7 +285,8 @@ class VideoMosaicGUI:
                 "output_dir": self.output_dir.get(),
                 "video_filename": self.video_filename.get(),
                 "video_fps": self.video_fps.get(),
-                "video_codec": self.video_codec.get()
+                "video_codec": self.video_codec.get(),
+                "verbose_frames": self.verbose_frames.get()
             },
             "camera_time_offsets": {
                 "NVR2": 0.0

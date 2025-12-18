@@ -38,7 +38,7 @@
 
   "paths": {
     "_comment": "File paths for calibration and reference data",
-    "calibration_file": "calibration/camera_calibrations_20251203.csv",
+    "calibration_file": "calibration/camera_calibrations_20251205.csv",
     "_calibration_file_description": "Camera calibrations CSV file with ortho caches",
 
     "dsm_file": "inputs/TLS_DTM_cropped_filled_utmNAD8319N.tif",

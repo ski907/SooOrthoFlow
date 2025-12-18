@@ -25,7 +25,7 @@ class CameraVideoReader:
     - Time-based seeking for accurate frame extraction
     """
 
-    def __init__(self, video_dir: Path, camera_ids: List[str], camera_time_offsets: Dict[str, float] = None):
+    def __init__(self, video_dir: Path, camera_ids: List[str], camera_time_offsets: Dict[str, float] = None, verbose_frames: bool = False):
         """
         Initialize camera video reader.
 
@@ -34,10 +34,12 @@ class CameraVideoReader:
             camera_ids: List of camera IDs (e.g., ["NVR1_N910A6_ch4_main", "NVR1_N910A6_ch5_main"])
             camera_time_offsets: Dict mapping NVR names to time offsets in seconds
                                 (e.g., {'NVR2': 15.0} means NVR2 videos are 15s ahead)
+            verbose_frames: If True, log reason for every skipped frame
         """
         self.video_dir = Path(video_dir)
         self.camera_ids = camera_ids
         self.camera_time_offsets = camera_time_offsets or {}
+        self.verbose_frames = verbose_frames
 
         # Discover video files for each camera
         self.camera_videos = {}
@@ -183,6 +185,8 @@ class CameraVideoReader:
                 video_info = self._find_video_for_timestamp(camera_id, timestamp)
                 if not video_info:
                     # Skip this camera, continue with others
+                    if self.verbose_frames:
+                        print(f"    SKIP {camera_id} @ {timestamp}: No video file found for this timestamp")
                     continue
 
                 # Open video if not already open or if different video
@@ -197,6 +201,8 @@ class CameraVideoReader:
                     cap = cv2.VideoCapture(video_info['filename'])
                     if not cap.isOpened():
                         # Skip this camera, continue with others
+                        if self.verbose_frames:
+                            print(f"    SKIP {camera_id} @ {timestamp}: Could not open video {video_info['filename']}")
                         continue
 
                     self.current_captures[camera_id] = cap
@@ -213,6 +219,8 @@ class CameraVideoReader:
 
                 if time_offset < 0:
                     # Skip this camera, continue with others
+                    if self.verbose_frames:
+                        print(f"    SKIP {camera_id} @ {timestamp}: Timestamp before video start (offset={time_offset:.1f}s)")
                     continue
 
                 # Seek to timestamp (use time-based seeking for accuracy)
@@ -223,12 +231,20 @@ class CameraVideoReader:
                 ret, frame = cap.read()
                 if not ret:
                     # Skip this camera, continue with others
+                    if self.verbose_frames:
+                        # Get video properties for debugging
+                        video_duration_ms = cap.get(cv2.CAP_PROP_FRAME_COUNT) / cap.get(cv2.CAP_PROP_FPS) * 1000 if cap.get(cv2.CAP_PROP_FPS) > 0 else 0
+                        current_pos_ms = cap.get(cv2.CAP_PROP_POS_MSEC)
+                        print(f"    SKIP {camera_id} @ {timestamp}: Frame read failed at offset {offset_ms:.0f}ms " +
+                              f"(video_duration={video_duration_ms:.0f}ms, current_pos={current_pos_ms:.0f}ms)")
                     continue
 
                 frames[camera_id] = frame
 
             except Exception as e:
                 # Skip this camera on any error, continue processing others
+                if self.verbose_frames:
+                    print(f"    SKIP {camera_id} @ {timestamp}: Exception - {e}")
                 continue
 
         # Return frames dict (even if partial), or None if NO cameras succeeded

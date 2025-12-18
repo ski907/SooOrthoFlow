@@ -91,6 +91,7 @@ class VideoMosaicProcessor:
         self.video_filename = config['output']['video_filename']
         self.video_fps = config['output']['video_fps']
         self.video_codec = config['output']['video_codec']
+        self.verbose_frames = config['output'].get('verbose_frames', False)
 
         self.camera_time_offsets = config.get('camera_time_offsets', {})
 
@@ -193,9 +194,12 @@ class VideoMosaicProcessor:
             self.video_reader = CameraVideoReader(
                 self.video_dir,
                 self.camera_ids,
-                self.camera_time_offsets
+                self.camera_time_offsets,
+                verbose_frames=self.verbose_frames
             )
             print(f"  OK Video reader initialized")
+            if self.verbose_frames:
+                print(f"  Verbose frame logging enabled")
         except Exception as e:
             print(f"  ERROR: Could not initialize video reader - {e}")
             return False
