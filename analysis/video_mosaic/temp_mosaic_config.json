@@ -1,13 +1,13 @@
 {
   "input": {
-    "video_dir": "D:/Soo Test Data/12-5-25/Test 4 Videos",
+    "video_dir": "test_videos\\12-1-25\\Initial Ice Pack",
     "camera_selection": {
       "mode": "list",
       "cameras": [
+        "NVR1_N910A6_ch2_main",
         "NVR1_N910A6_ch3_main",
         "NVR1_N910A6_ch4_main",
         "NVR1_N910A6_ch5_main",
-        "NVR1_N910A6_ch6_main",
         "NVR3_N910A6_ch1_main"
       ]
     },
@@ -17,12 +17,12 @@
       "skip_missing_videos": true,
       "min_cameras_required": 1
     },
-    "start_time": "2025-12-05 11:58:30",
-    "end_time": "2025-12-05 12:00:30",
+    "start_time": "2025-12-01 10:26:30",
+    "end_time": "2025-12-01 10:27:30",
     "interval_seconds": 5.0
   },
   "paths": {
-    "calibration_file": "calibration\\camera_calibrations_20251203.csv",
+    "calibration_file": "calibration\\camera_calibrations_20251205.csv",
     "dsm_file": "inputs/TLS_DTM_cropped_filled_utmNAD8319N.tif"
   },
   "processing": {
@@ -37,7 +37,7 @@
     "video_filename": "20251217_t18_mosaic_video1.mp4",
     "video_fps": 5,
     "video_codec": "mp4v",
-    "verbose_frames": true
+    "verbose_frames": false
   },
   "camera_time_offsets": {
     "NVR2": 0.0

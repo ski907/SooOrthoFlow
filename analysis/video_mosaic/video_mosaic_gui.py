@@ -12,6 +12,7 @@ Version: 0.1.0
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox, scrolledtext
 import json
+import re
 from pathlib import Path
 import subprocess
 import threading
@@ -52,6 +53,7 @@ class VideoMosaicGUI:
         self.root_dir = root_dir
 
         # Load calibration to get available cameras
+        self.calibration_file_var = tk.StringVar(value="calibration/camera_calibrations_20251203.csv")
         self.calibration_file = self.root_dir / "calibration" / "camera_calibrations_20251203.csv"
         self.available_cameras = self._load_available_cameras()
 
@@ -129,8 +131,8 @@ class VideoMosaicGUI:
         ttk.Button(btn_frame, text="Select None", command=self._select_none_cameras).pack(side=tk.LEFT, padx=5)
 
         # Camera checkboxes (in 3 columns)
-        cam_grid = ttk.Frame(camera_frame)
-        cam_grid.pack(fill=tk.X)
+        self.cam_grid = ttk.Frame(camera_frame)
+        self.cam_grid.pack(fill=tk.X)
 
         for idx, camera_id in enumerate(self.available_cameras):
             var = tk.BooleanVar(value=False)
@@ -138,9 +140,18 @@ class VideoMosaicGUI:
 
             row = idx // 3
             col = idx % 3
-            ttk.Checkbutton(cam_grid, text=camera_id, variable=var).grid(
+            ttk.Checkbutton(self.cam_grid, text=camera_id, variable=var).grid(
                 row=row, column=col, sticky=tk.W, padx=5, pady=2
             )
+
+        # === CALIBRATION ===
+        calib_frame = ttk.LabelFrame(scrollable_frame, text="Calibration", padding="10")
+        calib_frame.pack(fill=tk.X, padx=5, pady=5)
+
+        ttk.Label(calib_frame, text="Calibration File:").grid(row=0, column=0, sticky=tk.W, pady=2)
+        ttk.Entry(calib_frame, textvariable=self.calibration_file_var, width=50).grid(row=0, column=1, pady=2)
+        ttk.Button(calib_frame, text="Browse", command=self._browse_calibration_file).grid(row=0, column=2, padx=5)
+        ttk.Button(calib_frame, text="Reload", command=self._reload_cameras).grid(row=0, column=3, padx=5)
 
         # === VIDEO INPUT ===
         input_frame = ttk.LabelFrame(scrollable_frame, text="Video Input", padding="10")
@@ -152,6 +163,7 @@ class VideoMosaicGUI:
 
         ttk.Label(input_frame, text="Start Time (YYYY-MM-DD HH:MM:SS):").grid(row=1, column=0, sticky=tk.W, pady=2)
         ttk.Entry(input_frame, textvariable=self.start_time, width=50).grid(row=1, column=1, pady=2)
+        ttk.Button(input_frame, text="Auto-Detect Times", command=self.auto_detect_video_times).grid(row=1, column=2, padx=5)
 
         ttk.Label(input_frame, text="End Time (YYYY-MM-DD HH:MM:SS):").grid(row=2, column=0, sticky=tk.W, pady=2)
         ttk.Entry(input_frame, textvariable=self.end_time, width=50).grid(row=2, column=1, pady=2)
@@ -242,6 +254,185 @@ class VideoMosaicGUI:
             except ValueError:
                 self.video_dir.set(directory)
 
+    def _browse_calibration_file(self):
+        """Browse for calibration CSV file."""
+        filename = filedialog.askopenfilename(
+            title="Select Calibration File",
+            initialdir=self.root_dir / "calibration",
+            filetypes=[("CSV files", "*.csv"), ("All files", "*.*")]
+        )
+        if filename:
+            try:
+                rel_path = Path(filename).relative_to(self.root_dir)
+                self.calibration_file_var.set(str(rel_path))
+                self._reload_cameras()
+            except ValueError:
+                self.calibration_file_var.set(filename)
+                self._reload_cameras()
+
+    def _reload_cameras(self):
+        """Reload camera list from selected calibration file."""
+        try:
+            # Update calibration file path
+            self.calibration_file = self.root_dir / self.calibration_file_var.get()
+
+            # Reload available cameras
+            self.available_cameras = self._load_available_cameras()
+
+            # Clear existing camera checkboxes
+            for widget in self.cam_grid.winfo_children():
+                widget.destroy()
+
+            # Recreate camera checkboxes
+            self.camera_vars = {}
+            for idx, camera_id in enumerate(self.available_cameras):
+                var = tk.BooleanVar(value=False)
+                self.camera_vars[camera_id] = var
+                row = idx // 3
+                col = idx % 3
+                ttk.Checkbutton(self.cam_grid, text=camera_id, variable=var).grid(
+                    row=row, column=col, sticky=tk.W, padx=5, pady=2
+                )
+
+            self._log(f"Loaded {len(self.available_cameras)} cameras from {self.calibration_file_var.get()}")
+
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to load calibration file: {e}")
+            self._log(f"ERROR: {e}")
+
+    def auto_detect_video_times(self):
+        """Scan all video files in the folder and detect earliest/latest times."""
+        video_folder = self.video_dir.get()
+        if not video_folder:
+            messagebox.showwarning("No Folder", "Please select a video folder first")
+            return
+
+        video_path = self.root_dir / Path(video_folder)
+        if not video_path.exists():
+            messagebox.showerror("Error", f"Folder does not exist: {video_folder}")
+            return
+
+        self._log("Scanning video files for timestamps...")
+
+        try:
+            from collections import defaultdict
+
+            # Find all video files
+            video_extensions = ('.avi', '.mp4', '.mov', '.mkv', '.m4v')
+            video_files = []
+            for ext in video_extensions:
+                video_files.extend(video_path.rglob(f'*{ext}'))
+
+            if not video_files:
+                messagebox.showwarning("No Videos", "No video files found")
+                return
+
+            self._log(f"Found {len(video_files)} video files")
+
+            # Extract timestamps from filenames grouped by camera
+            camera_times = defaultdict(list)
+
+            # Timestamp patterns
+            patterns = [
+                r'(\d{4})[-_]?(\d{2})[-_]?(\d{2})[T_\s-]?(\d{2})[-_:]?(\d{2})[-_:]?(\d{2})',
+                r'(\d{8})[T_-]?(\d{6})',
+            ]
+
+            for video_file in video_files:
+                filename = video_file.stem
+                parent_folder = video_file.parent.name
+
+                # Extract channel from filename
+                channel_match = re.search(r'ch(\d+)', filename, re.IGNORECASE)
+                if not channel_match:
+                    continue
+                channel = f"ch{channel_match.group(1)}"
+
+                # Extract timestamps
+                found_times = []
+                for pattern in patterns:
+                    for match in re.finditer(pattern, filename):
+                        try:
+                            if len(match.groups()) == 6:
+                                y, m, d, h, mins, s = match.groups()
+                                dt = datetime(int(y), int(m), int(d), int(h), int(mins), int(s))
+                            elif len(match.groups()) == 2:
+                                date_part, time_part = match.groups()
+                                y, m, d = date_part[:4], date_part[4:6], date_part[6:8]
+                                h, mins, s = time_part[:2], time_part[2:4], time_part[4:6]
+                                dt = datetime(int(y), int(m), int(d), int(h), int(mins), int(s))
+                            else:
+                                continue
+                            found_times.append(dt)
+                        except (ValueError, IndexError):
+                            continue
+
+                if len(found_times) >= 2:
+                    camera_key = (parent_folder, channel)
+                    camera_times[camera_key].append((min(found_times), max(found_times)))
+                elif len(found_times) == 1:
+                    camera_key = (parent_folder, channel)
+                    camera_times[camera_key].append((found_times[0], found_times[0]))
+
+            if not camera_times:
+                messagebox.showwarning("No Timestamps",
+                    "Could not extract timestamps from video filenames.\n"
+                    "Filenames should contain date/time in format like:\n"
+                    "YYYYMMDD_HHMMSS or YYYY-MM-DD-HH-MM-SS")
+                return
+
+            # For each camera, find earliest start and latest end
+            camera_ranges = {}
+            for camera_key, time_list in camera_times.items():
+                starts = [t[0] for t in time_list]
+                ends = [t[1] for t in time_list]
+                camera_ranges[camera_key] = (min(starts), max(ends))
+
+            self._log(f"Found {len(camera_ranges)} cameras")
+
+            # Find the latest start time (when all cameras are ready)
+            all_starts = [r[0] for r in camera_ranges.values()]
+            all_ends = [r[1] for r in camera_ranges.values()]
+            earliest = max(all_starts)  # Latest start = when all cameras have begun
+            latest = min(all_ends)      # Earliest end = when first camera stops
+
+            # Add 30 seconds to earliest and subtract 30 seconds from latest
+            from datetime import timedelta
+            earliest_adjusted = earliest + timedelta(seconds=30)
+            latest_adjusted = latest - timedelta(seconds=30)
+
+            # Round to nearest 30-second increment
+            earliest_seconds = earliest_adjusted.second
+            if earliest_seconds % 30 != 0:
+                earliest_seconds = (earliest_seconds // 30) * 30
+                earliest_adjusted = earliest_adjusted.replace(second=earliest_seconds, microsecond=0)
+
+            latest_seconds = latest_adjusted.second
+            if latest_seconds % 30 != 0:
+                latest_seconds = ((latest_seconds // 30) + 1) * 30
+                if latest_seconds >= 60:
+                    latest_adjusted = latest_adjusted + timedelta(minutes=1)
+                    latest_seconds = 0
+                latest_adjusted = latest_adjusted.replace(second=latest_seconds, microsecond=0)
+
+            # Update GUI fields
+            self.start_time.set(earliest_adjusted.strftime("%Y-%m-%d %H:%M:%S"))
+            self.end_time.set(latest_adjusted.strftime("%Y-%m-%d %H:%M:%S"))
+
+            self._log(f"Detected time range: {earliest_adjusted.strftime('%Y-%m-%d %H:%M:%S')} to {latest_adjusted.strftime('%Y-%m-%d %H:%M:%S')}")
+
+            messagebox.showinfo("Times Detected",
+                f"Start: {earliest_adjusted.strftime('%Y-%m-%d %H:%M:%S')}\n"
+                f"End: {latest_adjusted.strftime('%Y-%m-%d %H:%M:%S')}\n"
+                f"Videos scanned: {len(video_files)}\n"
+                f"Cameras found: {len(camera_ranges)}")
+
+        except Exception as e:
+            import traceback
+            error_details = traceback.format_exc()
+            messagebox.showerror("Error", f"Failed to detect video times:\n{e}")
+            self._log(f"ERROR: {e}")
+
     def _get_selected_cameras(self):
         """Get list of selected camera IDs."""
         return [cam_id for cam_id, var in self.camera_vars.items() if var.get()]
@@ -271,7 +462,7 @@ class VideoMosaicGUI:
                 "interval_seconds": self.interval_seconds.get()
             },
             "paths": {
-                "calibration_file": str(self.calibration_file.relative_to(self.root_dir)),
+                "calibration_file": self.calibration_file_var.get(),
                 "dsm_file": "inputs/TLS_DTM_cropped_filled_utmNAD8319N.tif"
             },
             "processing": {
@@ -338,6 +529,11 @@ class VideoMosaicGUI:
                 self.video_filename.set(config['output'].get('video_filename', ''))
                 self.video_fps.set(config['output'].get('video_fps', 5))
                 self.video_codec.set(config['output'].get('video_codec', 'mp4v'))
+
+                # Update calibration file
+                calib_file = config['paths'].get('calibration_file', 'calibration/camera_calibrations_20251203.csv')
+                self.calibration_file_var.set(calib_file)
+                self._reload_cameras()  # Reload camera list for new calibration file
 
                 # Update camera selection
                 camera_selection = config['input'].get('camera_selection', {})
