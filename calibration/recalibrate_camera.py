@@ -859,7 +859,15 @@ def recalibrate_single_camera(image_path, gcp_file, camera_id, dem_path,
         except:
             pass  # If can't load, local_origin_ortho stays None
 
-    # Create orthorectification parameters
+    # Compute geographic bounds (field of view) - resolution-independent
+    # These define the camera's field of view and should be stored in calibration
+    from undistort_and_orthorectify import compute_camera_specific_bounds
+    bounds_x_min, bounds_x_max, bounds_y_min, bounds_y_max = compute_camera_specific_bounds(
+        camera_gcps, padding_meters
+    )
+    print(f"  Bounds (absolute): X=[{bounds_x_min:.3f}, {bounds_x_max:.3f}], Y=[{bounds_y_min:.3f}, {bounds_y_max:.3f}]")
+
+    # Create orthorectification parameters for test ortho (using current resolution)
     width, height, geotransform = create_orthorectification_params(
         camera_gcps, resolution, padding_meters, local_origin=local_origin_ortho
     )
@@ -943,7 +951,7 @@ def recalibrate_single_camera(image_path, gcp_file, camera_id, dem_path,
     calibrations[camera_id] = {
         'K': K,
         'D': D,
-        'rvec': rvec,  # Translation in LOCAL coordinates
+        'rvec': rvec,  # Rotation in LOCAL coordinates
         'tvec': tvec,  # Translation in LOCAL coordinates
         'rms': rms,
         'image_size': image_size,
@@ -953,8 +961,11 @@ def recalibrate_single_camera(image_path, gcp_file, camera_id, dem_path,
         'recalibrated': True,
         'recalibration_mode': mode,
         'gcps_skipped': len(skipped_gcps),
-        'output_width': width,
-        'output_height': height,
+        # Geographic bounds (field of view) - resolution-independent
+        'bounds_x_min': bounds_x_min,
+        'bounds_x_max': bounds_x_max,
+        'bounds_y_min': bounds_y_min,
+        'bounds_y_max': bounds_y_max,
         'gcp_pixel_coords': [
             {
                 'X': p['gcp']['X'],

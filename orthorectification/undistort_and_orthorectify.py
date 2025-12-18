@@ -1187,12 +1187,18 @@ def calibrate_all_cameras(gcp_file, image_dir, dem_path, resolution=0.005,
                 cv2.imwrite(str(undist_path), undistorted)
                 logger.info(f"  Saved undistorted: {undist_path.name}")
 
-            # Compute camera-specific orthorectification parameters
+            # Compute geographic bounds (field of view) - resolution-independent
             logger.info("  Computing orthorectification parameters...")
+            bounds_x_min, bounds_x_max, bounds_y_min, bounds_y_max = compute_camera_specific_bounds(
+                camera_gcp_rows, padding_meters
+            )
+            logger.debug(f"  Bounds: X=[{bounds_x_min:.3f}, {bounds_x_max:.3f}], Y=[{bounds_y_min:.3f}, {bounds_y_max:.3f}]")
+
+            # Compute camera-specific orthorectification parameters for this resolution
             width, height, geotransform = create_orthorectification_params(
                 camera_gcp_rows, resolution, padding_meters, local_origin=local_origin
             )
-            logger.debug(f"  Output size: {width}x{height}")
+            logger.debug(f"  Output size: {width}x{height} at {resolution}m/pixel")
 
             # Load DEM for this camera's view
             logger.info("  Loading DEM...")
@@ -1223,8 +1229,11 @@ def calibrate_all_cameras(gcp_file, image_dir, dem_path, resolution=0.005,
 
             # Update calibration results with output parameters
             calib['geotransform'] = geotransform
-            calib['output_width'] = width
-            calib['output_height'] = height
+            # Store geographic bounds (field of view) - resolution-independent
+            calib['bounds_x_min'] = bounds_x_min
+            calib['bounds_x_max'] = bounds_x_max
+            calib['bounds_y_min'] = bounds_y_min
+            calib['bounds_y_max'] = bounds_y_max
 
             # Save ortho cache separately (default to hires for calibration)
             cache_dir = output_path.parent / 'orthorectification' / 'ortho_cache'
@@ -1327,16 +1336,22 @@ def process_new_images_fast(new_image_dir, calibration_file, output_dir='new_ort
             # Use specified resolution or fall back to calibration geotransform
             res = resolution if resolution is not None else abs(calib['geotransform']['pixel_width'])
 
-            # Create geotransform for this resolution
-            calib_res = abs(calib['geotransform']['pixel_width'])
-            if abs(res - calib_res) > 1e-6:
-                # Resolution differs - update geotransform
+            # Build geotransform from bounds + resolution (resolution-independent approach)
+            # If bounds are available, use them; otherwise fall back to legacy geotransform
+            if 'bounds_x_min' in calib and calib['bounds_x_min'] is not None:
+                geotransform = {
+                    'x_min': calib['bounds_x_min'],
+                    'y_max': calib['bounds_y_max'],
+                    'pixel_width': res,
+                    'pixel_height': -res,
+                    'rotation_x': 0,
+                    'rotation_y': 0
+                }
+            else:
+                # Legacy: update geotransform pixel size
                 geotransform = calib['geotransform'].copy()
                 geotransform['pixel_width'] = res
                 geotransform['pixel_height'] = -res
-            else:
-                # Use calibration geotransform as-is
-                geotransform = calib['geotransform']
 
             cache_data = load_ortho_cache(
                 camera_id,
@@ -1354,19 +1369,23 @@ def process_new_images_fast(new_image_dir, calibration_file, output_dir='new_ort
             for camera_id, calib, res, geotransform in missing_caches:
                 print(f"  Generating cache for {camera_id} at {res}m/pixel...")
 
-                # If resolution differs from calibration, need to recalculate output dimensions
-                calib_res = abs(calib['geotransform']['pixel_width'])
-                if abs(res - calib_res) > 1e-6:
-                    # Resolution changed - recalculate output dimensions
-                    # Scale factor: how much smaller/larger is new resolution
-                    scale_factor = calib_res / res
-                    width = int(calib['output_width'] * scale_factor)
-                    height = int(calib['output_height'] * scale_factor)
-                    print(f"    Adjusted dimensions: {width}x{height} (from {calib['output_width']}x{calib['output_height']})")
+                # Compute output dimensions from geographic bounds and resolution
+                if 'bounds_x_min' in calib and calib['bounds_x_min'] is not None:
+                    # New approach: compute from bounds (resolution-independent)
+                    width = int((calib['bounds_x_max'] - calib['bounds_x_min']) / res)
+                    height = int((calib['bounds_y_max'] - calib['bounds_y_min']) / res)
+                    print(f"    Dimensions from bounds: {width}x{height} at {res}m/pixel")
                 else:
-                    # Using calibration resolution
-                    width = calib['output_width']
-                    height = calib['output_height']
+                    # Legacy approach: scale from stored dimensions
+                    calib_res = abs(calib['geotransform']['pixel_width'])
+                    if abs(res - calib_res) > 1e-6:
+                        scale_factor = calib_res / res
+                        width = int(calib['output_width'] * scale_factor)
+                        height = int(calib['output_height'] * scale_factor)
+                        print(f"    Scaled dimensions: {width}x{height} (from {calib['output_width']}x{calib['output_height']})")
+                    else:
+                        width = calib['output_width']
+                        height = calib['output_height']
 
                 # Load DEM
                 dem_array = load_dem_from_tiff(dem_path, width, height, geotransform)
