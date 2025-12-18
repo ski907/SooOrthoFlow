@@ -306,8 +306,8 @@ def load_zone_map_raster(shapefile_path, mosaic_bounds, resolution, crs='EPSG:26
                     print(f"Zone map cache bounds don't match mosaic bounds:")
                     print(f"  Cached: X=[{cached_x_min:.3f}, {cached_x_max:.3f}], Y=[{cached_y_min:.3f}, {cached_y_max:.3f}]")
                     print(f"  Mosaic:  X=[{x_min:.3f}, {x_max:.3f}], Y=[{y_min:.3f}, {y_max:.3f}]")
-                    print(f"  Difference: ΔX_min={x_min-cached_x_min:.3f}m, ΔX_max={x_max-cached_x_max:.3f}m, " +
-                          f"ΔY_min={y_min-cached_y_min:.3f}m, ΔY_max={y_max-cached_y_max:.3f}m")
+                    print(f"  Difference: dX_min={x_min-cached_x_min:.3f}m, dX_max={x_max-cached_x_max:.3f}m, " +
+                          f"dY_min={y_min-cached_y_min:.3f}m, dY_max={y_max-cached_y_max:.3f}m")
                     print(f"  Regenerating zone map...")
                     regenerate = True
                 else:
