@@ -35,6 +35,7 @@ def load_camera_calibrations(csv_file: str) -> Dict[str, Dict[str, Any]]:
         - n_gcps: int, number of GCPs used
         - image_size: tuple (width, height)
         - geotransform: dict with x_min, y_max, pixel_width, pixel_height
+        - bounds_x_min, bounds_x_max, bounds_y_min, bounds_y_max: float, geographic bounds (field of view)
         - calibration_date: str, YYYYMMDD
         - recalibrated: bool
         - recalibration_mode: str
@@ -116,6 +117,12 @@ def load_camera_calibrations(csv_file: str) -> Dict[str, Dict[str, Any]]:
             'recalibrated': bool(row['recalibrated']),
             'recalibration_mode': str(row['recalibration_mode']) if pd.notna(row['recalibration_mode']) else '',
             'gcps_skipped': int(row['gcps_skipped']),
+            # Geographic bounds (field of view, resolution-independent)
+            'bounds_x_min': float(row['bounds_x_min']) if 'bounds_x_min' in row and pd.notna(row['bounds_x_min']) else None,
+            'bounds_x_max': float(row['bounds_x_max']) if 'bounds_x_max' in row and pd.notna(row['bounds_x_max']) else None,
+            'bounds_y_min': float(row['bounds_y_min']) if 'bounds_y_min' in row and pd.notna(row['bounds_y_min']) else None,
+            'bounds_y_max': float(row['bounds_y_max']) if 'bounds_y_max' in row and pd.notna(row['bounds_y_max']) else None,
+            # Legacy fields (for backward compatibility, will be deprecated)
             'output_width': int(row['output_width']) if 'output_width' in row and pd.notna(row['output_width']) else None,
             'output_height': int(row['output_height']) if 'output_height' in row and pd.notna(row['output_height']) else None,
             'gcp_pixel_coords': gcp_pixel_coords,
@@ -198,7 +205,13 @@ def save_camera_calibrations(calibrations: Dict[str, Dict[str, Any]], csv_file: 
             'recalibration_mode': calib.get('recalibration_mode', ''),
             'gcps_skipped': calib.get('gcps_skipped', 0),
 
-            # Output dimensions (for cache regeneration)
+            # Geographic bounds (field of view, resolution-independent)
+            'bounds_x_min': calib.get('bounds_x_min', ''),
+            'bounds_x_max': calib.get('bounds_x_max', ''),
+            'bounds_y_min': calib.get('bounds_y_min', ''),
+            'bounds_y_max': calib.get('bounds_y_max', ''),
+
+            # Output dimensions (legacy, for backward compatibility)
             'output_width': calib.get('output_width', ''),
             'output_height': calib.get('output_height', ''),
 
@@ -228,6 +241,7 @@ def save_camera_calibrations(calibrations: Dict[str, Dict[str, Any]], csv_file: 
         'image_width', 'image_height',
         'geotransform_x_min', 'geotransform_y_max',
         'geotransform_pixel_width', 'geotransform_pixel_height',
+        'bounds_x_min', 'bounds_x_max', 'bounds_y_min', 'bounds_y_max',
         'output_width', 'output_height',
         'recalibrated', 'recalibration_mode', 'gcps_skipped',
         'gcp_pixel_coords',

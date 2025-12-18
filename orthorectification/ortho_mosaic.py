@@ -290,15 +290,25 @@ def load_zone_map_raster(shapefile_path, mosaic_bounds, resolution, crs='EPSG:26
                 cached_x_max = cached_x_min + cached_width * cached_transform.a
                 cached_y_min = cached_y_max + cached_height * cached_transform.e
 
-                # Check if current mosaic bounds fit within cached bounds (with tolerance)
+                # Check if bounds are approximately equal (not just if mosaic fits within cache)
+                # This detects coordinate shifts from recalibration, not just size changes
                 x_min, x_max, y_min, y_max = mosaic_bounds
-                tolerance = resolution * 0.5  # Half pixel tolerance
+                tolerance = resolution * 2.0  # 2-pixel tolerance for floating-point errors
 
-                if (x_min < cached_x_min - tolerance or x_max > cached_x_max + tolerance or
-                    y_min < cached_y_min - tolerance or y_max > cached_y_max + tolerance):
-                    print(f"Zone map cache bounds don't match mosaic bounds, regenerating...")
-                    print(f"  Cached bounds: ({cached_x_min:.2f}, {cached_x_max:.2f}, {cached_y_min:.2f}, {cached_y_max:.2f})")
-                    print(f"  Mosaic bounds:  ({x_min:.2f}, {x_max:.2f}, {y_min:.2f}, {y_max:.2f})")
+                bounds_match = (
+                    abs(x_min - cached_x_min) < tolerance and
+                    abs(x_max - cached_x_max) < tolerance and
+                    abs(y_min - cached_y_min) < tolerance and
+                    abs(y_max - cached_y_max) < tolerance
+                )
+
+                if not bounds_match:
+                    print(f"Zone map cache bounds don't match mosaic bounds:")
+                    print(f"  Cached: X=[{cached_x_min:.3f}, {cached_x_max:.3f}], Y=[{cached_y_min:.3f}, {cached_y_max:.3f}]")
+                    print(f"  Mosaic:  X=[{x_min:.3f}, {x_max:.3f}], Y=[{y_min:.3f}, {y_max:.3f}]")
+                    print(f"  Difference: ΔX_min={x_min-cached_x_min:.3f}m, ΔX_max={x_max-cached_x_max:.3f}m, " +
+                          f"ΔY_min={y_min-cached_y_min:.3f}m, ΔY_max={y_max-cached_y_max:.3f}m")
+                    print(f"  Regenerating zone map...")
                     regenerate = True
                 else:
                     print(f"Loading cached zone map from {output_tif.name}")

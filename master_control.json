@@ -1,12 +1,12 @@
 {
-    "video_folder": "D:/Soo/12-12-25/Test 13",
-    "start_time": "2025-12-12 12:35:30",
-    "end_time": "2025-12-12 12:54:30",
+    "video_folder": "D:/Soo Test Data/12-5-25/Test 4 Videos",
+    "start_time": "2025-12-05 11:52:30",
+    "end_time": "2025-12-05 12:12:30",
     "interval": "5min",
     "time_mode": "interval",
     "paths": {
-        "output_base": "D:/Soo/12-12-25/Test 13/recal_test",
-        "calibration_file": "calibration\\camera_calibrations_20251212.csv",
+        "output_base": "D:/Soo Test Data/12-5-25/Test 4 Videos/cse_recal",
+        "calibration_file": "calibration\\camera_calibrations_20251205.csv",
         "gcp_file": "inputs//GCP_24cameras_utm.csv",
         "dsm_file": "inputs//TLS_DTM_cropped_filled_utmNAD8319N.tif"
     },
@@ -16,7 +16,7 @@
         "filename_pattern": "CAMERA_DATETIME_DATETIME",
         "mosaic_method": "zone_map",
         "ortho_resolution": 0.0025,
-        "ortho_padding": 0.5,
+        "ortho_padding": 2.0,
         "zone_map_shapefile": "orthorectification/camera_zone_map/camera_zone_map.shp",
         "run_light_detection": false,
         "light_detection_mask": "analysis//ship_detection//area_to_review_ref.tif",
@@ -29,7 +29,7 @@
         "compress_mosaics": true
     },
     "multi_resolution": {
-        "use_interval": true,
+        "use_interval": false,
         "interval_resolution": "lowres",
         "use_first_last": true,
         "first_last_resolution": "hires"
