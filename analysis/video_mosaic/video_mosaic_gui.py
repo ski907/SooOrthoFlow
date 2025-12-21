@@ -80,6 +80,16 @@ class VideoMosaicGUI:
         # Debug options
         self.verbose_frames = tk.BooleanVar(value=False)
 
+        # Ice flux analysis options
+        self.ice_flux_enabled = tk.BooleanVar(value=False)
+        self.ice_flux_winsize = tk.IntVar(value=20)
+        self.ice_flux_levels = tk.IntVar(value=3)
+        self.ice_flux_save_geotiffs = tk.BooleanVar(value=True)
+        self.ice_flux_create_plots = tk.BooleanVar(value=True)
+        self.ice_flux_plot_interval = tk.IntVar(value=10)
+        self.ice_flux_create_overlay = tk.BooleanVar(value=False)
+        self.ice_flux_overlay_subsample = tk.IntVar(value=20)
+
         # Processing state
         self.processing = False
         self.process = None
@@ -212,6 +222,43 @@ class VideoMosaicGUI:
 
         ttk.Checkbutton(output_frame, text="Verbose frame logging (debug dropped frames)",
                        variable=self.verbose_frames).grid(row=4, column=1, sticky=tk.W, pady=2)
+
+        # === ICE FLUX ANALYSIS ===
+        flux_frame = ttk.LabelFrame(scrollable_frame, text="Ice Flux Analysis (Phase 1: Velocity Fields)", padding="10")
+        flux_frame.pack(fill=tk.X, padx=5, pady=5)
+
+        ttk.Checkbutton(flux_frame, text="Enable ice velocity tracking",
+                       variable=self.ice_flux_enabled).grid(row=0, column=0, columnspan=2, sticky=tk.W, pady=5)
+
+        ttk.Label(flux_frame, text="Optical Flow Parameters:", font=('TkDefaultFont', 9, 'bold')).grid(
+            row=1, column=0, columnspan=2, sticky=tk.W, pady=(10, 2))
+
+        ttk.Label(flux_frame, text="Window Size:").grid(row=2, column=0, sticky=tk.W, pady=2, padx=(20, 0))
+        ttk.Entry(flux_frame, textvariable=self.ice_flux_winsize, width=10).grid(row=2, column=1, sticky=tk.W, pady=2)
+        ttk.Label(flux_frame, text="(15-25, larger = smoother)").grid(row=2, column=1, sticky=tk.W, pady=2, padx=(60, 0))
+
+        ttk.Label(flux_frame, text="Pyramid Levels:").grid(row=3, column=0, sticky=tk.W, pady=2, padx=(20, 0))
+        ttk.Entry(flux_frame, textvariable=self.ice_flux_levels, width=10).grid(row=3, column=1, sticky=tk.W, pady=2)
+        ttk.Label(flux_frame, text="(3-5, higher = robust to large motion)").grid(row=3, column=1, sticky=tk.W, pady=2, padx=(60, 0))
+
+        ttk.Label(flux_frame, text="Outputs:", font=('TkDefaultFont', 9, 'bold')).grid(
+            row=4, column=0, columnspan=2, sticky=tk.W, pady=(10, 2))
+
+        ttk.Checkbutton(flux_frame, text="Save velocity GeoTIFFs (2-band: u, v in m/s)",
+                       variable=self.ice_flux_save_geotiffs).grid(row=5, column=0, columnspan=2, sticky=tk.W, pady=2, padx=(20, 0))
+
+        ttk.Checkbutton(flux_frame, text="Create validation plots (quiver, magnitude, direction)",
+                       variable=self.ice_flux_create_plots).grid(row=6, column=0, columnspan=2, sticky=tk.W, pady=2, padx=(20, 0))
+
+        ttk.Label(flux_frame, text="Plot Interval (frames):").grid(row=7, column=0, sticky=tk.W, pady=2, padx=(40, 0))
+        ttk.Entry(flux_frame, textvariable=self.ice_flux_plot_interval, width=10).grid(row=7, column=1, sticky=tk.W, pady=2)
+
+        ttk.Checkbutton(flux_frame, text="Create overlay video with velocity vectors",
+                       variable=self.ice_flux_create_overlay).grid(row=8, column=0, columnspan=2, sticky=tk.W, pady=2, padx=(20, 0))
+
+        ttk.Label(flux_frame, text="Overlay Subsample:").grid(row=9, column=0, sticky=tk.W, pady=2, padx=(40, 0))
+        ttk.Entry(flux_frame, textvariable=self.ice_flux_overlay_subsample, width=10).grid(row=9, column=1, sticky=tk.W, pady=2)
+        ttk.Label(flux_frame, text="(every Nth pixel, 20 = readable)").grid(row=9, column=1, sticky=tk.W, pady=2, padx=(60, 0))
 
         # === CONTROL BUTTONS ===
         control_frame = ttk.Frame(scrollable_frame)
@@ -481,6 +528,25 @@ class VideoMosaicGUI:
             },
             "camera_time_offsets": {
                 "NVR2": 0.0
+            },
+            "ice_flux": {
+                "enabled": self.ice_flux_enabled.get(),
+                "farneback_params": {
+                    "pyr_scale": 0.5,
+                    "levels": self.ice_flux_levels.get(),
+                    "winsize": self.ice_flux_winsize.get(),
+                    "iterations": 3,
+                    "poly_n": 5,
+                    "poly_sigma": 1.2,
+                    "flags": 0
+                },
+                "save_velocity_geotiffs": self.ice_flux_save_geotiffs.get(),
+                "create_validation_plots": self.ice_flux_create_plots.get(),
+                "validation_plot_interval": self.ice_flux_plot_interval.get(),
+                "create_overlay_video": self.ice_flux_create_overlay.get(),
+                "overlay_video_subsample": self.ice_flux_overlay_subsample.get(),
+                "compress_geotiffs": True,
+                "optional": True
             }
         }
 
@@ -543,6 +609,18 @@ class VideoMosaicGUI:
                     selected = set(camera_selection.get('cameras', []))
                     for cam_id, var in self.camera_vars.items():
                         var.set(cam_id in selected)
+
+                # Update ice flux settings
+                ice_flux = config.get('ice_flux', {})
+                self.ice_flux_enabled.set(ice_flux.get('enabled', False))
+                farneback = ice_flux.get('farneback_params', {})
+                self.ice_flux_winsize.set(farneback.get('winsize', 20))
+                self.ice_flux_levels.set(farneback.get('levels', 3))
+                self.ice_flux_save_geotiffs.set(ice_flux.get('save_velocity_geotiffs', True))
+                self.ice_flux_create_plots.set(ice_flux.get('create_validation_plots', True))
+                self.ice_flux_plot_interval.set(ice_flux.get('validation_plot_interval', 10))
+                self.ice_flux_create_overlay.set(ice_flux.get('create_overlay_video', False))
+                self.ice_flux_overlay_subsample.set(ice_flux.get('overlay_video_subsample', 20))
 
                 self._log(f"Configuration loaded from {filename}")
 

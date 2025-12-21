@@ -124,6 +124,77 @@
     "NVR2": 0.0
   },
 
+  "ice_flux": {
+    "_comment": "Ice velocity tracking (Phase 1: velocity fields only)",
+    "_description": "Compute optical flow between consecutive mosaic frames to generate velocity fields",
+    "_phase_note": "Phase 1 focuses on velocity field generation and validation. Flux measurements will be added in Phase 2.",
+
+    "enabled": false,
+    "_enabled_description": "Enable ice flux analysis (default: false)",
+    "_enabled_warning": "Adds ~10-40 MB memory overhead for frame buffering and ~0.5-2 sec per frame processing time",
+
+    "farneback_params": {
+      "_comment": "OpenCV Farneback optical flow parameters - tuning critical for complex vessel/ice interactions",
+
+      "pyr_scale": 0.5,
+      "_pyr_scale_description": "Pyramid scale (0.5 recommended, each level is half the previous)",
+
+      "levels": 3,
+      "_levels_description": "Number of pyramid levels (3-5 typical, higher = more robust to large motions)",
+      "_levels_note": "Increase if vessel motion is being missed",
+
+      "winsize": 15,
+      "_winsize_description": "Averaging window size (15-25 for ice particles, larger = smoother flow)",
+      "_winsize_note": "Critical parameter - affects ability to track small ice pieces vs vessel motion. Start with 20.",
+
+      "iterations": 3,
+      "_iterations_description": "Iterations at each pyramid level (3 is good default)",
+
+      "poly_n": 5,
+      "_poly_n_description": "Polynomial expansion neighborhood size (5 or 7)",
+
+      "poly_sigma": 1.2,
+      "_poly_sigma_description": "Gaussian sigma for polynomial expansion (1.1-1.5)",
+
+      "flags": 0,
+      "_flags_description": "Operation flags (0 = default, 256 = use Gaussian for smoother flow)"
+    },
+
+    "save_velocity_geotiffs": true,
+    "_save_velocity_geotiffs_description": "Save velocity field GeoTIFFs (2-band float32: u_east, v_north in m/s)",
+    "_save_velocity_geotiffs_note": "File size: ~3-8 MB per frame depending on resolution. 120 frames = ~600 MB total.",
+
+    "create_validation_plots": true,
+    "_create_validation_plots_description": "Generate quiver plots, magnitude maps, direction HSV for validation",
+    "_create_validation_plots_note": "HIGHLY RECOMMENDED for Phase 1 - verify velocity fields are physically reasonable",
+
+    "validation_plot_interval": 10,
+    "_validation_plot_interval_description": "Create validation plot every N frames (to reduce overhead)",
+    "_validation_plot_interval_note": "For 30-second test, use 5. For 2-minute test, use 10.",
+
+    "create_overlay_video": false,
+    "_create_overlay_video_description": "Create separate video with velocity vectors overlaid on mosaic frames",
+    "_create_overlay_video_note": "Very helpful for validation - watch vectors animate with actual ice/vessel motion. Adds processing time.",
+
+    "overlay_video_subsample": 20,
+    "_overlay_video_subsample_description": "Subsample velocity field for overlay (every Nth pixel) - 20 recommended for readability",
+
+    "compress_geotiffs": true,
+    "_compress_geotiffs_description": "Use LZW compression for velocity GeoTIFFs (slower write, ~50% smaller files)",
+
+    "optional": true,
+    "_optional_description": "If true, continue processing even if ice flux analysis fails. If false, abort on error."
+  },
+
+  "_ice_flux_usage_notes": {
+    "_validation_workflow": "1) Run short test (30-60 sec), 2) Inspect validation plots, 3) Check statistics CSV, 4) Tune parameters, 5) Run longer tests",
+    "_expected_velocities": "Ice: ~0.06 m/s (0.2 ft/s model scale). Vessel: similar. If mean >> 0.1 m/s, check parameters.",
+    "_memory_overhead": "Frame buffering adds ~10-40 MB depending on mosaic size. Total peak: ~130-160 MB.",
+    "_processing_overhead": "Optical flow adds ~0.5-2 seconds per frame pair. For 2-minute video (120 frames): adds ~2-4 minutes.",
+    "_output_size": "Velocity GeoTIFFs: ~600 MB for 120 frames (compressed). Statistics CSV: <1 MB. Validation plots: ~50 MB.",
+    "_parameter_tuning": "Start with winsize=20, levels=3. Increase winsize for smoother fields. Increase levels if missing large vessel motions."
+  },
+
   "_usage_notes": {
     "_quick_test": "For quick test: use --quick flag to process only 30 seconds",
     "_typical_2min": "2 minutes @ 1 sec interval: 120 frames, ~10-15 seconds processing",

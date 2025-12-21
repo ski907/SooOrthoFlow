@@ -1,14 +1,16 @@
 {
   "input": {
-    "video_dir": "test_videos\\12-1-25\\Initial Ice Pack",
+    "video_dir": "E:/12-17-25/Test 23.1",
     "camera_selection": {
       "mode": "list",
       "cameras": [
-        "NVR1_N910A6_ch2_main",
-        "NVR1_N910A6_ch3_main",
         "NVR1_N910A6_ch4_main",
         "NVR1_N910A6_ch5_main",
-        "NVR3_N910A6_ch1_main"
+        "NVR1_N910A6_ch6_main",
+        "NVR1_N910A6_ch7_main",
+        "NVR1_N910A6_ch8_main",
+        "NVR3_N910A6_ch1_main",
+        "NVR3_N910A6_ch2_main"
       ]
     },
     "error_handling": {
@@ -17,12 +19,12 @@
       "skip_missing_videos": true,
       "min_cameras_required": 1
     },
-    "start_time": "2025-12-01 10:26:30",
-    "end_time": "2025-12-01 10:27:30",
-    "interval_seconds": 5.0
+    "start_time": "2025-12-17 15:21:00",
+    "end_time": "2025-12-17 15:23:30",
+    "interval_seconds": 3.0
   },
   "paths": {
-    "calibration_file": "calibration\\camera_calibrations_20251205.csv",
+    "calibration_file": "calibration/camera_calibrations_20251203.csv",
     "dsm_file": "inputs/TLS_DTM_cropped_filled_utmNAD8319N.tif"
   },
   "processing": {
@@ -34,12 +36,31 @@
   },
   "output": {
     "output_dir": "output_data/video_mosaic",
-    "video_filename": "20251217_t18_mosaic_video1.mp4",
-    "video_fps": 5,
+    "video_filename": "temp_mosaic_video.mp4",
+    "video_fps": 2,
     "video_codec": "mp4v",
     "verbose_frames": false
   },
   "camera_time_offsets": {
     "NVR2": 0.0
+  },
+  "ice_flux": {
+    "enabled": true,
+    "farneback_params": {
+      "pyr_scale": 0.5,
+      "levels": 3,
+      "winsize": 15,
+      "iterations": 3,
+      "poly_n": 5,
+      "poly_sigma": 1.2,
+      "flags": 0
+    },
+    "save_velocity_geotiffs": true,
+    "create_validation_plots": true,
+    "validation_plot_interval": 10,
+    "create_overlay_video": true,
+    "overlay_video_subsample": 20,
+    "compress_geotiffs": true,
+    "optional": true
   }
 }

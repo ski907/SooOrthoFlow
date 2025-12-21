@@ -1,13 +1,13 @@
 {
-    "video_folder": "test_videos\\reset_temp",
-    "start_time": "2025-12-12 12:35:30",
-    "end_time": "2025-12-12 12:35:40",
+    "video_folder": "E:/12-18-25/Test 22",
+    "start_time": "2025-12-18 09:05:30",
+    "end_time": "2025-12-18 09:24:30",
     "interval": "5min",
     "time_mode": "interval",
     "paths": {
-        "output_base": "output_data//test_3cam_recal",
-        "calibration_file": "calibration\\camera_calibrations_20251218.csv",
-        "gcp_file": "inputs\\GCP_24cameras_utm_update_NVR3_ch1_2_6_20251218.csv",
+        "output_base": "output_data",
+        "calibration_file": "calibration\\camera_calibrations_20251205.csv",
+        "gcp_file": "inputs\\GCP_24cameras_utm.csv",
         "dsm_file": "inputs//TLS_DTM_cropped_filled_utmNAD8319N.tif"
     },
     "processing": {
@@ -17,7 +17,7 @@
         "mosaic_method": "zone_map",
         "ortho_resolution": 0.0025,
         "ortho_padding": 2.0,
-        "zone_map_shapefile": "orthorectification\\camera_zone_map\\camera_zone_map_cam_shift_20251218.shp",
+        "zone_map_shapefile": "orthorectification\\camera_zone_map\\camera_zone_map_20251218interim.shp",
         "run_light_detection": false,
         "light_detection_mask": "analysis//ship_detection//area_to_review_ref.tif",
         "apply_world_transform": true,
@@ -32,7 +32,7 @@
         "use_interval": false,
         "interval_resolution": "lowres",
         "use_first_last": true,
-        "first_last_resolution": "hires"
+        "first_last_resolution": "lowres"
     },
     "resolutions": {
         "hires": 0.0025,

@@ -95,6 +95,10 @@ class VideoMosaicProcessor:
 
         self.camera_time_offsets = config.get('camera_time_offsets', {})
 
+        # Ice flux analysis configuration
+        self.ice_flux_config = config.get('ice_flux', {'enabled': False})
+        self.ice_flux_analyzer = None
+
         # Will be initialized in setup()
         self.calibrations = None
         self.ortho_caches = {}
@@ -218,6 +222,33 @@ class VideoMosaicProcessor:
         except Exception as e:
             print(f"  ERROR: Could not initialize mosaic engine - {e}")
             return False
+
+        # 5.5. Initialize ice flux analyzer if enabled
+        if self.ice_flux_config.get('enabled', False):
+            print(f"\n5.5. Initializing ice flux analyzer...")
+            try:
+                from analysis.video_mosaic.ice_flux import IceFluxAnalyzer
+
+                # Add time delta and output directory to config
+                ice_flux_config = self.ice_flux_config.copy()
+                ice_flux_config['time_delta_seconds'] = self.interval_seconds
+                ice_flux_config['output_dir'] = self.output_dir / 'ice_flux'
+                ice_flux_config['video_fps'] = self.video_fps
+                ice_flux_config['video_codec'] = self.video_codec
+
+                self.ice_flux_analyzer = IceFluxAnalyzer(
+                    ice_flux_config,
+                    mosaic_geotransform_getter=self.mosaic_engine.get_geotransform
+                )
+                self.ice_flux_analyzer.setup()
+                print(f"  OK Ice flux analyzer initialized")
+            except Exception as e:
+                print(f"  ERROR: Could not initialize ice flux analyzer - {e}")
+                if not self.ice_flux_config.get('optional', True):
+                    return False
+                else:
+                    print(f"  Continuing without ice flux analysis (optional=True)")
+                    self.ice_flux_analyzer = None
 
         # 6. Create output directory
         print(f"\n6. Creating output directory...")
@@ -475,6 +506,14 @@ class VideoMosaicProcessor:
                     row_min, row_max, col_min, col_max = self.final_crop_bounds
                     mosaicked_frame = mosaicked_frame[row_min:row_max, col_min:col_max]
 
+                # 3.55. Ice flux analysis (in UTM coordinates, before rotation)
+                if self.ice_flux_analyzer:
+                    try:
+                        overlay_frame = self.ice_flux_analyzer.process_frame(mosaicked_frame, timestamp)
+                        # overlay_frame is used later if creating overlay video
+                    except Exception as e:
+                        print(f"  WARNING: Ice flux analysis failed at {timestamp.strftime('%H:%M:%S')} - {e}")
+
                 # 3.6. Apply rotation if specified
                 if self.rotation_angle_deg != 0.0:
                     mosaicked_frame = self._rotate_frame(mosaicked_frame, self.rotation_angle_deg)
@@ -532,6 +571,10 @@ class VideoMosaicProcessor:
         if self.video_reader:
             self.video_reader.close()
             print("  OK Video reader closed")
+
+        if self.ice_flux_analyzer:
+            self.ice_flux_analyzer.cleanup()
+            print("  OK Ice flux analyzer cleaned up")
 
     def save_metadata(self):
         """Save geotransform and processing metadata to JSON."""
