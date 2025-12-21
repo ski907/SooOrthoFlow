@@ -182,6 +182,10 @@
     "compress_geotiffs": true,
     "_compress_geotiffs_description": "Use LZW compression for velocity GeoTIFFs (slower write, ~50% smaller files)",
 
+    "velocity_clip_shapefile": "analysis/analysis_shapefiles/general_analysis_area.shp",
+    "_velocity_clip_shapefile_description": "Optional shapefile to clip velocity analysis to specific region. Velocities outside will be set to zero.",
+    "_velocity_clip_shapefile_note": "Full mosaic frame is still displayed in plots/video, but only velocities inside shapefile are computed/visualized. Set to null to analyze entire domain.",
+
     "optional": true,
     "_optional_description": "If true, continue processing even if ice flux analysis fails. If false, abort on error."
   },

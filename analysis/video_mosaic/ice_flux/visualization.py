@@ -23,18 +23,19 @@ class Visualizer:
     def __init__(self, output_dir: Path, create_plots: bool = True,
                  plot_interval: int = 10, create_overlay_video: bool = False,
                  overlay_subsample: int = 20, video_fps: int = 10,
-                 video_codec: str = 'mp4v'):
+                 video_codec: str = 'mp4v', rotation_angle_deg: float = 0.0):
         """
         Initialize visualizer.
 
         Parameters:
-            output_dir: Output directory for validation plots
+            output_dir: Output directory for validation plots (ice_flux subfolder)
             create_plots: Enable plot creation
             plot_interval: Create plot every N frames
             create_overlay_video: Enable overlay video creation
             overlay_subsample: Subsample factor for overlay vectors
             video_fps: Frame rate for overlay video
             video_codec: Codec for overlay video
+            rotation_angle_deg: Rotation angle for visualization outputs
         """
         self.output_dir = Path(output_dir)
         self.create_plots = create_plots
@@ -43,10 +44,11 @@ class Visualizer:
         self.overlay_subsample = overlay_subsample
         self.video_fps = video_fps
         self.video_codec = video_codec
+        self.rotation_angle_deg = rotation_angle_deg
 
-        # Create subdirectories
+        # Validation plots go to main output directory (parent of ice_flux)
         if self.create_plots:
-            self.plots_dir = self.output_dir / 'validation_plots'
+            self.plots_dir = self.output_dir.parent / 'validation_plots'
             self.plots_dir.mkdir(parents=True, exist_ok=True)
 
         # Statistics tracking
@@ -59,6 +61,134 @@ class Visualizer:
         self.overlay_video_writer = None
         self.overlay_video_path = None
         self.frame_count = 0
+
+        # Color scale tracking for consistent visualization
+        self.max_magnitude_seen = 0.0
+
+    def _rotate_image(self, image: np.ndarray) -> np.ndarray:
+        """
+        Rotate image by rotation_angle_deg with expanded canvas to fit entire rotated image.
+
+        Parameters:
+            image: Input image (grayscale or BGR)
+
+        Returns:
+            Rotated image with expanded dimensions
+        """
+        if self.rotation_angle_deg == 0.0:
+            return image
+
+        h, w = image.shape[:2]
+        center = (w / 2, h / 2)
+        rotation_matrix = cv2.getRotationMatrix2D(center, self.rotation_angle_deg, 1.0)
+
+        # Calculate new dimensions to fit entire rotated image
+        cos = np.abs(rotation_matrix[0, 0])
+        sin = np.abs(rotation_matrix[0, 1])
+        new_width = int((h * sin) + (w * cos))
+        new_height = int((h * cos) + (w * sin))
+
+        # Adjust rotation matrix to account for translation
+        rotation_matrix[0, 2] += (new_width / 2) - center[0]
+        rotation_matrix[1, 2] += (new_height / 2) - center[1]
+
+        # Perform rotation with expanded canvas
+        rotated = cv2.warpAffine(
+            image, rotation_matrix, (new_width, new_height),
+            flags=cv2.INTER_LINEAR,
+            borderMode=cv2.BORDER_CONSTANT,
+            borderValue=(0, 0, 0)
+        )
+
+        return rotated
+
+    def _rotate_velocity_components(self, u: np.ndarray, v: np.ndarray) -> tuple:
+        """
+        Rotate velocity vector components by rotation_angle_deg.
+
+        When rotating velocity fields, we need to:
+        1. Rotate the spatial positions (done by _rotate_image)
+        2. Rotate the vector components themselves (done here)
+
+        Parameters:
+            u: Eastward velocity component
+            v: Northward velocity component
+
+        Returns:
+            Tuple of (u_rotated, v_rotated) in the rotated coordinate frame
+        """
+        if self.rotation_angle_deg == 0.0:
+            return u, v
+
+        # Convert angle to radians
+        theta_rad = np.deg2rad(self.rotation_angle_deg)
+        cos_theta = np.cos(theta_rad)
+        sin_theta = np.sin(theta_rad)
+
+        # Rotate vector components
+        # Standard 2D rotation matrix applied to each vector
+        u_rotated = u * cos_theta - v * sin_theta
+        v_rotated = u * sin_theta + v * cos_theta
+
+        return u_rotated, v_rotated
+
+    def _add_timestamp(self, image: np.ndarray, timestamp: datetime) -> np.ndarray:
+        """
+        Add timestamp overlay to image.
+
+        Parameters:
+            image: Input image (BGR)
+            timestamp: Timestamp to display
+
+        Returns:
+            Image with timestamp overlay
+        """
+        # Format timestamp
+        timestamp_str = timestamp.strftime('%Y_%m_%d %H:%M:%S')
+
+        # Create a copy to avoid modifying original
+        img_with_text = image.copy()
+
+        # Text properties
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        font_scale = 1.2
+        font_thickness = 2
+        text_color = (255, 255, 255)  # White
+        bg_color = (0, 0, 0)  # Black background
+
+        # Get text size
+        (text_width, text_height), baseline = cv2.getTextSize(
+            timestamp_str, font, font_scale, font_thickness
+        )
+
+        # Position: top-right with padding
+        padding = 10
+        frame_width = image.shape[1]
+        x = frame_width - text_width - padding
+        y = padding + text_height
+
+        # Draw background rectangle
+        cv2.rectangle(
+            img_with_text,
+            (x - 5, y - text_height - 5),
+            (x + text_width + 5, y + baseline + 5),
+            bg_color,
+            -1
+        )
+
+        # Draw text
+        cv2.putText(
+            img_with_text,
+            timestamp_str,
+            (x, y),
+            font,
+            font_scale,
+            text_color,
+            font_thickness,
+            cv2.LINE_AA
+        )
+
+        return img_with_text
 
     def open_stats_csv(self):
         """Open statistics CSV file for writing."""
@@ -119,27 +249,39 @@ class Visualizer:
         timestamp_str = timestamp.strftime('%Y%m%d_%H%M%S')
         magnitude = np.sqrt(u_velocity**2 + v_velocity**2)
 
-        # 1. Quiver plot
+        # Update max magnitude seen for consistent color scaling
+        current_max = np.max(magnitude)
+        if current_max > self.max_magnitude_seen:
+            self.max_magnitude_seen = current_max
+
+        # Keep validation plots in UTM orientation (unrotated) for analysis
+        # Grid stays aligned with cardinal directions for clearer scientific interpretation
+        # Note: Video overlay is still rotated for viewing purposes
+
+        # 1. Quiver plot (with consistent color scale, in UTM orientation)
         self._create_quiver_plot(
-            mosaic_frame, u_velocity, v_velocity, magnitude,
-            self.plots_dir / f'validation_{timestamp_str}_quiver.png'
+            mosaic_frame, u_velocity, v_velocity, magnitude, timestamp,
+            self.plots_dir / f'validation_{timestamp_str}_quiver.png',
+            vmax=self.max_magnitude_seen
         )
 
-        # 2. Magnitude heatmap
+        # 2. Magnitude heatmap (with consistent color scale, in UTM orientation)
         self._create_magnitude_plot(
-            magnitude,
-            self.plots_dir / f'validation_{timestamp_str}_magnitude.png'
+            magnitude, timestamp,
+            self.plots_dir / f'validation_{timestamp_str}_magnitude.png',
+            vmax=self.max_magnitude_seen
         )
 
-        # 3. Direction HSV
+        # 3. Direction HSV (in UTM orientation)
         self._create_direction_plot(
-            u_velocity, v_velocity, magnitude,
+            u_velocity, v_velocity, magnitude, timestamp,
             self.plots_dir / f'validation_{timestamp_str}_direction.png'
         )
 
     def _create_quiver_plot(self, background: np.ndarray, u: np.ndarray,
                            v: np.ndarray, magnitude: np.ndarray,
-                           output_path: Path):
+                           timestamp: datetime, output_path: Path,
+                           vmax: float = None):
         """Create quiver plot with velocity vectors over background image."""
         fig, ax = plt.subplots(figsize=(16, 12), dpi=100)
 
@@ -158,36 +300,59 @@ class Visualizer:
         v_sub = v[::step, ::step]
         mag_sub = magnitude[::step, ::step]
 
-        # Quiver plot
+        # Calculate reasonable arrow scale similar to overlay video
+        # Target: mean velocity shows as ~25-30 pixel arrows
+        mean_mag = np.mean(np.abs(magnitude))
+        if mean_mag > 0:
+            # In matplotlib quiver: scale = data_units per arrow_length_unit
+            # Larger scale = shorter arrows
+            # Target 25 pixel arrows for mean magnitude
+            # scale = magnitude / (desired_pixels / pixels_per_data_unit)
+            # Assuming roughly 1:1 pixel to data units in image space
+            scale = mean_mag * (step / 25.0)  # Adjust so mean velocity = ~25 pixels
+            scale = max(scale, mean_mag * 0.5)  # Minimum scale to prevent huge arrows
+        else:
+            scale = 1.0
+
+        # Quiver plot with consistent color scale
         # matplotlib quiver on imshow: U,V are in data coordinates (not image pixel coordinates)
         # Our u,v are already in correct orientation: u=east (right), v=north (up in data space)
         # matplotlib handles the image coordinate inversion automatically
         q = ax.quiver(x, y, u_sub, v_sub, mag_sub,
-                     cmap='jet', scale=None, width=0.002,
-                     headwidth=3, headlength=4, alpha=0.9)
+                     cmap='jet', scale=scale, width=0.002,
+                     headwidth=3, headlength=4, alpha=0.9,
+                     clim=(0, vmax) if vmax is not None else None)
 
         # Colorbar
         cbar = plt.colorbar(q, ax=ax, fraction=0.03, pad=0.02)
         cbar.set_label('Velocity (m/s)', fontsize=12, weight='bold')
 
-        ax.set_title(f'Velocity Vectors ({u_sub.size} arrows)', fontsize=14, fontweight='bold')
+        # Add title with timestamp
+        timestamp_str = timestamp.strftime('%Y_%m_%d %H:%M:%S')
+        ax.set_title(f'Velocity Vectors - {timestamp_str}', fontsize=14, fontweight='bold')
         ax.axis('off')
 
         plt.tight_layout()
         plt.savefig(output_path, dpi=100, bbox_inches='tight', facecolor='white')
         plt.close()
 
-    def _create_magnitude_plot(self, magnitude: np.ndarray, output_path: Path):
+    def _create_magnitude_plot(self, magnitude: np.ndarray, timestamp: datetime,
+                               output_path: Path, vmax: float = None):
         """Create magnitude heatmap."""
         fig, ax = plt.subplots(figsize=(12, 8), dpi=100)
 
-        vmax = np.percentile(magnitude, 95)
+        # Use consistent vmax if provided, otherwise use 95th percentile
+        if vmax is None:
+            vmax = np.percentile(magnitude, 95)
+
         im = ax.imshow(magnitude, cmap='jet', vmin=0, vmax=vmax, origin='upper')
 
         cbar = plt.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
         cbar.set_label('Velocity magnitude (m/s)', fontsize=12, weight='bold')
 
-        ax.set_title('Velocity Magnitude', fontsize=14, fontweight='bold')
+        # Add title with timestamp
+        timestamp_str = timestamp.strftime('%Y_%m_%d %H:%M:%S')
+        ax.set_title(f'Velocity Magnitude - {timestamp_str}', fontsize=14, fontweight='bold')
         ax.axis('off')
 
         plt.tight_layout()
@@ -195,7 +360,8 @@ class Visualizer:
         plt.close()
 
     def _create_direction_plot(self, u: np.ndarray, v: np.ndarray,
-                              magnitude: np.ndarray, output_path: Path):
+                              magnitude: np.ndarray, timestamp: datetime,
+                              output_path: Path):
         """Create HSV direction visualization."""
         fig, ax = plt.subplots(figsize=(12, 8), dpi=100)
 
@@ -209,7 +375,9 @@ class Visualizer:
         rgb = cv2.cvtColor(hsv, cv2.COLOR_HSV2RGB)
         ax.imshow(rgb)
 
-        ax.set_title('Flow Direction (Color) & Speed (Brightness)', fontsize=14, fontweight='bold')
+        # Add title with timestamp
+        timestamp_str = timestamp.strftime('%Y_%m_%d %H:%M:%S')
+        ax.set_title(f'Flow Direction & Speed - {timestamp_str}', fontsize=14, fontweight='bold')
         ax.axis('off')
 
         # Add legend
@@ -222,7 +390,8 @@ class Visualizer:
         plt.close()
 
     def create_overlay_frame(self, mosaic_frame: np.ndarray,
-                            u_velocity: np.ndarray, v_velocity: np.ndarray) -> np.ndarray:
+                            u_velocity: np.ndarray, v_velocity: np.ndarray,
+                            timestamp: datetime) -> np.ndarray:
         """
         Create frame with velocity vectors overlaid.
 
@@ -230,12 +399,18 @@ class Visualizer:
             mosaic_frame: Background mosaic frame
             u_velocity: Eastward velocity component
             v_velocity: Northward velocity component
+            timestamp: Frame timestamp
 
         Returns:
-            Frame with overlay vectors
+            Frame with overlay vectors, timestamp, and rotation applied
         """
         overlay = mosaic_frame.copy()
         magnitude = np.sqrt(u_velocity**2 + v_velocity**2)
+
+        # Update max magnitude for consistent color scaling
+        current_max = np.max(magnitude)
+        if current_max > self.max_magnitude_seen:
+            self.max_magnitude_seen = current_max
 
         # Subsample
         step = self.overlay_subsample
@@ -243,8 +418,11 @@ class Visualizer:
         y_coords = np.arange(step//2, h, step)
         x_coords = np.arange(step//2, w, step)
 
-        # Normalize magnitude for color mapping
-        mag_norm = cv2.normalize(magnitude, None, 0, 255, cv2.NORM_MINMAX).astype(np.uint8)
+        # Normalize magnitude for color mapping using consistent scale
+        if self.max_magnitude_seen > 0:
+            mag_norm = np.clip(magnitude / self.max_magnitude_seen * 255, 0, 255).astype(np.uint8)
+        else:
+            mag_norm = np.zeros_like(magnitude, dtype=np.uint8)
 
         # Apply colormap
         mag_color = cv2.applyColorMap(mag_norm, cv2.COLORMAP_JET)
@@ -282,39 +460,53 @@ class Visualizer:
                 cv2.arrowedLine(overlay, (xi, yi), (end_x, end_y),
                               color, thickness=2, tipLength=0.3)
 
+        # Apply rotation first
+        if self.rotation_angle_deg != 0.0:
+            overlay = self._rotate_image(overlay)
+
+        # Add timestamp overlay AFTER rotation (so it stays horizontal)
+        overlay = self._add_timestamp(overlay, timestamp)
+
         return overlay
 
     def init_overlay_video(self, frame_shape: Tuple[int, int]):
         """
-        Initialize overlay video writer.
+        Initialize overlay video writer (DEPRECATED - now uses lazy initialization).
+
+        Video writer is now automatically initialized on first frame write to ensure
+        correct dimensions after rotation is applied.
 
         Parameters:
-            frame_shape: (height, width) of frames
+            frame_shape: (height, width) of frames (ignored)
         """
+        # No-op - lazy initialization in write_overlay_frame handles this
+        pass
+
+    def write_overlay_frame(self, overlay_frame: np.ndarray):
+        """Write frame to overlay video with lazy initialization."""
         if not self.create_overlay_video:
             return
 
-        self.overlay_video_path = self.output_dir / 'mosaic_with_velocity_overlay.mp4'
-        fourcc = cv2.VideoWriter_fourcc(*self.video_codec)
-        height, width = frame_shape
+        # Lazy initialization: create video writer on first frame (after rotation)
+        if self.overlay_video_writer is None:
+            self.overlay_video_path = self.output_dir / 'mosaic_with_velocity_overlay.mp4'
+            fourcc = cv2.VideoWriter_fourcc(*self.video_codec)
+            height, width = overlay_frame.shape[:2]
 
-        self.overlay_video_writer = cv2.VideoWriter(
-            str(self.overlay_video_path),
-            fourcc,
-            self.video_fps,
-            (width, height)
-        )
+            self.overlay_video_writer = cv2.VideoWriter(
+                str(self.overlay_video_path),
+                fourcc,
+                self.video_fps,
+                (width, height)
+            )
 
-        if not self.overlay_video_writer.isOpened():
-            raise RuntimeError("Could not create overlay video writer")
+            if not self.overlay_video_writer.isOpened():
+                raise RuntimeError("Could not create overlay video writer")
 
-        print(f"  Overlay video writer initialized: {width}x{height} @ {self.video_fps} fps")
+            print(f"  Overlay video writer initialized: {width}x{height} @ {self.video_fps} fps")
 
-    def write_overlay_frame(self, overlay_frame: np.ndarray):
-        """Write frame to overlay video."""
-        if self.overlay_video_writer:
-            self.overlay_video_writer.write(overlay_frame)
-            self.frame_count += 1
+        self.overlay_video_writer.write(overlay_frame)
+        self.frame_count += 1
 
     def close_stats_csv(self):
         """Close statistics CSV file."""

@@ -1,6 +1,6 @@
 {
   "input": {
-    "video_dir": "E:/12-17-25/Test 23.1",
+    "video_dir": "E:/12-17-25/Test 18",
     "camera_selection": {
       "mode": "list",
       "cameras": [
@@ -19,8 +19,8 @@
       "skip_missing_videos": true,
       "min_cameras_required": 1
     },
-    "start_time": "2025-12-17 15:21:00",
-    "end_time": "2025-12-17 15:23:30",
+    "start_time": "2025-12-17 08:41:45",
+    "end_time": "2025-12-17 08:46:30",
     "interval_seconds": 3.0
   },
   "paths": {

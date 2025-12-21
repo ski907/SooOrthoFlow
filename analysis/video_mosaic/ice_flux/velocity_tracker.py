@@ -108,6 +108,11 @@ class IceFluxAnalyzer:
         self.create_validation_plots = config.get('create_validation_plots', True)
         self.validation_plot_interval = config.get('validation_plot_interval', 10)
         self.create_overlay_video = config.get('create_overlay_video', False)
+        self.rotation_angle_deg = config.get('rotation_angle_deg', 0.0)
+        self.velocity_clip_shapefile = config.get('velocity_clip_shapefile')
+
+        # Velocity clipping mask (created on first frame)
+        self.velocity_clip_mask = None
 
         # Initialize components
         self.velocity_tracker = VelocityTracker(
@@ -130,7 +135,8 @@ class IceFluxAnalyzer:
             create_overlay_video=self.create_overlay_video,
             overlay_subsample=config.get('overlay_video_subsample', 20),
             video_fps=config.get('video_fps', 10),
-            video_codec=config.get('video_codec', 'mp4v')
+            video_codec=config.get('video_codec', 'mp4v'),
+            rotation_angle_deg=self.rotation_angle_deg
         )
 
         # Frame buffering
@@ -139,6 +145,45 @@ class IceFluxAnalyzer:
 
         # Statistics tracking
         self.frames_processed = 0
+
+    def _create_velocity_clip_mask(self, frame_shape: tuple, geotransform: Dict) -> np.ndarray:
+        """
+        Create velocity clipping mask from shapefile.
+
+        Parameters:
+            frame_shape: (height, width) of velocity fields
+            geotransform: Geotransform dict with pixel_width, pixel_height, x_min, y_max
+
+        Returns:
+            Boolean mask (H, W) where True = analyze, False = clip (set to zero)
+        """
+        import geopandas as gpd
+        from rasterio.features import rasterize
+        from rasterio.transform import Affine
+
+        # Load shapefile
+        gdf = gpd.read_file(self.velocity_clip_shapefile)
+
+        # Create affine transform for rasterization
+        height, width = frame_shape
+        pixel_width = geotransform['pixel_width']
+        pixel_height = geotransform['pixel_height']  # Negative for north-up
+        x_min = geotransform.get('x_min', 0)
+        y_max = geotransform.get('y_max', 0)
+
+        transform = Affine(pixel_width, 0, x_min,
+                          0, pixel_height, y_max)
+
+        # Rasterize the shapefile polygons
+        mask = rasterize(
+            [(geom, 1) for geom in gdf.geometry],
+            out_shape=(height, width),
+            transform=transform,
+            fill=0,
+            dtype=np.uint8
+        )
+
+        return mask.astype(bool)
 
     def setup(self):
         """Initialize resources."""
@@ -158,6 +203,8 @@ class IceFluxAnalyzer:
         if self.create_validation_plots:
             print(f"    Plot interval: every {self.validation_plot_interval} frames")
         print(f"  Create overlay video: {self.create_overlay_video}")
+        if self.velocity_clip_shapefile:
+            print(f"  Velocity clipping: {self.velocity_clip_shapefile}")
 
         # Open statistics CSV
         self.visualizer.open_stats_csv()
@@ -180,11 +227,8 @@ class IceFluxAnalyzer:
         # Convert to grayscale
         current_frame_gray = cv2.cvtColor(mosaicked_frame, cv2.COLOR_BGR2GRAY)
 
-        # Initialize overlay video writer on first frame
-        if self.frames_processed == 0 and self.create_overlay_video:
-            self.visualizer.init_overlay_video(mosaicked_frame.shape[:2])
-
         # Skip first frame (need pair for optical flow)
+        # Note: overlay video writer will be lazily initialized on first write
         if self.previous_frame_gray is None:
             self.previous_frame_gray = current_frame_gray.copy()
             self.previous_timestamp = timestamp
@@ -204,6 +248,25 @@ class IceFluxAnalyzer:
             self.previous_frame_gray = current_frame_gray.copy()
             self.previous_timestamp = timestamp
             return None
+
+        # Create velocity clip mask on first frame if shapefile specified
+        if self.velocity_clip_shapefile and self.velocity_clip_mask is None:
+            try:
+                self.velocity_clip_mask = self._create_velocity_clip_mask(
+                    u_velocity.shape,
+                    geotransform
+                )
+                clip_pixels = np.sum(self.velocity_clip_mask)
+                total_pixels = self.velocity_clip_mask.size
+                print(f"  Velocity clip mask created: {clip_pixels}/{total_pixels} pixels ({100*clip_pixels/total_pixels:.1f}%) in analysis area")
+            except Exception as e:
+                print(f"  WARNING: Could not create velocity clip mask - {e}")
+                self.velocity_clip_mask = None
+
+        # Apply velocity clip mask if present
+        if self.velocity_clip_mask is not None:
+            u_velocity = np.where(self.velocity_clip_mask, u_velocity, 0.0)
+            v_velocity = np.where(self.velocity_clip_mask, v_velocity, 0.0)
 
         # Compute statistics and print
         magnitude = np.sqrt(u_velocity**2 + v_velocity**2)
@@ -235,7 +298,7 @@ class IceFluxAnalyzer:
         overlay_frame = None
         if self.create_overlay_video:
             overlay_frame = self.visualizer.create_overlay_frame(
-                mosaicked_frame, u_velocity, v_velocity
+                mosaicked_frame, u_velocity, v_velocity, timestamp
             )
             self.visualizer.write_overlay_frame(overlay_frame)
 

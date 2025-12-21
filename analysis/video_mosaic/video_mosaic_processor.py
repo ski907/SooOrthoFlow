@@ -87,7 +87,13 @@ class VideoMosaicProcessor:
         self.rotation_angle_deg = config['processing'].get('rotation_angle_deg', 0.0)
         self.clip_shapefile = config['processing'].get('clip_shapefile')
 
-        self.output_dir = Path(config['output']['output_dir'])
+        # Construct output directory with subfolder based on video dir and timespan
+        base_output_dir = Path(config['output']['output_dir'])
+        video_dir_name = self.video_dir.name  # Last folder name
+        timespan_str = self._format_timespan(self.start_time, self.end_time)
+        subfolder_name = f"{video_dir_name}_{timespan_str}"
+        self.output_dir = base_output_dir / subfolder_name
+
         self.video_filename = config['output']['video_filename']
         self.video_fps = config['output']['video_fps']
         self.video_codec = config['output']['video_codec']
@@ -112,6 +118,12 @@ class VideoMosaicProcessor:
     def _parse_time(self, time_str: str) -> datetime:
         """Parse time string to datetime."""
         return datetime.strptime(time_str, "%Y-%m-%d %H:%M:%S")
+
+    def _format_timespan(self, start: datetime, end: datetime) -> str:
+        """Format timespan as condensed string for folder name."""
+        start_str = start.strftime("%Y%m%d_%H%M")
+        end_str = end.strftime("%H%M")
+        return f"{start_str}-{end_str}"
 
     def _generate_timestamps(self) -> List[datetime]:
         """
@@ -229,12 +241,13 @@ class VideoMosaicProcessor:
             try:
                 from analysis.video_mosaic.ice_flux import IceFluxAnalyzer
 
-                # Add time delta and output directory to config
+                # Add time delta, output directory, and rotation to config
                 ice_flux_config = self.ice_flux_config.copy()
                 ice_flux_config['time_delta_seconds'] = self.interval_seconds
                 ice_flux_config['output_dir'] = self.output_dir / 'ice_flux'
                 ice_flux_config['video_fps'] = self.video_fps
                 ice_flux_config['video_codec'] = self.video_codec
+                ice_flux_config['rotation_angle_deg'] = self.rotation_angle_deg
 
                 self.ice_flux_analyzer = IceFluxAnalyzer(
                     ice_flux_config,
@@ -290,6 +303,13 @@ class VideoMosaicProcessor:
             print(f"  Note: Will clip to shapefile analysis area")
         if self.rotation_angle_deg != 0.0:
             print(f"  Note: Will rotate frames by {self.rotation_angle_deg}° counterclockwise")
+
+        # Save diagnostic config file
+        print(f"\n{'9. ' if not self.clip_shapefile else '10. '}Saving diagnostic config...")
+        diagnostic_path = self.output_dir / 'processing_config.json'
+        with open(diagnostic_path, 'w') as f:
+            json.dump(self.config, f, indent=2, default=str)
+        print(f"  OK Config saved: {diagnostic_path}")
 
         print(f"\nSetup complete!\n")
         return True
@@ -384,6 +404,64 @@ class VideoMosaicProcessor:
                                  borderValue=(0, 0, 0))
 
         return rotated
+
+    def _add_timestamp_overlay(self, frame: np.ndarray, timestamp: datetime) -> np.ndarray:
+        """
+        Add timestamp overlay to frame.
+
+        Parameters:
+            frame: Input frame (BGR)
+            timestamp: Timestamp to display
+
+        Returns:
+            Frame with timestamp overlay
+        """
+        # Format timestamp
+        timestamp_str = timestamp.strftime('%Y_%m_%d %H:%M:%S')
+
+        # Create a copy to avoid modifying original
+        img_with_text = frame.copy()
+
+        # Text properties
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        font_scale = 1.2
+        font_thickness = 2
+        text_color = (255, 255, 255)  # White
+        bg_color = (0, 0, 0)  # Black background
+
+        # Get text size
+        (text_width, text_height), baseline = cv2.getTextSize(
+            timestamp_str, font, font_scale, font_thickness
+        )
+
+        # Position: top-right with padding
+        padding = 10
+        frame_width = frame.shape[1]
+        x = frame_width - text_width - padding
+        y = padding + text_height
+
+        # Draw background rectangle
+        cv2.rectangle(
+            img_with_text,
+            (x - 5, y - text_height - 5),
+            (x + text_width + 5, y + baseline + 5),
+            bg_color,
+            -1
+        )
+
+        # Draw text
+        cv2.putText(
+            img_with_text,
+            timestamp_str,
+            (x, y),
+            font,
+            font_scale,
+            text_color,
+            font_thickness,
+            cv2.LINE_AA
+        )
+
+        return img_with_text
 
     def _create_clip_mask(self, shapefile_path: str, mosaic_bounds: tuple,
                          mosaic_width: int, mosaic_height: int, resolution: float) -> np.ndarray:
@@ -517,6 +595,9 @@ class VideoMosaicProcessor:
                 # 3.6. Apply rotation if specified
                 if self.rotation_angle_deg != 0.0:
                     mosaicked_frame = self._rotate_frame(mosaicked_frame, self.rotation_angle_deg)
+
+                # 3.7. Add timestamp overlay (after rotation, so it stays horizontal)
+                mosaicked_frame = self._add_timestamp_overlay(mosaicked_frame, timestamp)
 
                 # 4. Create video writer after first frame (now we know the output dimensions)
                 if self.video_writer is None:
