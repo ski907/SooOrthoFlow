@@ -1,0 +1,143 @@
+{
+  "_comment": "Configuration for streaming multi-camera mosaic video processor",
+  "_description": "Creates mosaicked video from synchronized camera sources using single-pass processing",
+
+  "input": {
+    "_comment": "Input video configuration",
+    "video_dir": "test_videos/12-12-25/Test 13",
+    "_video_dir_description": "Directory containing video files or NVR subdirectories",
+
+    "camera_selection": {
+      "mode": "all",
+      "_mode_description": "Selection mode: 'all' | 'list' | 'exclude' | 'spatial' (future)",
+      "_mode_options": {
+        "all": "Select all cameras from calibration file (24 cameras total)",
+        "list": "Explicit list of camera IDs (compatible with GUI checkboxes)",
+        "exclude": "All cameras except those in exclude list",
+        "spatial": "Select cameras by spatial bounds (future feature for GUI)"
+
+    },
+
+    "error_handling": {
+      "skip_missing_calibration": false,
+      "skip_missing_cache": false,
+      "skip_missing_videos": true,
+      "min_cameras_required": 1
+    },
+
+    "start_time": "2025-12-12 12:44:00",
+    "_start_time_format": "YYYY-MM-DD HH:MM:SS",
+
+    "end_time": "2025-12-12 12:47:00",
+    "_end_time_description": "End time for video processing",
+
+    "interval_seconds": 5.0,
+    "_interval_seconds_description": "Time between frames in seconds (1.0-2.0 recommended for PIV analysis)",
+    "_interval_seconds_note": "Smaller intervals = more frames = longer processing time"
+  },
+
+  "paths": {
+    "_comment": "File paths for calibration and reference data",
+    "calibration_file": "calibration/camera_calibrations_20251205.csv",
+    "_calibration_file_description": "Camera calibrations CSV file with ortho caches",
+
+    "dsm_file": "inputs/TLS_DTM_cropped_filled_utmNAD8319N.tif",
+    "_dsm_file_description": "Digital surface model (not directly used, but referenced by calibrations)"
+  },
+
+  "processing": {
+    "_comment": "Processing parameters",
+    "ortho_resolution": 0.01,
+    "_ortho_resolution_description": "Ortho resolution in meters/pixel (0.01 = 10mm recommended)",
+    "_ortho_resolution_note": "Must match ortho cache resolution. Run orthorectification first to generate caches.",
+    "_ortho_resolution_options": {
+      "high_res": 0.0025,
+      "medium_res": 0.005,
+      "low_res": 0.01
+    },
+
+    "mosaic_method": "zone_map",
+    "_mosaic_method_options": ["zone_map", "center"],
+    "_mosaic_method_description": "zone_map = use shapefile zones (recommended), center = blend by distance from center",
+
+    "zone_map_shapefile": "orthorectification/camera_zone_map/camera_zone_map.shp",
+    "_zone_map_shapefile_description": "Path to zone map shapefile (required if mosaic_method=zone_map)",
+
+    "rotation_angle_deg": 78.1,
+    "_rotation_angle_deg_description": "Rotation angle in degrees (counterclockwise). Use 78.1 for model_to_world alignment",
+    "_rotation_angle_deg_note": "Rotates video frames without scaling. 0.0 = no rotation, 78.1 = match model_to_world_20251120.wld",
+
+    "clip_shapefile": "analysis/analysis_shapefiles/general_analysis_limits.shp",
+    "_clip_shapefile_description": "Optional shapefile to clip mosaic to analysis area",
+    "_clip_shapefile_note": "Clipping happens after mosaicking but before rotation. Set to null to disable"
+  },
+
+  "output": {
+    "_comment": "Output configuration",
+    "output_dir": "output_data/video_mosaic",
+    "_output_dir_description": "Directory for output video and metadata",
+
+    "video_filename": "Test 13_mosaic_video.mp4",
+    "_video_filename_description": "Output video filename",
+
+    "video_fps": 5,
+    "_video_fps_description": "Frames per second for output video",
+    "_video_fps_note": "Higher FPS = smoother playback, larger file size",
+
+    "video_codec": "mp4v",
+    "_video_codec_options": ["mp4v", "avc1", "XVID"],
+    "_video_codec_description": "Video codec (mp4v = standard, avc1 = H.264)"
+  },
+
+  "camera_time_offsets": {
+    "_comment": "Time offsets for camera synchronization (seconds)",
+    "_description": "If one NVR's videos are ahead/behind, adjust here",
+    "_example": {"NVR2": 15.0},
+    "NVR2": 0.0
+  },
+
+  "_usage_notes": {
+    "_quick_test": "For quick test: use --quick flag to process only 30 seconds",
+    "_typical_2min": "2 minutes @ 1 sec interval: 120 frames, ~10-15 seconds processing",
+    "_performance": "6-12x faster than TIFF approach, 10-60x less storage",
+    "_prerequisites": "Must have ortho caches generated at specified resolution first",
+    "_cache_check": "Check orthorectification/ortho_cache/ for existing caches"
+  },
+
+  "_example_scenarios": {
+    "quick_test_30sec": {
+      "description": "Quick 30-second test of NVR1 cameras 4 and 5",
+      "start_time": "2025-12-12 12:44:00",
+      "end_time": "2025-12-12 12:44:30",
+      "interval_seconds": 1.0,
+      "video_fps": 10
+    },
+    "piv_analysis_2min": {
+      "description": "2-minute sequence for PIV flow analysis",
+      "start_time": "2025-12-12 12:44:00",
+      "end_time": "2025-12-12 12:46:00",
+      "interval_seconds": 1.0,
+      "video_fps": 10
+    },
+    "high_freq_1min": {
+      "description": "High frequency 1-minute capture",
+      "start_time": "2025-12-12 12:44:00",
+      "end_time": "2025-12-12 12:45:00",
+      "interval_seconds": 0.5,
+      "video_fps": 15
+    },
+    "single_camera": {
+      "description": "Single camera high-res capture",
+      "camera_ids": ["NVR1_N910A6_ch4_main"],
+      "ortho_resolution": 0.0025,
+      "mosaic_method": "center"
+    }
+  },
+
+  "_workflow": {
+    "1_generate_caches": "First run orthorectification to generate ortho caches",
+    "2_copy_config": "Copy this template and edit camera_ids, times, paths",
+    "3_run": "python analysis/video_mosaic/run_video_mosaic.py --config my_config.json",
+    "4_output": "Output: mosaic_video.mp4 and mosaic_metadata.json"
+  }
+}
