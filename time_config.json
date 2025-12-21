@@ -1,13 +1,13 @@
 {
-    "video_directory": "D:/Soo Test Data/12-5-25/Test 4 Videos",
+    "video_directory": "test_videos/reset_temp",
     "mode": "time_range",
-    "output_directory": "D:\\Soo Test Data\\12-5-25\\Test 4 Videos\\cse_recal\\Test 4 Videos\\frames",
+    "output_directory": "output_data\\test_3cam_recal\\reset_temp\\frames",
     "output_format": "tiff",
     "recursive": true,
     "filename_pattern": "CAMERA_DATETIME_DATETIME",
     "time_range": {
-        "start": "2025-12-05 11:52:30",
-        "end": "2025-12-05 12:12:30",
+        "start": "2025-12-12 12:35:30",
+        "end": "2025-12-12 12:35:40",
         "interval": "5min"
     },
     "camera_time_offsets": {
