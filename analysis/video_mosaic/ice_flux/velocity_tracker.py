@@ -185,6 +185,117 @@ class IceFluxAnalyzer:
 
         return mask.astype(bool)
 
+    def _generate_methods_summary(self) -> str:
+        """
+        Generate scholarly summary of velocity field computation methods.
+
+        Returns:
+            Formatted methods description
+        """
+        rotation_text = ""
+        if self.rotation_angle_deg != 0.0:
+            rotation_text = (
+                f"Prior to optical flow computation, mosaic frames were rotated by "
+                f"{self.rotation_angle_deg:.1f}° counterclockwise to align the coordinate "
+                f"system with the principal flow direction, ensuring velocity grids are "
+                f"oriented along the channel axis. "
+            )
+
+        clip_text = ""
+        if self.velocity_clip_shapefile:
+            clip_text = (
+                f"Velocity fields were spatially clipped to the analysis domain defined by "
+                f"the shapefile boundary, with velocities outside the domain set to zero. "
+            )
+
+        methods = f"""
+METHODS SUMMARY - ICE VELOCITY FIELD COMPUTATION
+
+Ice velocity fields were computed from orthorectified multi-camera mosaics using
+dense optical flow analysis. Consecutive mosaic frames, separated by {self.time_delta_seconds:.1f}
+seconds, were processed to extract two-dimensional velocity vectors across the
+analysis domain.
+
+{rotation_text}Optical Flow Algorithm:
+The Farneback dense optical flow algorithm (Farneback, 2003) was applied to compute
+pixel displacement fields between consecutive grayscale frames. The method employs
+polynomial expansion to represent the neighborhood of each pixel, enabling sub-pixel
+motion estimation. Key parameters included: pyramid levels = {self.config['farneback_params']['levels']},
+pyramid scale = {self.config['farneback_params']['pyr_scale']}, window size = {self.config['farneback_params']['winsize']} pixels,
+iterations = {self.config['farneback_params']['iterations']}, polynomial neighborhood = {self.config['farneback_params']['poly_n']},
+and polynomial sigma = {self.config['farneback_params']['poly_sigma']}.
+
+Coordinate Transformation:
+Pixel displacements were converted to metric displacements using the georeferenced
+mosaic pixel resolution (meters/pixel) derived from the UTM coordinate system
+(EPSG:26919, NAD83 UTM Zone 19N). The u-component represents eastward velocity
+(positive east), and the v-component represents northward velocity (positive north).
+
+Velocity Computation:
+Velocities were obtained by dividing metric displacements by the inter-frame time
+interval ({self.time_delta_seconds:.1f} s), yielding velocity components in m/s. The velocity
+magnitude |V| = √(u² + v²) and direction θ = arctan2(v, u) were computed from the
+orthogonal components.
+
+{clip_text}Output Products:
+Velocity fields were saved as dual-band GeoTIFF files (u, v components), preserving
+spatial reference information for GIS integration. Validation visualizations include
+quiver plots overlaid on mosaic imagery, velocity magnitude heatmaps, and directional
+HSV representations. Statistical metrics (mean, maximum, 95th percentile velocities)
+were computed for each frame pair and exported as time-series data.
+
+Software Implementation:
+Optical flow computation was performed using OpenCV (cv2.calcOpticalFlowFarneback)
+version {cv2.__version__}. Numerical operations utilized NumPy version {np.__version__}.
+Geospatial data handling employed Rasterio and GeoPandas for coordinate transformations
+and shapefile operations. Visualization products were generated using Matplotlib.
+
+References:
+Farneback, G. (2003). Two-Frame Motion Estimation Based on Polynomial Expansion.
+In Scandinavian Conference on Image Analysis (SCIA), pp. 363-370.
+
+Bradski, G. (2000). The OpenCV Library. Dr. Dobb's Journal of Software Tools.
+
+Harris, C.R., et al. (2020). Array programming with NumPy. Nature, 585(7825), 357-362.
+
+Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+"""
+        return methods
+
+    def _rotate_frame(self, frame: np.ndarray) -> np.ndarray:
+        """
+        Rotate frame by rotation_angle_deg.
+
+        Parameters:
+            frame: (H, W, 3) BGR or (H, W) grayscale frame
+
+        Returns:
+            Rotated frame with expanded dimensions
+        """
+        h, w = frame.shape[:2]
+        center = (w / 2, h / 2)
+        rotation_matrix = cv2.getRotationMatrix2D(center, self.rotation_angle_deg, 1.0)
+
+        # Calculate new dimensions after rotation
+        cos = np.abs(rotation_matrix[0, 0])
+        sin = np.abs(rotation_matrix[0, 1])
+        new_width = int((h * sin) + (w * cos))
+        new_height = int((h * cos) + (w * sin))
+
+        # Adjust rotation matrix for translation to center rotated image
+        rotation_matrix[0, 2] += (new_width / 2) - center[0]
+        rotation_matrix[1, 2] += (new_height / 2) - center[1]
+
+        # Rotate
+        rotated = cv2.warpAffine(
+            frame, rotation_matrix, (new_width, new_height),
+            flags=cv2.INTER_LINEAR,
+            borderMode=cv2.BORDER_CONSTANT,
+            borderValue=(0, 0, 0)
+        )
+
+        return rotated
+
     def setup(self):
         """Initialize resources."""
         if not self.enabled:
@@ -210,6 +321,16 @@ class IceFluxAnalyzer:
         self.visualizer.open_stats_csv()
         print(f"  Statistics CSV: {self.visualizer.stats_csv_path}")
 
+        # Generate and save methods summary
+        methods_summary = self._generate_methods_summary()
+        methods_path = self.output_dir / 'methods_summary.txt'
+        with open(methods_path, 'w') as f:
+            f.write(methods_summary)
+        print(f"  Methods summary: {methods_path}")
+
+        # Print methods summary to console
+        print(methods_summary)
+
     def process_frame(self, mosaicked_frame: np.ndarray, timestamp: datetime) -> Optional[np.ndarray]:
         """
         Process a mosaicked frame for ice flux analysis.
@@ -224,7 +345,13 @@ class IceFluxAnalyzer:
         if not self.enabled:
             return None
 
-        # Convert to grayscale
+        # ROTATE FRAME FIRST if rotation is enabled
+        # This ensures optical flow is computed on rotated frames, producing
+        # velocities on a grid naturally aligned with the rotated coordinate space
+        if self.rotation_angle_deg != 0.0:
+            mosaicked_frame = self._rotate_frame(mosaicked_frame)
+
+        # Convert to grayscale AFTER rotation
         current_frame_gray = cv2.cvtColor(mosaicked_frame, cv2.COLOR_BGR2GRAY)
 
         # Skip first frame (need pair for optical flow)

@@ -1,6 +1,6 @@
 {
   "input": {
-    "video_dir": "E:/12-17-25/Test 18",
+    "video_dir": "E:/12-17-25/Test 23",
     "camera_selection": {
       "mode": "list",
       "cameras": [
@@ -19,9 +19,9 @@
       "skip_missing_videos": true,
       "min_cameras_required": 1
     },
-    "start_time": "2025-12-17 08:41:45",
-    "end_time": "2025-12-17 08:46:30",
-    "interval_seconds": 3.0
+    "start_time": "2025-12-17 14:35:30",
+    "end_time": "2025-12-17 14:45:30",
+    "interval_seconds": 2.0
   },
   "paths": {
     "calibration_file": "calibration/camera_calibrations_20251203.csv",
@@ -55,7 +55,7 @@
       "poly_sigma": 1.2,
       "flags": 0
     },
-    "save_velocity_geotiffs": true,
+    "save_velocity_geotiffs": false,
     "create_validation_plots": true,
     "validation_plot_interval": 10,
     "create_overlay_video": true,

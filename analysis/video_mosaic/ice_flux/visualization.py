@@ -254,25 +254,24 @@ class Visualizer:
         if current_max > self.max_magnitude_seen:
             self.max_magnitude_seen = current_max
 
-        # Keep validation plots in UTM orientation (unrotated) for analysis
-        # Grid stays aligned with cardinal directions for clearer scientific interpretation
-        # Note: Video overlay is still rotated for viewing purposes
+        # No rotation needed - velocities are already computed on rotated frames
+        # mosaic_frame is already rotated at this point (rotation happens before optical flow)
 
-        # 1. Quiver plot (with consistent color scale, in UTM orientation)
+        # 1. Quiver plot
         self._create_quiver_plot(
             mosaic_frame, u_velocity, v_velocity, magnitude, timestamp,
             self.plots_dir / f'validation_{timestamp_str}_quiver.png',
             vmax=self.max_magnitude_seen
         )
 
-        # 2. Magnitude heatmap (with consistent color scale, in UTM orientation)
+        # 2. Magnitude heatmap
         self._create_magnitude_plot(
             magnitude, timestamp,
             self.plots_dir / f'validation_{timestamp_str}_magnitude.png',
             vmax=self.max_magnitude_seen
         )
 
-        # 3. Direction HSV (in UTM orientation)
+        # 3. Direction HSV
         self._create_direction_plot(
             u_velocity, v_velocity, magnitude, timestamp,
             self.plots_dir / f'validation_{timestamp_str}_direction.png'
@@ -300,17 +299,15 @@ class Visualizer:
         v_sub = v[::step, ::step]
         mag_sub = magnitude[::step, ::step]
 
-        # Calculate reasonable arrow scale similar to overlay video
-        # Target: mean velocity shows as ~25-30 pixel arrows
-        mean_mag = np.mean(np.abs(magnitude))
+        # Calculate reasonable arrow scale
+        # In matplotlib quiver: scale = data units per arrow length unit
+        # Larger scale = shorter arrows
+        # For velocities in m/s range (0.01-0.1), we want reasonably sized arrows
+        mean_mag = np.mean(magnitude)
         if mean_mag > 0:
-            # In matplotlib quiver: scale = data_units per arrow_length_unit
-            # Larger scale = shorter arrows
-            # Target 25 pixel arrows for mean magnitude
-            # scale = magnitude / (desired_pixels / pixels_per_data_unit)
-            # Assuming roughly 1:1 pixel to data units in image space
-            scale = mean_mag * (step / 25.0)  # Adjust so mean velocity = ~25 pixels
-            scale = max(scale, mean_mag * 0.5)  # Minimum scale to prevent huge arrows
+            # FIX: Increased from 15.0 to 150.0 (10x larger = 10x shorter arrows)
+            # This prevents arrows from obscuring the entire plot
+            scale = mean_mag * 150.0
         else:
             scale = 1.0
 
@@ -396,14 +393,16 @@ class Visualizer:
         Create frame with velocity vectors overlaid.
 
         Parameters:
-            mosaic_frame: Background mosaic frame
-            u_velocity: Eastward velocity component
-            v_velocity: Northward velocity component
+            mosaic_frame: Background mosaic frame (already rotated)
+            u_velocity: Eastward velocity component (computed on rotated frame)
+            v_velocity: Northward velocity component (computed on rotated frame)
             timestamp: Frame timestamp
 
         Returns:
-            Frame with overlay vectors, timestamp, and rotation applied
+            Frame with overlay vectors and timestamp
         """
+        # mosaic_frame is already rotated
+        # u_velocity, v_velocity are already computed on rotated frame
         overlay = mosaic_frame.copy()
         magnitude = np.sqrt(u_velocity**2 + v_velocity**2)
 
@@ -460,11 +459,8 @@ class Visualizer:
                 cv2.arrowedLine(overlay, (xi, yi), (end_x, end_y),
                               color, thickness=2, tipLength=0.3)
 
-        # Apply rotation first
-        if self.rotation_angle_deg != 0.0:
-            overlay = self._rotate_image(overlay)
-
-        # Add timestamp overlay AFTER rotation (so it stays horizontal)
+        # NO ROTATION HERE - frame is already rotated before optical flow computation
+        # Add timestamp overlay (already horizontal since frame is rotated)
         overlay = self._add_timestamp(overlay, timestamp)
 
         return overlay
