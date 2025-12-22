@@ -196,7 +196,7 @@ class IceFluxAnalyzer:
         if self.rotation_angle_deg != 0.0:
             rotation_text = (
                 f"Prior to optical flow computation, mosaic frames were rotated by "
-                f"{self.rotation_angle_deg:.1f}° counterclockwise to align the coordinate "
+                f"{self.rotation_angle_deg:.1f} degrees counterclockwise to align the coordinate "
                 f"system with the principal flow direction, ensuring velocity grids are "
                 f"oriented along the channel axis. "
             )
@@ -234,7 +234,7 @@ mosaic pixel resolution (meters/pixel) derived from the UTM coordinate system
 Velocity Computation:
 Velocities were obtained by dividing metric displacements by the inter-frame time
 interval ({self.time_delta_seconds:.1f} s), yielding velocity components in m/s. The velocity
-magnitude |V| = √(u² + v²) and direction θ = arctan2(v, u) were computed from the
+magnitude |V| = sqrt(u^2 + v^2) and direction theta = arctan2(v, u) were computed from the
 orthogonal components.
 
 {clip_text}Output Products:
