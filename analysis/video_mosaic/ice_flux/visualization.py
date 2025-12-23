@@ -196,7 +196,7 @@ class Visualizer:
         self.stats_writer = csv.writer(self.stats_file)
 
     def write_statistics(self, timestamp: datetime, u_velocity: np.ndarray,
-                        v_velocity: np.ndarray):
+                        v_velocity: np.ndarray, mask: Optional[np.ndarray] = None):
         """
         Write velocity statistics to CSV.
 
@@ -204,15 +204,33 @@ class Visualizer:
             timestamp: Frame timestamp
             u_velocity: Eastward velocity component
             v_velocity: Northward velocity component
+            mask: Optional boolean mask (True = analyze)
         """
-        # Compute statistics
         magnitude = np.sqrt(u_velocity**2 + v_velocity**2)
-        mean_u = np.mean(u_velocity)
-        mean_v = np.mean(v_velocity)
-        mean_mag = np.mean(magnitude)
-        max_mag = np.max(magnitude)
-        std_mag = np.std(magnitude)
-        p95_mag = np.percentile(magnitude, 95)
+        
+        if mask is not None:
+            # Statistics only for masked area
+            valid_u = u_velocity[mask]
+            valid_v = v_velocity[mask]
+            valid_mag = magnitude[mask]
+            
+            if valid_mag.size > 0:
+                mean_u = np.mean(valid_u)
+                mean_v = np.mean(valid_v)
+                mean_mag = np.mean(valid_mag)
+                max_mag = np.max(valid_mag)
+                std_mag = np.std(valid_mag)
+                p95_mag = np.percentile(valid_mag, 95)
+            else:
+                mean_u = mean_v = mean_mag = max_mag = std_mag = p95_mag = 0.0
+        else:
+            # Statistics for full frame
+            mean_u = np.mean(u_velocity)
+            mean_v = np.mean(v_velocity)
+            mean_mag = np.mean(magnitude)
+            max_mag = np.max(magnitude)
+            std_mag = np.std(magnitude)
+            p95_mag = np.percentile(magnitude, 95)
 
         # Write header if first time
         if not self.stats_header_written:
@@ -236,7 +254,7 @@ class Visualizer:
 
     def create_validation_plots(self, mosaic_frame: np.ndarray,
                                 u_velocity: np.ndarray, v_velocity: np.ndarray,
-                                timestamp: datetime):
+                                timestamp: datetime, mask: Optional[np.ndarray] = None):
         """
         Create validation plots (quiver, magnitude, direction).
 
@@ -245,42 +263,46 @@ class Visualizer:
             u_velocity: Eastward velocity component
             v_velocity: Northward velocity component
             timestamp: Frame timestamp
+            mask: Optional boolean mask (True = analyze)
         """
         timestamp_str = timestamp.strftime('%Y%m%d_%H%M%S')
         magnitude = np.sqrt(u_velocity**2 + v_velocity**2)
 
         # Update max magnitude seen for consistent color scaling
-        current_max = np.max(magnitude)
+        if mask is not None:
+            valid_mag = magnitude[mask]
+            current_max = np.max(valid_mag) if valid_mag.size > 0 else 0.0
+        else:
+            current_max = np.max(magnitude)
+            
         if current_max > self.max_magnitude_seen:
             self.max_magnitude_seen = current_max
-
-        # No rotation needed - velocities are already computed on rotated frames
-        # mosaic_frame is already rotated at this point (rotation happens before optical flow)
 
         # 1. Quiver plot
         self._create_quiver_plot(
             mosaic_frame, u_velocity, v_velocity, magnitude, timestamp,
             self.plots_dir / f'validation_{timestamp_str}_quiver.png',
-            vmax=self.max_magnitude_seen
+            vmax=self.max_magnitude_seen, mask=mask
         )
 
         # 2. Magnitude heatmap
         self._create_magnitude_plot(
             magnitude, timestamp,
             self.plots_dir / f'validation_{timestamp_str}_magnitude.png',
-            vmax=self.max_magnitude_seen
+            vmax=self.max_magnitude_seen, mask=mask
         )
 
         # 3. Direction HSV
         self._create_direction_plot(
             u_velocity, v_velocity, magnitude, timestamp,
-            self.plots_dir / f'validation_{timestamp_str}_direction.png'
+            self.plots_dir / f'validation_{timestamp_str}_direction.png',
+            mask=mask
         )
 
     def _create_quiver_plot(self, background: np.ndarray, u: np.ndarray,
                            v: np.ndarray, magnitude: np.ndarray,
                            timestamp: datetime, output_path: Path,
-                           vmax: float = None):
+                           vmax: float = None, mask: Optional[np.ndarray] = None):
         """Create quiver plot with velocity vectors over background image."""
         fig, ax = plt.subplots(figsize=(16, 12), dpi=100)
 
@@ -298,23 +320,24 @@ class Visualizer:
         u_sub = u[::step, ::step]
         v_sub = v[::step, ::step]
         mag_sub = magnitude[::step, ::step]
+        
+        if mask is not None:
+            mask_sub = mask[::step, ::step]
+            # Use mask to hide vectors outside AOI
+            # quiver handles masked arrays (it won't plot where mask is True in the NumPy masked array)
+            # In our case mask is True=Analyze, so we need to mask where it is False
+            u_sub = np.ma.masked_where(~mask_sub, u_sub)
+            v_sub = np.ma.masked_where(~mask_sub, v_sub)
+            mag_sub = np.ma.masked_where(~mask_sub, mag_sub)
 
         # Calculate reasonable arrow scale
-        # In matplotlib quiver: scale = data units per arrow length unit
-        # Larger scale = shorter arrows
-        # For velocities in m/s range (0.01-0.1), we want reasonably sized arrows
-        mean_mag = np.mean(magnitude)
+        mean_mag = np.mean(magnitude[mask] if mask is not None else magnitude)
         if mean_mag > 0:
-            # FIX: Increased from 15.0 to 150.0 (10x larger = 10x shorter arrows)
-            # This prevents arrows from obscuring the entire plot
             scale = mean_mag * 150.0
         else:
             scale = 1.0
 
-        # Quiver plot with consistent color scale
-        # matplotlib quiver on imshow: U,V are in data coordinates (not image pixel coordinates)
-        # Our u,v are already in correct orientation: u=east (right), v=north (up in data space)
-        # matplotlib handles the image coordinate inversion automatically
+        # Quiver plot
         q = ax.quiver(x, y, u_sub, v_sub, mag_sub,
                      cmap='jet', scale=scale, width=0.002,
                      headwidth=3, headlength=4, alpha=0.9,
@@ -334,15 +357,21 @@ class Visualizer:
         plt.close()
 
     def _create_magnitude_plot(self, magnitude: np.ndarray, timestamp: datetime,
-                               output_path: Path, vmax: float = None):
+                               output_path: Path, vmax: float = None,
+                               mask: Optional[np.ndarray] = None):
         """Create magnitude heatmap."""
         fig, ax = plt.subplots(figsize=(12, 8), dpi=100)
 
+        mag_plot = magnitude.copy()
+        if mask is not None:
+            # Set unmasked area to NaN so it's transparent/empty
+            mag_plot[~mask] = np.nan
+
         # Use consistent vmax if provided, otherwise use 95th percentile
         if vmax is None:
-            vmax = np.percentile(magnitude, 95)
+            vmax = np.nanpercentile(mag_plot, 95) if np.any(~np.isnan(mag_plot)) else 1.0
 
-        im = ax.imshow(magnitude, cmap='jet', vmin=0, vmax=vmax, origin='upper')
+        im = ax.imshow(mag_plot, cmap='jet', vmin=0, vmax=vmax, origin='upper')
 
         cbar = plt.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
         cbar.set_label('Velocity magnitude (m/s)', fontsize=12, weight='bold')
@@ -358,7 +387,7 @@ class Visualizer:
 
     def _create_direction_plot(self, u: np.ndarray, v: np.ndarray,
                               magnitude: np.ndarray, timestamp: datetime,
-                              output_path: Path):
+                              output_path: Path, mask: Optional[np.ndarray] = None):
         """Create HSV direction visualization."""
         fig, ax = plt.subplots(figsize=(12, 8), dpi=100)
 
@@ -368,6 +397,10 @@ class Visualizer:
         hsv[..., 0] = ((angle * 180 / np.pi) % 360) / 2  # Hue (0-180)
         hsv[..., 1] = 255  # Full saturation
         hsv[..., 2] = cv2.normalize(magnitude, None, 0, 255, cv2.NORM_MINMAX).astype(np.uint8)
+
+        if mask is not None:
+            # Set unmasked area to black (Value = 0)
+            hsv[~mask, 2] = 0
 
         rgb = cv2.cvtColor(hsv, cv2.COLOR_HSV2RGB)
         ax.imshow(rgb)
@@ -388,7 +421,7 @@ class Visualizer:
 
     def create_overlay_frame(self, mosaic_frame: np.ndarray,
                             u_velocity: np.ndarray, v_velocity: np.ndarray,
-                            timestamp: datetime) -> np.ndarray:
+                            timestamp: datetime, mask: Optional[np.ndarray] = None) -> np.ndarray:
         """
         Create frame with velocity vectors overlaid.
 
@@ -397,6 +430,7 @@ class Visualizer:
             u_velocity: Eastward velocity component (computed on rotated frame)
             v_velocity: Northward velocity component (computed on rotated frame)
             timestamp: Frame timestamp
+            mask: Optional boolean mask (True = analyze)
 
         Returns:
             Frame with overlay vectors and timestamp
@@ -407,7 +441,12 @@ class Visualizer:
         magnitude = np.sqrt(u_velocity**2 + v_velocity**2)
 
         # Update max magnitude for consistent color scaling
-        current_max = np.max(magnitude)
+        if mask is not None:
+            valid_mag = magnitude[mask]
+            current_max = np.max(valid_mag) if valid_mag.size > 0 else 0.0
+        else:
+            current_max = np.max(magnitude)
+            
         if current_max > self.max_magnitude_seen:
             self.max_magnitude_seen = current_max
 
@@ -426,15 +465,13 @@ class Visualizer:
         # Apply colormap
         mag_color = cv2.applyColorMap(mag_norm, cv2.COLORMAP_JET)
 
-        # Compute adaptive scale: target arrow length of 20-30 pixels for mean velocity
-        mean_mag = np.mean(magnitude)
+        # Compute adaptive scale
+        mean_mag = np.mean(magnitude[mask] if mask is not None else magnitude)
         if mean_mag > 0:
-            # Scale to make mean velocity show as ~25 pixel arrows
             scale = 25.0 / mean_mag
         else:
-            scale = 500.0  # Default if no motion detected
+            scale = 500.0
 
-        # Clamp scale to reasonable range
         scale = np.clip(scale, 100.0, 1000.0)
 
         # Draw vectors
@@ -442,25 +479,25 @@ class Visualizer:
             for xi in x_coords:
                 if yi >= h or xi >= w:
                     continue
+                
+                # Check mask
+                if mask is not None and not mask[yi, xi]:
+                    continue
 
                 u_val = u_velocity[yi, xi]
                 v_val = v_velocity[yi, xi]
 
                 # Arrow endpoints
-                # u: positive = east = right in image (positive x)
-                # v: positive = north = up in image (negative y, since y increases downward)
                 end_x = int(xi + u_val * scale)
-                end_y = int(yi - v_val * scale)  # Subtract because y increases downward
+                end_y = int(yi - v_val * scale)
 
                 # Get color from magnitude
                 color = tuple(int(c) for c in mag_color[yi, xi])
 
-                # Draw arrow with thicker line for visibility
+                # Draw arrow
                 cv2.arrowedLine(overlay, (xi, yi), (end_x, end_y),
                               color, thickness=2, tipLength=0.3)
 
-        # NO ROTATION HERE - frame is already rotated before optical flow computation
-        # Add timestamp overlay (already horizontal since frame is rotated)
         overlay = self._add_timestamp(overlay, timestamp)
 
         return overlay

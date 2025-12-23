@@ -111,8 +111,12 @@ class IceFluxAnalyzer:
         self.rotation_angle_deg = config.get('rotation_angle_deg', 0.0)
         self.velocity_clip_shapefile = config.get('velocity_clip_shapefile')
 
-        # Velocity clipping mask (created on first frame)
-        self.velocity_clip_mask = None
+        # Velocity clipping mask (unrotated cache)
+        self.unrotated_clip_mask = None
+        
+        # Rotated mask (cached per frame size/rotation)
+        self.rotated_clip_mask = None
+        self.mask_bbox = None  # (y_min, y_max, x_min, x_max) for optimization
 
         # Initialize components
         self.velocity_tracker = VelocityTracker(
@@ -146,35 +150,35 @@ class IceFluxAnalyzer:
         # Statistics tracking
         self.frames_processed = 0
 
-    def _create_velocity_clip_mask(self, frame_shape: tuple, geotransform: Dict) -> np.ndarray:
+    def _create_unrotated_mask(self, shape: tuple, geotransform: Dict) -> np.ndarray:
         """
-        Create velocity clipping mask from shapefile.
+        Create velocity clipping mask in standard (unrotated) coordinates.
 
         Parameters:
-            frame_shape: (height, width) of velocity fields
-            geotransform: Geotransform dict with pixel_width, pixel_height, x_min, y_max
+            shape: (height, width) of the unrotated frame
+            geotransform: Geotransform dict for the unrotated frame
 
         Returns:
-            Boolean mask (H, W) where True = analyze, False = clip (set to zero)
+            Boolean mask (H, W) where True = analyze, False = clip
         """
         import geopandas as gpd
         from rasterio.features import rasterize
         from rasterio.transform import Affine
 
-        # Load shapefile
+        # Load shapefile (World Coordinates)
         gdf = gpd.read_file(self.velocity_clip_shapefile)
 
         # Create affine transform for rasterization
-        height, width = frame_shape
+        height, width = shape
         pixel_width = geotransform['pixel_width']
-        pixel_height = geotransform['pixel_height']  # Negative for north-up
+        pixel_height = geotransform['pixel_height']
         x_min = geotransform.get('x_min', 0)
         y_max = geotransform.get('y_max', 0)
 
         transform = Affine(pixel_width, 0, x_min,
                           0, pixel_height, y_max)
 
-        # Rasterize the shapefile polygons
+        # Rasterize the shapefile polygons directly onto unrotated grid
         mask = rasterize(
             [(geom, 1) for geom in gdf.geometry],
             out_shape=(height, width),
@@ -206,6 +210,8 @@ class IceFluxAnalyzer:
             clip_text = (
                 f"Velocity fields were spatially clipped to the analysis domain defined by "
                 f"the shapefile boundary, with velocities outside the domain set to zero. "
+                f"Computational efficiency was optimized by restricting optical flow "
+                f"calculations to the bounding box of the analysis domain. "
             )
 
         methods = f"""
@@ -267,7 +273,7 @@ Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
         Rotate frame by rotation_angle_deg.
 
         Parameters:
-            frame: (H, W, 3) BGR or (H, W) grayscale frame
+            frame: (H, W, 3) BGR or (H, W) grayscale/mask frame
 
         Returns:
             Rotated frame with expanded dimensions
@@ -286,12 +292,15 @@ Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
         rotation_matrix[0, 2] += (new_width / 2) - center[0]
         rotation_matrix[1, 2] += (new_height / 2) - center[1]
 
+        # Handle channel count for border value
+        border_val = (0, 0, 0) if len(frame.shape) == 3 else 0
+
         # Rotate
         rotated = cv2.warpAffine(
             frame, rotation_matrix, (new_width, new_height),
             flags=cv2.INTER_LINEAR,
             borderMode=cv2.BORDER_CONSTANT,
-            borderValue=(0, 0, 0)
+            borderValue=border_val
         )
 
         return rotated
@@ -345,61 +354,138 @@ Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
         if not self.enabled:
             return None
 
-        # ROTATE FRAME FIRST if rotation is enabled
-        # This ensures optical flow is computed on rotated frames, producing
-        # velocities on a grid naturally aligned with the rotated coordinate space
-        if self.rotation_angle_deg != 0.0:
-            mosaicked_frame = self._rotate_frame(mosaicked_frame)
+        # 1. Create/Get Unrotated Mask (if needed)
+        if self.velocity_clip_shapefile and self.unrotated_clip_mask is None:
+            geotransform = self.get_geotransform()
+            try:
+                self.unrotated_clip_mask = self._create_unrotated_mask(
+                    mosaicked_frame.shape[:2],
+                    geotransform
+                )
+                print(f"  Velocity clip mask created (unrotated)")
+            except Exception as e:
+                print(f"  WARNING: Could not create velocity clip mask - {e}")
+                self.unrotated_clip_mask = None
 
-        # Convert to grayscale AFTER rotation
-        current_frame_gray = cv2.cvtColor(mosaicked_frame, cv2.COLOR_BGR2GRAY)
+        # 2. Rotate Frame
+        if self.rotation_angle_deg != 0.0:
+            rotated_frame = self._rotate_frame(mosaicked_frame)
+        else:
+            rotated_frame = mosaicked_frame
+
+        # 3. Rotate Mask (to match frame alignment perfectly)
+        if self.unrotated_clip_mask is not None:
+            if self.rotated_clip_mask is None:
+                # Rotate the mask using the same transform as the image
+                # Convert bool -> uint8 for rotation -> bool
+                mask_uint8 = self.unrotated_clip_mask.astype(np.uint8) * 255
+                if self.rotation_angle_deg != 0.0:
+                    rotated_mask_uint8 = self._rotate_frame(mask_uint8)
+                else:
+                    rotated_mask_uint8 = mask_uint8
+                
+                # Threshold back to boolean
+                self.rotated_clip_mask = rotated_mask_uint8 > 127
+                
+                # Compute optimization bbox on the ROTATED mask
+                rows = np.any(self.rotated_clip_mask, axis=1)
+                cols = np.any(self.rotated_clip_mask, axis=0)
+                
+                if np.any(rows) and np.any(cols):
+                    y_min, y_max = np.where(rows)[0][[0, -1]]
+                    x_min, x_max = np.where(cols)[0][[0, -1]]
+                    # Add margin
+                    margin = 20
+                    y_min = max(0, y_min - margin)
+                    y_max = min(self.rotated_clip_mask.shape[0], y_max + margin)
+                    x_min = max(0, x_min - margin)
+                    x_max = min(self.rotated_clip_mask.shape[1], x_max + margin)
+                    
+                    self.mask_bbox = (y_min, y_max, x_min, x_max)
+                    
+                    # Print stats
+                    clip_pixels = np.sum(self.rotated_clip_mask)
+                    total_pixels = self.rotated_clip_mask.size
+                    bbox_area = (y_max - y_min) * (x_max - x_min)
+                    print(f"  Velocity clip mask rotated & ready: {clip_pixels}/{total_pixels} pixels ({100*clip_pixels/total_pixels:.1f}%)")
+                    print(f"  Optimization enabled: Processing {bbox_area} pixels (bbox) vs {total_pixels} (full) - {100*(1 - bbox_area/total_pixels):.1f}% reduction")
+                else:
+                    print("  WARNING: Rotated mask is empty!")
+                    self.mask_bbox = None
+        else:
+            self.rotated_clip_mask = None
+
+        # Convert to grayscale
+        current_frame_gray = cv2.cvtColor(rotated_frame, cv2.COLOR_BGR2GRAY)
 
         # Skip first frame (need pair for optical flow)
-        # Note: overlay video writer will be lazily initialized on first write
         if self.previous_frame_gray is None:
             self.previous_frame_gray = current_frame_gray.copy()
             self.previous_timestamp = timestamp
             return None
 
-        # Compute optical flow
         geotransform = self.get_geotransform()
 
         try:
-            u_velocity, v_velocity = self.velocity_tracker.compute_flow(
-                self.previous_frame_gray,
-                current_frame_gray,
-                geotransform
-            )
+            # OPTIMIZATION: Crop to mask bounding box if available
+            if self.mask_bbox:
+                y_min, y_max, x_min, x_max = self.mask_bbox
+                
+                # Crop frames
+                prev_crop = self.previous_frame_gray[y_min:y_max, x_min:x_max]
+                curr_crop = current_frame_gray[y_min:y_max, x_min:x_max]
+                
+                # Compute flow on crop
+                u_vel_crop, v_vel_crop = self.velocity_tracker.compute_flow(
+                    prev_crop,
+                    curr_crop,
+                    geotransform
+                )
+                
+                # Create full size arrays
+                u_velocity = np.zeros(current_frame_gray.shape, dtype=np.float32)
+                v_velocity = np.zeros(current_frame_gray.shape, dtype=np.float32)
+                
+                # Place cropped result back
+                u_velocity[y_min:y_max, x_min:x_max] = u_vel_crop
+                v_velocity[y_min:y_max, x_min:x_max] = v_vel_crop
+                
+            else:
+                # Full frame computation
+                u_velocity, v_velocity = self.velocity_tracker.compute_flow(
+                    self.previous_frame_gray,
+                    current_frame_gray,
+                    geotransform
+                )
         except Exception as e:
             print(f"  WARNING: Optical flow computation failed - {e}")
             self.previous_frame_gray = current_frame_gray.copy()
             self.previous_timestamp = timestamp
             return None
 
-        # Create velocity clip mask on first frame if shapefile specified
-        if self.velocity_clip_shapefile and self.velocity_clip_mask is None:
-            try:
-                self.velocity_clip_mask = self._create_velocity_clip_mask(
-                    u_velocity.shape,
-                    geotransform
-                )
-                clip_pixels = np.sum(self.velocity_clip_mask)
-                total_pixels = self.velocity_clip_mask.size
-                print(f"  Velocity clip mask created: {clip_pixels}/{total_pixels} pixels ({100*clip_pixels/total_pixels:.1f}%) in analysis area")
-            except Exception as e:
-                print(f"  WARNING: Could not create velocity clip mask - {e}")
-                self.velocity_clip_mask = None
-
-        # Apply velocity clip mask if present
-        if self.velocity_clip_mask is not None:
-            u_velocity = np.where(self.velocity_clip_mask, u_velocity, 0.0)
-            v_velocity = np.where(self.velocity_clip_mask, v_velocity, 0.0)
+        # Apply precise velocity clip mask if present
+        if self.rotated_clip_mask is not None:
+            u_velocity = np.where(self.rotated_clip_mask, u_velocity, 0.0)
+            v_velocity = np.where(self.rotated_clip_mask, v_velocity, 0.0)
 
         # Compute statistics and print
         magnitude = np.sqrt(u_velocity**2 + v_velocity**2)
-        mean_mag = np.mean(magnitude)
-        max_mag = np.max(magnitude)
-        p95_mag = np.percentile(magnitude, 95)
+        
+        # Only compute stats for valid area if masked
+        if self.rotated_clip_mask is not None:
+            valid_mags = magnitude[self.rotated_clip_mask]
+            if valid_mags.size > 0:
+                mean_mag = np.mean(valid_mags)
+                max_mag = np.max(valid_mags)
+                p95_mag = np.percentile(valid_mags, 95)
+            else:
+                mean_mag = 0
+                max_mag = 0
+                p95_mag = 0
+        else:
+            mean_mag = np.mean(magnitude)
+            max_mag = np.max(magnitude)
+            p95_mag = np.percentile(magnitude, 95)
 
         if self.frames_processed % 10 == 0:
             print(f"  Frame {self.frames_processed+1}: "
@@ -407,7 +493,7 @@ Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
                   f"vel_p95={p95_mag:.4f} m/s")
 
         # Write statistics CSV
-        self.visualizer.write_statistics(timestamp, u_velocity, v_velocity)
+        self.visualizer.write_statistics(timestamp, u_velocity, v_velocity, mask=self.rotated_clip_mask)
 
         # Write velocity GeoTIFF
         if self.geotiff_writer:
@@ -418,14 +504,14 @@ Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
         # Create validation plots (at specified interval)
         if self.create_validation_plots and (self.frames_processed % self.validation_plot_interval == 0):
             self.visualizer.create_validation_plots(
-                mosaicked_frame, u_velocity, v_velocity, timestamp
+                rotated_frame, u_velocity, v_velocity, timestamp, mask=self.rotated_clip_mask
             )
 
         # Create overlay frame
         overlay_frame = None
         if self.create_overlay_video:
             overlay_frame = self.visualizer.create_overlay_frame(
-                mosaicked_frame, u_velocity, v_velocity, timestamp
+                rotated_frame, u_velocity, v_velocity, timestamp, mask=self.rotated_clip_mask
             )
             self.visualizer.write_overlay_frame(overlay_frame)
 
@@ -435,7 +521,6 @@ Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
         self.frames_processed += 1
 
         return overlay_frame
-
     def cleanup(self):
         """Release resources."""
         if not self.enabled:

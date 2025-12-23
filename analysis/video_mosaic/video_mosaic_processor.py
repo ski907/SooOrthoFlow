@@ -251,7 +251,7 @@ class VideoMosaicProcessor:
 
                 self.ice_flux_analyzer = IceFluxAnalyzer(
                     ice_flux_config,
-                    mosaic_geotransform_getter=self.mosaic_engine.get_geotransform
+                    mosaic_geotransform_getter=self._get_current_geotransform
                 )
                 self.ice_flux_analyzer.setup()
                 print(f"  OK Ice flux analyzer initialized")
@@ -313,6 +313,29 @@ class VideoMosaicProcessor:
 
         print(f"\nSetup complete!\n")
         return True
+
+    def _get_current_geotransform(self) -> Dict[str, float]:
+        """
+        Get current geotransform, accounting for additional cropping 
+        (e.g., from clip_shapefile).
+        """
+        # Get base geotransform from engine (includes engine's own cropping)
+        gt = self.mosaic_engine.get_geotransform()
+        
+        # Apply additional cropping if present (from self.final_crop_bounds)
+        if self.final_crop_bounds is not None:
+            row_min, row_max, col_min, col_max = self.final_crop_bounds
+            
+            # Adjust origin based on crop
+            # x_min increases by col_min * pixel_width
+            gt['x_min'] += col_min * gt['pixel_width']
+            
+            # y_max changes by row_min * pixel_height
+            # pixel_height is negative, so adding (positive * negative) = subtracting
+            # y_max (top) moves down (smaller Y value in world space if North Up)
+            gt['y_max'] += row_min * gt['pixel_height']
+            
+        return gt
 
     def _compute_mosaic_bounds(self):
         """

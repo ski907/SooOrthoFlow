@@ -89,6 +89,7 @@ class VideoMosaicGUI:
         self.ice_flux_plot_interval = tk.IntVar(value=10)
         self.ice_flux_create_overlay = tk.BooleanVar(value=False)
         self.ice_flux_overlay_subsample = tk.IntVar(value=20)
+        self.ice_flux_clip_shapefile = tk.StringVar(value="analysis/analysis_shapefiles/general_analysis_area.shp")
 
         # Processing state
         self.processing = False
@@ -230,35 +231,39 @@ class VideoMosaicGUI:
         ttk.Checkbutton(flux_frame, text="Enable ice velocity tracking",
                        variable=self.ice_flux_enabled).grid(row=0, column=0, columnspan=2, sticky=tk.W, pady=5)
 
+        ttk.Label(flux_frame, text="Velocity Clip Shapefile:").grid(row=1, column=0, sticky=tk.W, pady=2, padx=(20, 0))
+        ttk.Entry(flux_frame, textvariable=self.ice_flux_clip_shapefile, width=50).grid(row=1, column=1, sticky=tk.W, pady=2)
+        ttk.Button(flux_frame, text="Browse", command=self._browse_flux_clip_shapefile).grid(row=1, column=2, padx=5)
+
         ttk.Label(flux_frame, text="Optical Flow Parameters:", font=('TkDefaultFont', 9, 'bold')).grid(
-            row=1, column=0, columnspan=2, sticky=tk.W, pady=(10, 2))
+            row=2, column=0, columnspan=2, sticky=tk.W, pady=(10, 2))
 
-        ttk.Label(flux_frame, text="Window Size:").grid(row=2, column=0, sticky=tk.W, pady=2, padx=(20, 0))
-        ttk.Entry(flux_frame, textvariable=self.ice_flux_winsize, width=10).grid(row=2, column=1, sticky=tk.W, pady=2)
-        ttk.Label(flux_frame, text="(15-25, larger = smoother)").grid(row=2, column=1, sticky=tk.W, pady=2, padx=(60, 0))
+        ttk.Label(flux_frame, text="Window Size:").grid(row=3, column=0, sticky=tk.W, pady=2, padx=(20, 0))
+        ttk.Entry(flux_frame, textvariable=self.ice_flux_winsize, width=10).grid(row=3, column=1, sticky=tk.W, pady=2)
+        ttk.Label(flux_frame, text="(15-25, larger = smoother)").grid(row=3, column=1, sticky=tk.W, pady=2, padx=(60, 0))
 
-        ttk.Label(flux_frame, text="Pyramid Levels:").grid(row=3, column=0, sticky=tk.W, pady=2, padx=(20, 0))
-        ttk.Entry(flux_frame, textvariable=self.ice_flux_levels, width=10).grid(row=3, column=1, sticky=tk.W, pady=2)
-        ttk.Label(flux_frame, text="(3-5, higher = robust to large motion)").grid(row=3, column=1, sticky=tk.W, pady=2, padx=(60, 0))
+        ttk.Label(flux_frame, text="Pyramid Levels:").grid(row=4, column=0, sticky=tk.W, pady=2, padx=(20, 0))
+        ttk.Entry(flux_frame, textvariable=self.ice_flux_levels, width=10).grid(row=4, column=1, sticky=tk.W, pady=2)
+        ttk.Label(flux_frame, text="(3-5, higher = robust to large motion)").grid(row=4, column=1, sticky=tk.W, pady=2, padx=(60, 0))
 
         ttk.Label(flux_frame, text="Outputs:", font=('TkDefaultFont', 9, 'bold')).grid(
-            row=4, column=0, columnspan=2, sticky=tk.W, pady=(10, 2))
+            row=5, column=0, columnspan=2, sticky=tk.W, pady=(10, 2))
 
         ttk.Checkbutton(flux_frame, text="Save velocity GeoTIFFs (2-band: u, v in m/s)",
-                       variable=self.ice_flux_save_geotiffs).grid(row=5, column=0, columnspan=2, sticky=tk.W, pady=2, padx=(20, 0))
+                       variable=self.ice_flux_save_geotiffs).grid(row=6, column=0, columnspan=2, sticky=tk.W, pady=2, padx=(20, 0))
 
         ttk.Checkbutton(flux_frame, text="Create validation plots (quiver, magnitude, direction)",
-                       variable=self.ice_flux_create_plots).grid(row=6, column=0, columnspan=2, sticky=tk.W, pady=2, padx=(20, 0))
+                       variable=self.ice_flux_create_plots).grid(row=7, column=0, columnspan=2, sticky=tk.W, pady=2, padx=(20, 0))
 
-        ttk.Label(flux_frame, text="Plot Interval (frames):").grid(row=7, column=0, sticky=tk.W, pady=2, padx=(40, 0))
-        ttk.Entry(flux_frame, textvariable=self.ice_flux_plot_interval, width=10).grid(row=7, column=1, sticky=tk.W, pady=2)
+        ttk.Label(flux_frame, text="Plot Interval (frames):").grid(row=8, column=0, sticky=tk.W, pady=2, padx=(40, 0))
+        ttk.Entry(flux_frame, textvariable=self.ice_flux_plot_interval, width=10).grid(row=8, column=1, sticky=tk.W, pady=2)
 
         ttk.Checkbutton(flux_frame, text="Create overlay video with velocity vectors",
-                       variable=self.ice_flux_create_overlay).grid(row=8, column=0, columnspan=2, sticky=tk.W, pady=2, padx=(20, 0))
+                       variable=self.ice_flux_create_overlay).grid(row=9, column=0, columnspan=2, sticky=tk.W, pady=2, padx=(20, 0))
 
-        ttk.Label(flux_frame, text="Overlay Subsample:").grid(row=9, column=0, sticky=tk.W, pady=2, padx=(40, 0))
-        ttk.Entry(flux_frame, textvariable=self.ice_flux_overlay_subsample, width=10).grid(row=9, column=1, sticky=tk.W, pady=2)
-        ttk.Label(flux_frame, text="(every Nth pixel, 20 = readable)").grid(row=9, column=1, sticky=tk.W, pady=2, padx=(60, 0))
+        ttk.Label(flux_frame, text="Overlay Subsample:").grid(row=10, column=0, sticky=tk.W, pady=2, padx=(40, 0))
+        ttk.Entry(flux_frame, textvariable=self.ice_flux_overlay_subsample, width=10).grid(row=10, column=1, sticky=tk.W, pady=2)
+        ttk.Label(flux_frame, text="(every Nth pixel, 20 = readable)").grid(row=10, column=1, sticky=tk.W, pady=2, padx=(60, 0))
 
         # === CONTROL BUTTONS ===
         control_frame = ttk.Frame(scrollable_frame)
@@ -279,6 +284,20 @@ class VideoMosaicGUI:
 
         self.log_text = scrolledtext.ScrolledText(log_frame, height=15, state=tk.DISABLED)
         self.log_text.pack(fill=tk.BOTH, expand=True)
+
+    def _browse_flux_clip_shapefile(self):
+        """Browse for ice flux clip shapefile."""
+        filename = filedialog.askopenfilename(
+            title="Select Velocity Clip Shapefile",
+            initialdir=self.root_dir / "analysis/analysis_shapefiles",
+            filetypes=[("Shapefiles", "*.shp"), ("All files", "*.*")]
+        )
+        if filename:
+            try:
+                rel_path = Path(filename).relative_to(self.root_dir)
+                self.ice_flux_clip_shapefile.set(str(rel_path))
+            except ValueError:
+                self.ice_flux_clip_shapefile.set(filename)
 
     def _select_all_cameras(self):
         """Select all cameras."""
@@ -531,6 +550,7 @@ class VideoMosaicGUI:
             },
             "ice_flux": {
                 "enabled": self.ice_flux_enabled.get(),
+                "velocity_clip_shapefile": self.ice_flux_clip_shapefile.get() if self.ice_flux_clip_shapefile.get() else None,
                 "farneback_params": {
                     "pyr_scale": 0.5,
                     "levels": self.ice_flux_levels.get(),
@@ -613,6 +633,7 @@ class VideoMosaicGUI:
                 # Update ice flux settings
                 ice_flux = config.get('ice_flux', {})
                 self.ice_flux_enabled.set(ice_flux.get('enabled', False))
+                self.ice_flux_clip_shapefile.set(ice_flux.get('velocity_clip_shapefile', ''))
                 farneback = ice_flux.get('farneback_params', {})
                 self.ice_flux_winsize.set(farneback.get('winsize', 20))
                 self.ice_flux_levels.set(farneback.get('levels', 3))

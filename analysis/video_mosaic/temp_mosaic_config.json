@@ -4,30 +4,13 @@
     "camera_selection": {
       "mode": "list",
       "cameras": [
-        "NVR1_N910A6_ch1_main",
-        "NVR1_N910A6_ch2_main",
-        "NVR1_N910A6_ch3_main",
         "NVR1_N910A6_ch4_main",
         "NVR1_N910A6_ch5_main",
         "NVR1_N910A6_ch6_main",
         "NVR1_N910A6_ch7_main",
         "NVR1_N910A6_ch8_main",
-        "NVR2_N910A6_ch1_main",
-        "NVR2_N910A6_ch2_main",
-        "NVR2_N910A6_ch3_main",
-        "NVR2_N910A6_ch4_main",
-        "NVR2_N910A6_ch5_main",
-        "NVR2_N910A6_ch6_main",
-        "NVR2_N910A6_ch7_main",
-        "NVR2_N910A6_ch8_main",
         "NVR3_N910A6_ch1_main",
-        "NVR3_N910A6_ch2_main",
-        "NVR3_N910A6_ch3_main",
-        "NVR3_N910A6_ch4_main",
-        "NVR3_N910A6_ch5_main",
-        "NVR3_N910A6_ch6_main",
-        "NVR3_N910A6_ch7_main",
-        "NVR3_N910A6_ch8_main"
+        "NVR3_N910A6_ch2_main"
       ]
     },
     "error_handling": {
@@ -36,8 +19,8 @@
       "skip_missing_videos": true,
       "min_cameras_required": 1
     },
-    "start_time": "2025-12-17 14:36:30",
-    "end_time": "2025-12-17 14:37:30",
+    "start_time": "2025-12-17 14:44:30",
+    "end_time": "2025-12-17 14:45:30",
     "interval_seconds": 2.0
   },
   "paths": {
@@ -63,6 +46,7 @@
   },
   "ice_flux": {
     "enabled": true,
+    "velocity_clip_shapefile": "analysis\\analysis_shapefiles\\general_analysis_area.shp",
     "farneback_params": {
       "pyr_scale": 0.5,
       "levels": 3,
