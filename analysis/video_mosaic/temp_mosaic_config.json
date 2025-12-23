@@ -19,7 +19,7 @@
       "skip_missing_videos": true,
       "min_cameras_required": 1
     },
-    "start_time": "2025-12-17 14:44:30",
+    "start_time": "2025-12-17 14:40:30",
     "end_time": "2025-12-17 14:45:30",
     "interval_seconds": 2.0
   },
@@ -61,6 +61,7 @@
     "validation_plot_interval": 10,
     "create_overlay_video": true,
     "overlay_video_subsample": 20,
+    "max_arrow_velocity": 0.03,
     "compress_geotiffs": true,
     "optional": true
   }

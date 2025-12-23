@@ -89,6 +89,7 @@ class VideoMosaicGUI:
         self.ice_flux_plot_interval = tk.IntVar(value=10)
         self.ice_flux_create_overlay = tk.BooleanVar(value=False)
         self.ice_flux_overlay_subsample = tk.IntVar(value=20)
+        self.ice_flux_max_arrow_velocity = tk.DoubleVar(value=0.5)
         self.ice_flux_clip_shapefile = tk.StringVar(value="analysis/analysis_shapefiles/general_analysis_area.shp")
 
         # Processing state
@@ -264,6 +265,10 @@ class VideoMosaicGUI:
         ttk.Label(flux_frame, text="Overlay Subsample:").grid(row=10, column=0, sticky=tk.W, pady=2, padx=(40, 0))
         ttk.Entry(flux_frame, textvariable=self.ice_flux_overlay_subsample, width=10).grid(row=10, column=1, sticky=tk.W, pady=2)
         ttk.Label(flux_frame, text="(every Nth pixel, 20 = readable)").grid(row=10, column=1, sticky=tk.W, pady=2, padx=(60, 0))
+
+        ttk.Label(flux_frame, text="Max Arrow Velocity (m/s):").grid(row=11, column=0, sticky=tk.W, pady=2, padx=(40, 0))
+        ttk.Entry(flux_frame, textvariable=self.ice_flux_max_arrow_velocity, width=10).grid(row=11, column=1, sticky=tk.W, pady=2)
+        ttk.Label(flux_frame, text="(caps arrow length, color still shows true velocity)").grid(row=11, column=1, sticky=tk.W, pady=2, padx=(60, 0))
 
         # === CONTROL BUTTONS ===
         control_frame = ttk.Frame(scrollable_frame)
@@ -565,6 +570,7 @@ class VideoMosaicGUI:
                 "validation_plot_interval": self.ice_flux_plot_interval.get(),
                 "create_overlay_video": self.ice_flux_create_overlay.get(),
                 "overlay_video_subsample": self.ice_flux_overlay_subsample.get(),
+                "max_arrow_velocity": self.ice_flux_max_arrow_velocity.get(),
                 "compress_geotiffs": True,
                 "optional": True
             }
@@ -642,6 +648,7 @@ class VideoMosaicGUI:
                 self.ice_flux_plot_interval.set(ice_flux.get('validation_plot_interval', 10))
                 self.ice_flux_create_overlay.set(ice_flux.get('create_overlay_video', False))
                 self.ice_flux_overlay_subsample.set(ice_flux.get('overlay_video_subsample', 20))
+                self.ice_flux_max_arrow_velocity.set(ice_flux.get('max_arrow_velocity', 0.5))
 
                 self._log(f"Configuration loaded from {filename}")
 

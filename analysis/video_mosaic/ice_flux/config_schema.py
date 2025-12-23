@@ -82,6 +82,7 @@ def get_default_config() -> Dict[str, Any]:
         'validation_plot_interval': 10,
         'create_overlay_video': False,
         'overlay_video_subsample': 20,
+        'max_arrow_velocity': 0.5,
         'compress_geotiffs': True,
         'optional': True
     }

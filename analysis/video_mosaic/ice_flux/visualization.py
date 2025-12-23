@@ -23,7 +23,8 @@ class Visualizer:
     def __init__(self, output_dir: Path, create_plots: bool = True,
                  plot_interval: int = 10, create_overlay_video: bool = False,
                  overlay_subsample: int = 20, video_fps: int = 10,
-                 video_codec: str = 'mp4v', rotation_angle_deg: float = 0.0):
+                 video_codec: str = 'mp4v', rotation_angle_deg: float = 0.0,
+                 max_arrow_velocity: float = 0.5):
         """
         Initialize visualizer.
 
@@ -36,6 +37,7 @@ class Visualizer:
             video_fps: Frame rate for overlay video
             video_codec: Codec for overlay video
             rotation_angle_deg: Rotation angle for visualization outputs
+            max_arrow_velocity: Maximum velocity for arrow length (m/s)
         """
         self.output_dir = Path(output_dir)
         self.create_plots = create_plots
@@ -45,6 +47,7 @@ class Visualizer:
         self.video_fps = video_fps
         self.video_codec = video_codec
         self.rotation_angle_deg = rotation_angle_deg
+        self.max_arrow_velocity = max_arrow_velocity
 
         # Validation plots go to main output directory (parent of ice_flux)
         if self.create_plots:
@@ -320,14 +323,22 @@ class Visualizer:
         u_sub = u[::step, ::step]
         v_sub = v[::step, ::step]
         mag_sub = magnitude[::step, ::step]
-        
+
+        # Cap arrow length while preserving direction
+        u_sub_capped = u_sub.copy()
+        v_sub_capped = v_sub.copy()
+        cap_mask = mag_sub > self.max_arrow_velocity
+        if np.any(cap_mask):
+            u_sub_capped[cap_mask] = u_sub[cap_mask] * self.max_arrow_velocity / mag_sub[cap_mask]
+            v_sub_capped[cap_mask] = v_sub[cap_mask] * self.max_arrow_velocity / mag_sub[cap_mask]
+
         if mask is not None:
             mask_sub = mask[::step, ::step]
             # Use mask to hide vectors outside AOI
             # quiver handles masked arrays (it won't plot where mask is True in the NumPy masked array)
             # In our case mask is True=Analyze, so we need to mask where it is False
-            u_sub = np.ma.masked_where(~mask_sub, u_sub)
-            v_sub = np.ma.masked_where(~mask_sub, v_sub)
+            u_sub_capped = np.ma.masked_where(~mask_sub, u_sub_capped)
+            v_sub_capped = np.ma.masked_where(~mask_sub, v_sub_capped)
             mag_sub = np.ma.masked_where(~mask_sub, mag_sub)
 
         # Calculate reasonable arrow scale
@@ -337,8 +348,8 @@ class Visualizer:
         else:
             scale = 1.0
 
-        # Quiver plot
-        q = ax.quiver(x, y, u_sub, v_sub, mag_sub,
+        # Quiver plot (use capped u/v for arrow length, original magnitude for color)
+        q = ax.quiver(x, y, u_sub_capped, v_sub_capped, mag_sub,
                      cmap='jet', scale=scale, width=0.002,
                      headwidth=3, headlength=4, alpha=0.9,
                      clim=(0, vmax) if vmax is not None else None)
@@ -486,6 +497,12 @@ class Visualizer:
 
                 u_val = u_velocity[yi, xi]
                 v_val = v_velocity[yi, xi]
+
+                # Cap arrow length while preserving direction
+                vel_mag = np.sqrt(u_val**2 + v_val**2)
+                if vel_mag > self.max_arrow_velocity:
+                    u_val = u_val * self.max_arrow_velocity / vel_mag
+                    v_val = v_val * self.max_arrow_velocity / vel_mag
 
                 # Arrow endpoints
                 end_x = int(xi + u_val * scale)

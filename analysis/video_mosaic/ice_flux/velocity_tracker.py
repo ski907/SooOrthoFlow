@@ -140,7 +140,8 @@ class IceFluxAnalyzer:
             overlay_subsample=config.get('overlay_video_subsample', 20),
             video_fps=config.get('video_fps', 10),
             video_codec=config.get('video_codec', 'mp4v'),
-            rotation_angle_deg=self.rotation_angle_deg
+            rotation_angle_deg=self.rotation_angle_deg,
+            max_arrow_velocity=config.get('max_arrow_velocity', 0.5)
         )
 
         # Frame buffering
